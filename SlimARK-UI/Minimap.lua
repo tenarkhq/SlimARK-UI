@@ -15,7 +15,7 @@ local function Strip(button)
 	end
 end
 
--- Az addon jelek kis sorban a térkép alatt, ahogy az ElvUI-ban.
+-- Az addon jelek oszlopban a térkép bal szélén, a térkép alatti hely a koordinátáké.
 local function LayoutButtons()
 	local shown = {}
 	for _, button in ipairs(adopted) do
@@ -23,11 +23,11 @@ local function LayoutButtons()
 		if button:IsShown() then table.insert(shown, button) end
 	end
 	local step = cfg.buttonSize + cfg.buttonGap
-	local perRow = math.max(1, math.floor((cfg.size + cfg.buttonGap) / step))
+	local perColumn = math.max(1, math.floor((cfg.size + cfg.buttonGap) / step))
 	placing = true
 	for i, button in ipairs(shown) do
-		local col = (i - 1) % perRow
-		local line = math.floor((i - 1) / perRow)
+		local line = (i - 1) % perColumn
+		local col = math.floor((i - 1) / perColumn)
 		button:ClearAllPoints()
 		button:SetPoint('TOPRIGHT', row, 'TOPRIGHT', -col * step, -line * step)
 	end
@@ -156,8 +156,8 @@ ns.On('PLAYER_LOGIN', function()
 	end
 
 	row = CreateFrame('Frame', nil, holder)
-	row:SetSize(cfg.size, cfg.buttonSize)
-	row:SetPoint('TOPRIGHT', holder, 'BOTTOMRIGHT', 0, -4)
+	row:SetSize(cfg.buttonSize, cfg.size)
+	row:SetPoint('TOPRIGHT', holder, 'TOPLEFT', -4, 0)
 
 	Arrange()
 	hooksecurefunc(MinimapCluster, 'SetHeaderUnderneath', Arrange)

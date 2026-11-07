@@ -13,7 +13,7 @@ Karcsú World of Warcraft UI retailre (Midnight, 12.x), nulláról építve az o
 - Consumable bar: flask, poti, étel, fegyverolaj
 - Vendor két oldalon, automatikus javítás
 - Karakterlap: item level, gemek, enchantok és a hiányuk
-- Négyzet alakú minimap, alatta az addon jelek
+- Négyzet alakú minimap, a bal szélén az addon jelek
 - Quest tracker skin
 - Skin a Detailshez, DBM-hez, BigWigshez és Chattynatorhoz
 - Edit Mode layout, amely minden Blizzard elemet a helyére tesz
