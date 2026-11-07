@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.3
+
+- Fixed: unit frames and nameplates lost their colors in 1.2.2 (white health and power bars). The shield code broke the health update before the bar was colored
+- A shield error can no longer stop a frame from updating
+
 ## 1.2.2
 
 **Shields**

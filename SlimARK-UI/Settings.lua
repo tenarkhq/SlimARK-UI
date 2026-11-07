@@ -143,6 +143,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.3', lines = {
+		'Fixed: unit frames and nameplates lost their colors in 1.2.2 (white health and power bars)',
+	} },
 	{ version = '1.2.2', lines = {
 		'Shields (damage absorbs) show on every unit frame and nameplate in light stripes, enemy shields too; damage takes the striped part first',
 		'Cooldown bars count down the effect first while it is up, like the wings, then the cooldown',

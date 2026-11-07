@@ -184,15 +184,19 @@ function ns.AddShield(health)
 
 	local whole = CreateUnitHealPredictionCalculator()
 	whole:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth)
+	local function Overflow(element, unit)
+		UnitGetDetailedHealPrediction(unit, 'player', whole)
+		over:SetMinMaxValues(0, (whole:GetMaximumHealth()))
+		-- GetDamageAbsorbs returns two values; the second one must not reach SetValue's interpolation slot.
+		local amount = whole:GetDamageAbsorbs()
+		over:SetValue(amount)
+		local _, clamped = element.values:GetDamageAbsorbs()
+		over:SetAlphaFromBoolean(clamped, 1, 0)
+	end
 	local post = health.PostUpdate
 	health.PostUpdate = function(element, unit, ...)
-		if element.values then
-			UnitGetDetailedHealPrediction(unit, 'player', whole)
-			over:SetMinMaxValues(0, whole:GetMaximumHealth())
-			over:SetValue(whole:GetDamageAbsorbs())
-			local _, clamped = element.values:GetDamageAbsorbs()
-			over:SetAlphaFromBoolean(clamped, 1, 0)
-		end
+		-- A shield error must never stop oUF before it colors the bar.
+		if element.values and not pcall(Overflow, element, unit) then over:SetAlpha(0) end
 		if post then return post(element, unit, ...) end
 	end
 end
