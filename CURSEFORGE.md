@@ -18,6 +18,20 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 | `/slimark apply` | Sets every position and skin, then reloads the UI |
 | `/rl` | Reloads the UI |
 
+## Layouts
+
+The layout follows your spec. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods.
+
+**DPS and tank**
+
+![DPS and tank layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/main/assets/layout-dps-tank.png)
+
+**Healer**
+
+The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
+
+![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/main/assets/layout-healer.png)
+
 ## Settings panel
 
 Type `/slimark`, click the SlimARK button at the minimap, or open Options → AddOns → SlimARK-UI.

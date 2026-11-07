@@ -10,13 +10,13 @@ The layout follows your spec. Boxes show real positions and sizes on a 2560×160
 
 **DPS and tank**
 
-![DPS and tank layout](assets/layout-dps-tank.svg)
+![DPS and tank layout](assets/layout-dps-tank.png)
 
 **Healer**
 
 The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
 
-![Healer layout](assets/layout-healer.svg)
+![Healer layout](assets/layout-healer.png)
 
 ## What's included
 
