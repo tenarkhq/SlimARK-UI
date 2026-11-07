@@ -2,7 +2,7 @@
 ## Title: SlimARK-UI Media
 ## Notes: A SlimARK-UI betűtípusa és textúrája. Elsőként töltődik, hogy a Details, BigWigs és Chattynator már induláskor lássa.
 ## Author: Roland
-## Version: 0.2.8
+## Version: 0.2.9
 
 Libs\LibStub.lua
 Libs\CallbackHandler-1.0.lua

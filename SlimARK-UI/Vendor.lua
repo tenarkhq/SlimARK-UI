@@ -99,6 +99,9 @@ local function ResetSlot(i)
 	_G['MerchantItem' .. i .. 'AltCurrencyFrame']:Hide()
 end
 
+-- A Blizzard ugyanezt az értéket a saját fájljában, helyi változóként tartja.
+local MONEY_WIDTH = 120
+
 local function FillSlot(i, index)
 	local itemButton = _G['MerchantItem' .. i .. 'ItemButton']
 	local merchantButton = _G['MerchantItem' .. i]
@@ -144,7 +147,7 @@ local function FillSlot(i, index)
 		else
 			alt:Hide()
 		end
-		MoneyFrame_SetMaxDisplayWidth(money, MAX_MONEY_DISPLAY_WIDTH - altWidth)
+		MoneyFrame_SetMaxDisplayWidth(money, MONEY_WIDTH - altWidth)
 		MoneyFrame_Update(money:GetName(), info.price)
 		SetMoneyFrameColor(money:GetName(), canAfford == false and 'gray' or nil)
 		money:Show()
