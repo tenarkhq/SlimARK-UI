@@ -30,11 +30,23 @@ function ns.Scale()
 end
 
 ns.Placed = {}
+-- Gyógyító specben igaz. A Role.lua állítja.
+ns.healer = false
+
+-- A két elrendezés külön jegyzi a húzott helyeket. Ami nem mozdul a szereppel, az közös.
+function ns.PosStore(item, create)
+	local owner = item.owner or item
+	if not ns.CharDB then return end
+	local name = ns.healer and owner.heal and 'posHeal' or 'pos'
+	if create then ns.CharDB[name] = ns.CharDB[name] or {} end
+	return ns.CharDB[name]
+end
 
 -- A mentett pozíció és méret az Edit Mode húzásából jön, enélkül a Config.lua számít.
 function ns.Saved(item)
 	local owner = item.owner or item
-	return owner.key and ns.CharDB and ns.CharDB.pos and ns.CharDB.pos[owner.key]
+	local store = ns.PosStore(item)
+	return owner.key and store and store[owner.key]
 end
 
 -- A helyére teszi az elemet. Más frame is megadható, ilyen az Edit Mode doboza.
@@ -47,14 +59,17 @@ function ns.Place(item, frame)
 	if item.after and frame == item.frame then
 		frame:SetPoint('TOPLEFT', item.after, 'BOTTOMLEFT', 0, -item.gap)
 	else
-		local x = saved and saved.x or item.x
-		local y = saved and saved.y or item.y
-		frame:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', x / size, -y / size)
+		local base = ns.healer and item.heal or item
+		local x = saved and saved.x or base.x
+		local y = saved and saved.y or base.y
+		frame:SetPoint(item.point or 'TOPLEFT', UIParent, 'TOPLEFT', x / size, -y / size)
 	end
 end
 
 -- opts.key: húzható az Edit Mode-ban. opts.w, opts.h: a doboz mérete üres fejlécnél.
 -- opts.after, opts.owner: az előző keret alá kerül, annak a méretét követi.
+-- opts.heal: a gyógyító elrendezés helye. opts.point: a keret melyik pontja az x, y.
+-- opts.forHealer: csak az egyik szerepben létezik, a másikban nem húzható.
 function ns.Register(frame, x, y, opts)
 	local item = opts or {}
 	item.frame, item.x, item.y = frame, x, y

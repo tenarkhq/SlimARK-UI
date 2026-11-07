@@ -10,13 +10,19 @@ A slim, clean UI for World of Warcraft Retail (Midnight), built from scratch on 
 
 ## What you get
 
+**Layouts for every spec**
+- DPS and tank share one layout
+- Healers get their own, with grid-style group frames right above the action bars
+- The layout switches by itself when you change spec, and waits for the end of combat if needed
+
 **Unit frames**
 - Player, target, target of target, pet, focus and boss frames
 - Readable bold font and a soft gloss look
-- Class power bar
+- Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
 - Boss frames show current health in the center
 
 **Party and raid frames**
+- Defensive cooldowns on every frame with time left, both personal and external
 - Debuff icons on every frame
 - The whole frame lights up in the debuff type color when you can dispel it
 
@@ -27,8 +33,8 @@ A slim, clean UI for World of Warcraft Retail (Midnight), built from scratch on 
 - See who interrupted a cast and who in your group targets the mob
 
 **Cooldowns and consumables**
-- Slim countdown bars for your key cooldowns
-- Icon row for your rotation spells
+- Slim countdown bars with your spec's own cooldowns, for all 13 classes
+- Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils
 
 **Quality of life**
@@ -48,13 +54,7 @@ A slim, clean UI for World of Warcraft Retail (Midnight), built from scratch on 
 
 ## Your settings stay safe
 
-SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It creates new ones named `SlimARK-UI` next to them, so you can switch back at any time.
-
-## Coming in 1.0
-
-- Layouts for every class and spec, with cooldown bars for that spec's own cooldowns
-- A dedicated healer layout with grid-style group frames above the action bars
-- Defensive cooldowns shown on party and raid frames
+SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It creates new ones named `SlimARK-UI` and `SlimARK-UI Heal` next to them, so you can switch back at any time.
 
 ## Good to know
 

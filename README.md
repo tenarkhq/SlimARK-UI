@@ -7,8 +7,11 @@ It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-
 ## What's included
 
 - Unit frames, party and raid frames, boss frames
+- Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
+- Party and raid frames show defensive cooldowns with time left, debuffs, and a colored border when you can dispel
 - Nameplates: highlighted target, casters stand apart, important casts in orange, shows who interrupted a cast and who targets the mob
-- Cooldown bars for key spells and a rotation icon row
+- Cooldown bars with each spec's own cooldowns for all 13 classes, and a rotation icon row
+- Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
 - Buffs, debuffs and dispellable markers
 - Consumable bar: flasks, potions, food and weapon oils
 - Vendor with two pages, automatic repair
@@ -18,7 +21,7 @@ It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-
 - Skins for Details!, DBM, BigWigs and Chattynator
 - An Edit Mode layout that puts every Blizzard element in place
 
-It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` next to them.
+It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` and `SlimARK-UI Heal` next to them.
 
 ## Installation
 
@@ -33,7 +36,13 @@ It never overwrites your existing profiles or layouts. It creates new ones named
 | `/slim apply` | Sets every position and skin, then reloads the UI |
 | `/rl` | Reloads the UI |
 
-SlimARK-UI's own frames can be dragged in Edit Mode. Blizzard windows move by their title bar and resize with Ctrl + mouse wheel.
+SlimARK-UI's own frames can be dragged in Edit Mode, and the DPS and healer layouts remember their positions separately. Blizzard windows move by their title bar and resize with Ctrl + mouse wheel.
+
+The layout follows your spec automatically. If you change spec in combat, it switches when combat ends.
+
+## License
+
+The code is under the [MIT License](LICENSE). The SlimARK-UI logo and icon (`assets/` and `SlimARK-UI/Media/Icon.tga`) are not covered by it.
 
 ## Libraries and font
 

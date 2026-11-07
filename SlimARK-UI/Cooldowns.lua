@@ -1,16 +1,21 @@
 local _, ns = ...
 local C = ns.C
 
-local _, class = UnitClass('player')
-local spec = C.cooldowns[class]
-if not spec then return end
-
 local cfg = C.cooldowns
+local MAX_BARS, MAX_ICONS = 5, 8
 local rows, icons = {}, {}
 local formatter, zero
+local barFrame, iconFrame
 
+-- A gyógyító elrendezésben keskenyebb a sáv és az ikonsor.
+local function Width()
+	return ns.healer and cfg.heal.w or cfg.w
+end
+
+-- A pet spelljei külön könyvben vannak, ilyen a warlock Spell Lock.
 local function Known(id)
 	return C_SpellBook.IsSpellInSpellBook(id)
+		or C_SpellBook.IsSpellInSpellBook(id, Enum.SpellBookSpellBank.Pet)
 end
 
 local function PickSpell(ids)
@@ -19,11 +24,27 @@ local function PickSpell(ids)
 	end
 end
 
-local function CreateRow(parent, index, data)
+-- A játék Cooldown Viewer listája az adott spechez.
+local function ViewerSpells(category)
+	local spells = {}
+	if not C_CooldownViewer.IsCooldownViewerAvailable() then return spells end
+	for _, cooldownID in ipairs(C_CooldownViewer.GetCooldownViewerCategorySet(category) or {}) do
+		local info = C_CooldownViewer.GetCooldownViewerCooldownInfo(cooldownID)
+		local id = info and (info.overrideSpellID or info.spellID)
+		if id then table.insert(spells, id) end
+	end
+	return spells
+end
+
+local function CurrentSpec()
+	return cfg.specs[ns.SpecInfo()] or { bars = {} }
+end
+
+local function CreateRow(parent, index)
 	local row = CreateFrame('Frame', nil, parent)
-	row:SetSize(cfg.w, cfg.rowH)
+	row:SetSize(Width(), cfg.rowH)
 	row:SetPoint('TOPLEFT', 0, -(index - 1) * (cfg.rowH + cfg.gap))
-	row.data = data
+	row:Hide()
 
 	local icon = row:CreateTexture(nil, 'ARTWORK')
 	icon:SetSize(cfg.rowH, cfg.rowH)
@@ -35,7 +56,6 @@ local function CreateRow(parent, index, data)
 	bar:SetPoint('TOPLEFT', cfg.rowH + 2, 0)
 	bar:SetPoint('BOTTOMRIGHT')
 	bar:SetStatusBarTexture(ns.TEX)
-	bar:SetStatusBarColor(data.color[1], data.color[2], data.color[3])
 	bar:SetMinMaxValues(0, 1)
 	bar:SetValue(0)
 	ns.Outline(bar)
@@ -48,7 +68,6 @@ local function CreateRow(parent, index, data)
 	-- Kész állapotban teli, élénk sáv. Cooldown alatt eltűnik, és a fogyó sáv látszik.
 	local ready = bar:CreateTexture(nil, 'ARTWORK', nil, 1)
 	ready:SetAllPoints()
-	ready:SetColorTexture(data.color[1], data.color[2], data.color[3], 0.85)
 	row.Ready = ready
 
 	row.Name = ns.Text(bar, cfg.font)
@@ -63,11 +82,38 @@ local function CreateRow(parent, index, data)
 	return row
 end
 
-local function UpdateRow(row)
-	local id = PickSpell(row.data.ids)
+local function SetRow(row, id, color)
 	row.spellID = id
-	row:SetShown(id ~= nil)
-	if not id then return end
+	row.Bar:SetStatusBarColor(color[1], color[2], color[3])
+	row.Ready:SetColorTexture(color[1], color[2], color[3], 0.85)
+end
+
+-- A spec saját listája megy előre, a maradék helyet a játék listája tölti ki.
+-- Visszaadja, mely spellek kerültek sávra.
+local function AssignRows(spec)
+	local used, count = {}, 0
+	local function Add(id, color)
+		if count == MAX_BARS or used[id] then return end
+		count = count + 1
+		used[id] = true
+		SetRow(rows[count], id, color)
+	end
+
+	for _, data in ipairs(spec.bars) do
+		local id = PickSpell(data.ids)
+		if id then Add(id, data.color) end
+	end
+	for _, id in ipairs(ViewerSpells(Enum.CooldownViewerCategory.Utility)) do
+		if Known(id) then Add(id, cfg.fillColor) end
+	end
+
+	for i, row in ipairs(rows) do row:SetShown(i <= count) end
+	return used
+end
+
+local function UpdateRow(row)
+	if not row:IsShown() then return end
+	local id = row.spellID
 
 	row.Icon:SetTexture(C_Spell.GetSpellTexture(id))
 	row.Name:SetText(C_Spell.GetSpellName(id))
@@ -139,17 +185,32 @@ local function UpdateIcon(f)
 	end
 end
 
-local function LayoutIcons()
-	local known = {}
-	for i, id in ipairs(spec.icons) do
-		icons[i]:Hide()
-		if Known(id) then
-			icons[i].spellID = id
-			table.insert(known, icons[i])
+-- A rotációs sor a spec saját listája, ahol nincs, ott a játéké a sávokon lévők nélkül.
+local function IconSpells(spec, used)
+	local spells, seen = {}, {}
+	for _, id in ipairs(spec.icons or ViewerSpells(Enum.CooldownViewerCategory.Essential)) do
+		if Known(id) and not seen[id] and (spec.icons or not used[id]) then
+			seen[id] = true
+			table.insert(spells, id)
 		end
 	end
+	return spells
+end
+
+local function LayoutIcons(spec, used)
 	local step = cfg.iconSize + cfg.iconGap
-	local startX = (cfg.w - (#known * step - cfg.iconGap)) / 2
+	local width = Width()
+	local fit = math.min(MAX_ICONS, math.floor((width + cfg.iconGap) / step))
+
+	local known = {}
+	for _, f in ipairs(icons) do f:Hide() end
+	for i, id in ipairs(IconSpells(spec, used)) do
+		if i > fit then break end
+		icons[i].spellID = id
+		table.insert(known, icons[i])
+	end
+
+	local startX = (width - (#known * step - cfg.iconGap)) / 2
 	for i, f in ipairs(known) do
 		f:ClearAllPoints()
 		f:SetPoint('TOPLEFT', startX + (i - 1) * step, 0)
@@ -165,8 +226,17 @@ local function UpdateAll()
 end
 
 local function Refresh()
-	LayoutIcons()
+	local spec = CurrentSpec()
+	LayoutIcons(spec, AssignRows(spec))
 	UpdateAll()
+end
+
+local function Resize()
+	local width = Width()
+	barFrame:SetWidth(width)
+	iconFrame:SetWidth(width)
+	for _, row in ipairs(rows) do row:SetWidth(width) end
+	Refresh()
 end
 
 ns.On('PLAYER_LOGIN', function()
@@ -175,17 +245,17 @@ ns.On('PLAYER_LOGIN', function()
 	formatter:SetMinInterval(Enum.SecondsFormatterInterval.Seconds)
 	zero = C_DurationUtil.CreateDuration()
 
-	local barFrame = CreateFrame('Frame', 'SlimARK_CooldownBars', UIParent)
-	barFrame:SetSize(cfg.w, #spec.bars * (cfg.rowH + cfg.gap))
-	ns.Register(barFrame, cfg.x, cfg.y, { key = 'cooldownbars' })
-	for i, data in ipairs(spec.bars) do
-		rows[i] = CreateRow(barFrame, i, data)
+	barFrame = CreateFrame('Frame', 'SlimARK_CooldownBars', UIParent)
+	barFrame:SetSize(Width(), MAX_BARS * (cfg.rowH + cfg.gap))
+	ns.Register(barFrame, cfg.x, cfg.y, { key = 'cooldownbars', heal = { x = cfg.heal.x, y = cfg.heal.y } })
+	for i = 1, MAX_BARS do
+		rows[i] = CreateRow(barFrame, i)
 	end
 
-	local iconFrame = CreateFrame('Frame', 'SlimARK_CooldownIcons', UIParent)
-	iconFrame:SetSize(cfg.w, cfg.iconSize)
-	ns.Register(iconFrame, cfg.x, cfg.iconY, { key = 'cooldownicons' })
-	for i = 1, #spec.icons do
+	iconFrame = CreateFrame('Frame', 'SlimARK_CooldownIcons', UIParent)
+	iconFrame:SetSize(Width(), cfg.iconSize)
+	ns.Register(iconFrame, cfg.x, cfg.iconY, { key = 'cooldownicons', heal = { x = cfg.heal.x, y = cfg.heal.iconY } })
+	for i = 1, MAX_ICONS do
 		icons[i] = CreateIcon(iconFrame)
 	end
 
@@ -196,4 +266,7 @@ ns.On('PLAYER_LOGIN', function()
 	ns.On('PLAYER_TALENT_UPDATE', Refresh)
 	ns.On('TRAIT_CONFIG_UPDATED', Refresh)
 	ns.On('PLAYER_ENTERING_WORLD', Refresh)
+	ns.On('PLAYER_SPECIALIZATION_CHANGED', Refresh)
+	ns.On('COOLDOWN_VIEWER_DATA_LOADED', Refresh)
+	ns.OnRole(Resize)
 end)

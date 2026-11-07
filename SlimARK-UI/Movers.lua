@@ -98,19 +98,20 @@ end)
 -- A saját keretek az Edit Mode-ban húzhatók, Ctrl+görgővel méretezhetők.
 local overlays = {}
 
-local function Pixels(frame)
+local function Pixels(frame, point)
 	local _, height = GetPhysicalScreenSize()
 	local ratio = frame:GetEffectiveScale() * height / 768
-	return frame:GetLeft() * ratio, height - frame:GetTop() * ratio
+	local edge = point == 'BOTTOMLEFT' and frame:GetBottom() or frame:GetTop()
+	return frame:GetLeft() * ratio, height - edge * ratio
 end
 
 local function Save(item, overlay, scale)
-	local x, y = Pixels(overlay)
-	ns.CharDB.pos = ns.CharDB.pos or {}
-	local saved = ns.CharDB.pos[item.key] or {}
+	local x, y = Pixels(overlay, item.point)
+	local store = ns.PosStore(item, true)
+	local saved = store[item.key] or {}
 	saved.x, saved.y = x, y
 	saved.scale = scale or saved.scale or 1
-	ns.CharDB.pos[item.key] = saved
+	store[item.key] = saved
 end
 
 local function Refresh(item, overlay)
@@ -130,8 +131,6 @@ local function CreateOverlay(item)
 	overlay:EnableMouse(true)
 	overlay:EnableMouseWheel(true)
 	overlay:RegisterForDrag('LeftButton')
-	local w, h = item.w or item.frame:GetWidth(), item.h or item.frame:GetHeight()
-	overlay:SetSize(w, h)
 
 	local fill = overlay:CreateTexture(nil, 'BACKGROUND')
 	fill:SetAllPoints()
@@ -160,9 +159,10 @@ end
 local function ShowOverlays()
 	if InCombatLockdown() then return end
 	for _, item in ipairs(ns.Placed) do
-		if item.key then
+		if item.key and (item.forHealer == nil or item.forHealer == ns.healer) then
 			local overlay = overlays[item] or CreateOverlay(item)
 			overlays[item] = overlay
+			overlay:SetSize(item.w or item.frame:GetWidth(), item.h or item.frame:GetHeight())
 			ns.Place(item, overlay)
 			overlay:Show()
 		end

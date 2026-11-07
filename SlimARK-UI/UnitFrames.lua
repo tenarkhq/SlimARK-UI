@@ -58,25 +58,66 @@ local function CreatePower(self, bottomOffset)
 	self.Power = power
 end
 
-local function CreateClassPower(self, width, height)
-	local pips = {}
+-- Az oUF a játék halvány színét adná, itt minden osztálynál sárgás narancs.
+local function ColorPips(element)
+	local c = C.colors.classPower
+	for i = 1, #element do
+		element[i]:SetStatusBarColor(c[1], c[2], c[3])
+	end
+end
+
+-- A pipek mindig kitöltik a keret szélességét, akármennyi van belőlük.
+local function SizePips(pips, count)
 	local gap = 1
-	local w = (width - gap * 4) / 5
-	for i = 1, 5 do
+	local w = (pips.width - gap * (count - 1)) / count
+	for i = 1, count do
+		pips[i]:SetWidth(w)
+		pips[i]:SetPoint('BOTTOMLEFT', (i - 1) * (w + gap), 0)
+	end
+end
+
+local function CreatePips(self, count, width, height)
+	local pips = { width = width }
+	for i = 1, count do
 		local pip = CreateFrame('StatusBar', nil, self)
 		pip:SetStatusBarTexture(TEX)
-		pip:SetSize(w, height)
-		pip:SetPoint('BOTTOMLEFT', (i - 1) * (w + gap), 0)
+		pip:SetHeight(height)
+		pip:Hide()
 		ns.Track(pip)
 		ns.Gloss(pip)
 		pips[i] = pip
 	end
-	-- Az oUF a játék halvány színét adná, itt minden osztálynál sárgás narancs.
-	pips.PostUpdateColor = function(element)
-		local c = C.colors.classPower
-		for i = 1, #element do
-			element[i]:SetStatusBarColor(c[1], c[2], c[3])
-		end
+	pips.PostUpdateColor = ColorPips
+	return pips
+end
+
+-- Class power nélkül a csík helyét az életerő kapja meg.
+local function ShowClassPowerStrip(self, shown)
+	local strip = shown and C.units.player.classPower + 1 or 0
+	self.Power:SetPoint('BOTTOMLEFT', 0, strip)
+	self.Power:SetPoint('BOTTOMRIGHT', 0, strip)
+	self.Health:SetPoint('BOTTOMRIGHT', 0, strip + 7)
+end
+
+local RUNES = 6
+-- A legtöbb pipet az Enhancement shaman kéri, Maelstrom Weaponből tizet.
+local MAX_PIPS = 10
+
+local function CreateClassPower(self, width, height)
+	if UnitClassBase('player') == 'DEATHKNIGHT' then
+		local runes = CreatePips(self, RUNES, width, height)
+		SizePips(runes, RUNES)
+		self.Runes = runes
+		ShowClassPowerStrip(self, true)
+		return
+	end
+
+	local pips = CreatePips(self, MAX_PIPS, width, height)
+	pips.PostUpdate = function(element, _, max, _, hasMaxChanged)
+		if hasMaxChanged and max and max > 0 then SizePips(element, max) end
+	end
+	pips.PostVisibility = function(element, isVisible)
+		ShowClassPowerStrip(element.__owner, isVisible)
 	end
 	self.ClassPower = pips
 end
@@ -127,10 +168,24 @@ function ns.CreateCastbar(self, width, height, canInterrupt, fontSize)
 	return cb
 end
 
+local GROUP_KINDS = {
+	SlimARK_Party = 'party',
+	SlimARK_Raid = 'raid',
+	SlimARK_HealParty = 'grid',
+	SlimARK_HealRaid = 'grid',
+}
+
+-- A defensive ideje a kis ikon közepén, jól olvashatóan.
+local function StyleDefensive(element, button)
+	ns.StyleAuraButton(element, button)
+	button.Time:SetFont(ns.FONT, 15, 'OUTLINE')
+	button.Time:ClearAllPoints()
+	button.Time:SetPoint('CENTER', button, 'CENTER', 0, 0)
+end
+
 local function Style(self, unit)
 	local parentName = self:GetParent() and self:GetParent():GetName()
-	local kind = (parentName == 'SlimARK_Party' and 'party')
-		or (parentName == 'SlimARK_Raid' and 'raid')
+	local kind = GROUP_KINDS[parentName]
 		or ((unit or ''):match('^boss') and 'boss')
 		or unit
 	local o = C.units[kind]
@@ -146,16 +201,15 @@ local function Style(self, unit)
 	self:HookScript('OnLeave', function(frame) UnitFrame_OnLeave(frame) end)
 	ns.Outline(self)
 
-	if kind ~= 'party' and kind ~= 'raid' then
+	local isGroup = kind == 'party' or kind == 'raid' or kind == 'grid'
+	if not isGroup then
 		self:SetSize(o.w, o.h)
 	end
 
-	local isGroup = kind == 'party' or kind == 'raid'
-
 	if kind == 'player' then
+		CreatePower(self, 0)
+		CreateHealth(self, 7)
 		CreateClassPower(self, o.w, o.classPower)
-		CreatePower(self, o.classPower + 1)
-		CreateHealth(self, o.classPower + 8)
 	elseif kind == 'party' then
 		CreatePower(self, 0)
 		CreateHealth(self, 7)
@@ -176,6 +230,20 @@ local function Style(self, unit)
 		self:Tag(current, '[dead][slim:cur]')
 		value:SetPoint('BOTTOMRIGHT', -5, 3)
 		self:Tag(value, '[slim:pct]')
+	elseif kind == 'party' or kind == 'grid' then
+		-- A név felül van, hogy alul elférjenek a defensive és a debuff ikonok.
+		value:SetPoint('TOPRIGHT', -5, -3)
+		self:Tag(value, '[dead][offline][slim:pct]')
+		name:SetPoint('TOPLEFT', 5, -3)
+		name:SetPoint('TOPRIGHT', value, 'TOPLEFT', -4, 0)
+		self:Tag(name, '[name]')
+	elseif kind == 'raid' then
+		name:SetPoint('TOPLEFT', 5, -3)
+		name:SetPoint('RIGHT', -4, 0)
+		self:Tag(name, '[name]')
+		value:SetFont(ns.FONT, 14, 'OUTLINE')
+		value:SetPoint('BOTTOMRIGHT', -3, 2)
+		self:Tag(value, '[dead][offline]')
 	else
 		name:SetPoint('LEFT', 6, 0)
 		self:Tag(name, '[name]')
@@ -183,15 +251,10 @@ local function Style(self, unit)
 			value:SetPoint('RIGHT', -6, 0)
 			name:SetPoint('RIGHT', value, 'LEFT', -6, 0)
 			self:Tag(value, '[dead][offline][slim:hp]')
-		elseif kind == 'focus' or kind == 'party' then
+		elseif kind == 'focus' then
 			value:SetPoint('RIGHT', -6, 0)
 			name:SetPoint('RIGHT', value, 'LEFT', -6, 0)
 			self:Tag(value, '[dead][offline][slim:pct]')
-		elseif kind == 'raid' then
-			name:SetPoint('RIGHT', -4, 0)
-			value:SetFont(ns.FONT, 14, 'OUTLINE')
-			value:SetPoint('BOTTOMRIGHT', -3, 2)
-			self:Tag(value, '[dead][offline]')
 		else
 			name:SetPoint('RIGHT', -4, 0)
 		end
@@ -259,10 +322,24 @@ local function Style(self, unit)
 		debuffs.size = o.debuff
 		debuffs.elementSpacing = 1
 		debuffs.disableMouse = true
-		debuffs.disableCooldown = kind == 'raid'
+		debuffs.disableCooldown = kind ~= 'party'
 		debuffs.showDebuffBorder = true
 		debuffs.PostCreateButton = ns.StyleAuraButton
 		debuffs:AddGroup('HARMFUL', { maxFrameCount = 3 })
+
+		-- A saját nagy defensive és a kapott külső defensive, hátralévő idővel.
+		local defensives = self:CreateAuras({ initialAnchor = 'BOTTOMLEFT', growthX = 'RIGHT', growthY = 'UP', layoutLimit = o.w })
+		defensives:SetSize(o.w, o.defensive)
+		defensives:SetPoint('BOTTOMLEFT', health, 'BOTTOMLEFT', 1, 1)
+		defensives:SetFrameLevel(health:GetFrameLevel() + 3)
+		defensives.size = o.defensive
+		defensives.elementSpacing = 1
+		defensives.disableMouse = true
+		defensives.disableCooldown = true
+		defensives.showDuration = true
+		defensives.PostCreateButton = StyleDefensive
+		defensives:AddGroup('HELPFUL|BIG_DEFENSIVE', { maxFrameCount = 2 })
+		defensives:AddGroup('HELPFUL|EXTERNAL_DEFENSIVE', { maxFrameCount = 2 })
 
 		-- Amit te tudsz levenni: a teljes keret felvillan a típus színével.
 		-- A RAID szűrő retrinél a poisont és a diseaset adja.
@@ -291,10 +368,11 @@ oUF:RegisterStyle('SlimARK-UI', Style)
 
 oUF:Factory(function(self)
 	self:SetActiveStyle('SlimARK-UI')
+	ns.ReadRole()
 
 	for _, unit in ipairs({ 'player', 'target', 'targettarget', 'pet', 'focus' }) do
 		local o = C.units[unit]
-		ns.Register(self:Spawn(unit, 'SlimARK_' .. unit), o.x, o.y, { key = unit, w = o.w, h = o.h })
+		ns.Register(self:Spawn(unit, 'SlimARK_' .. unit), o.x, o.y, { key = unit, w = o.w, h = o.h, heal = o.heal })
 	end
 
 	local b = C.units.boss
@@ -318,8 +396,10 @@ oUF:Factory(function(self)
 		'showParty', true, 'showPlayer', true, 'showRaid', true,
 		'point', 'TOP', 'yOffset', -p.gap,
 		'oUF-initialConfigFunction', init(p))
-	party:SetVisibility('custom [@raid6,exists] hide; [group] show; hide')
-	ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 5 * (p.h + p.gap) - p.gap })
+	local PARTY_SHOWN = 'custom [@raid6,exists] hide; [group] show; hide'
+	local RAID_SHOWN = 'custom [@raid6,exists] show; hide'
+	ns.AddGroupHeader(party, false, PARTY_SHOWN)
+	ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 5 * (p.h + p.gap) - p.gap, forHealer = false })
 
 	local r = C.units.raid
 	local raid = self:SpawnHeader('SlimARK_Raid', nil,
@@ -329,8 +409,28 @@ oUF:Factory(function(self)
 		'unitsPerColumn', 5, 'maxColumns', 8,
 		'columnAnchorPoint', 'TOP', 'columnSpacing', r.gap,
 		'oUF-initialConfigFunction', init(r))
-	raid:SetVisibility('custom [@raid6,exists] show; hide')
-	ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap })
+	ns.AddGroupHeader(raid, false, RAID_SHOWN)
+	ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false })
+
+	-- A gyógyító rács: öt keret egy sorban, a bal alsó sarka áll, a sorok felfelé nőnek.
+	local g = C.units.grid
+	local gridWidth = 5 * (g.w + g.gap) - g.gap
+	local healParty = self:SpawnHeader('SlimARK_HealParty', nil,
+		'showParty', true, 'showPlayer', true, 'showRaid', true,
+		'point', 'LEFT', 'xOffset', g.gap,
+		'oUF-initialConfigFunction', init(g))
+	ns.AddGroupHeader(healParty, true, PARTY_SHOWN)
+	ns.Register(healParty, g.x, g.y, { key = 'healparty', w = gridWidth, h = g.h, point = 'BOTTOMLEFT', forHealer = true })
+
+	local healRaid = self:SpawnHeader('SlimARK_HealRaid', nil,
+		'showRaid', true,
+		'groupFilter', '1,2,3,4,5,6,7,8', 'groupingOrder', '1,2,3,4,5,6,7,8', 'groupBy', 'GROUP',
+		'point', 'LEFT', 'xOffset', g.gap,
+		'unitsPerColumn', 5, 'maxColumns', 8,
+		'columnAnchorPoint', 'BOTTOM', 'columnSpacing', g.gap,
+		'oUF-initialConfigFunction', init(g))
+	ns.AddGroupHeader(healRaid, true, RAID_SHOWN)
+	ns.Register(healRaid, g.x, g.y, { key = 'healraid', w = gridWidth, h = 8 * (g.h + g.gap) - g.gap, point = 'BOTTOMLEFT', forHealer = true })
 
 	ns.Block(CompactRaidFrameContainer)
 	ns.Block(CompactPartyFrame)

@@ -96,8 +96,8 @@ local function ArrangeBars(layout)
 	end
 end
 
-local function ArrangeSystems(layout)
-	for _, entry in ipairs(cfg.systems) do
+local function PlaceSystems(layout, systems)
+	for _, entry in ipairs(systems) do
 		local systemName, indexName, point, x, y = unpack(entry, 1, 5)
 		local info = Find(layout, systemName, indexName)
 		if info then
@@ -107,6 +107,10 @@ local function ArrangeSystems(layout)
 			Move(info, point, x, y)
 		end
 	end
+end
+
+local function ArrangeSystems(layout)
+	PlaceSystems(layout, cfg.systems)
 
 	for index, pixels in pairs(cfg.cooldownIcons) do
 		local info = Find(layout, 'CooldownViewer', index)
@@ -140,44 +144,89 @@ local function NewLayoutSlot(layouts)
 	end
 end
 
--- A saját layoutot hozza létre vagy frissíti. A többi layoutot nem érinti.
-function ns.ApplyEditMode()
+local function IndexOf(layouts, name)
+	for i, layout in ipairs(layouts) do
+		if layout.layoutName == name and layout.layoutType ~= Enum.EditModeLayoutType.Preset then
+			return i
+		end
+	end
+end
+
+local function WantedName()
+	return ns.healer and cfg.healName or cfg.name
+end
+
+-- A presetek is a listába kerülnek, így az indexek egyeznek az activeLayout számozásával.
+local function AllLayouts()
 	local info = C_EditMode.GetLayouts()
 	local all = EditModePresetLayoutManager:GetCopyOfPresetLayouts()
 	tAppendAll(all, info.layouts)
 	info.layouts = all
+	return info, all
+end
 
-	local index
-	for i, layout in ipairs(all) do
-		if layout.layoutName == cfg.name and layout.layoutType ~= Enum.EditModeLayoutType.Preset then
-			index = i
+-- A két saját layoutot hozza létre vagy frissíti, és a szerephez illőt kapcsolja be.
+-- A többi layoutot nem érinti. Az onlyNew a már meglévő saját layoutot is érintetlenül hagyja.
+function ns.ApplyEditMode(onlyNew)
+	local info, all = AllLayouts()
+
+	local created = {}
+	for _, name in ipairs({ cfg.name, cfg.healName }) do
+		if not IndexOf(all, name) then
+			local kind, slot = NewLayoutSlot(all)
+			if not kind then
+				ns.Print('Az Edit Mode layoutok elérték a maximumot. Törölj egyet, és futtasd újra a /slim apply parancsot.')
+				return false
+			end
+			local layout = CopyTable(all[IndexOf(all, cfg.name) or info.activeLayout])
+			layout.layoutIndex = nil
+			layout.layoutType = kind
+			layout.layoutName = name
+			table.insert(all, slot, layout)
+			table.insert(created, name)
 		end
 	end
 
-	local created = false
-	if not index then
-		local kind, slot = NewLayoutSlot(all)
-		if not kind then
-			ns.Print('Az Edit Mode layoutok elérték a maximumot. Törölj egyet, és futtasd újra a /slim apply parancsot.')
-			return false
-		end
-		local layout = CopyTable(all[info.activeLayout])
-		layout.layoutIndex = nil
-		layout.layoutType = kind
-		layout.layoutName = cfg.name
-		table.insert(all, slot, layout)
-		index = slot
-		created = true
+	for _, name in ipairs(onlyNew and created or { cfg.name, cfg.healName }) do
+		local layout = all[IndexOf(all, name)]
+		ArrangeBars(layout)
+		ArrangeSystems(layout)
+		if name == cfg.healName then PlaceSystems(layout, cfg.healSystems) end
 	end
-
-	ArrangeBars(all[index])
-	ArrangeSystems(all[index])
 
 	C_EditMode.SaveLayouts(info)
-	if created then
-		C_EditMode.OnLayoutAdded(index, true, false)
-	else
-		C_EditMode.SetActiveLayout(index)
+	for _, name in ipairs(created) do
+		C_EditMode.OnLayoutAdded(IndexOf(all, name), false, false)
 	end
+	C_EditMode.SetActiveLayout(IndexOf(all, WantedName()))
 	return true
 end
+
+local function IsOurs(layout)
+	return layout and (layout.layoutName == cfg.name or layout.layoutName == cfg.healName)
+end
+
+-- A játék specenként jegyzi az aktív layoutot, ezért spec váltás után már más lehet aktív.
+-- Ha előtte a miénk volt, a szerephez illő saját layoutra lépünk, különben nem nyúlunk hozzá.
+local usesOurs = false
+
+function ns.SyncLayout()
+	local info, all = AllLayouts()
+	usesOurs = usesOurs or IsOurs(all[info.activeLayout])
+	if not usesOurs then return end
+
+	local wanted = IndexOf(all, WantedName())
+	if not wanted then
+		ns.ApplyEditMode(true)
+	elseif wanted ~= info.activeLayout then
+		C_EditMode.SetActiveLayout(wanted)
+	end
+end
+
+-- Aki az Edit Mode-ban más layoutot választ, annál a spec váltás sem kapcsol vissza.
+ns.On('PLAYER_LOGIN', function()
+	EventRegistry:RegisterCallback('EditMode.Exit', function()
+		local info, all = AllLayouts()
+		usesOurs = IsOurs(all[info.activeLayout])
+	end, ns)
+end)
