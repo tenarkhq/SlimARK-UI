@@ -4,6 +4,20 @@ A slim World of Warcraft UI for Retail (Midnight, 12.x), built from scratch on o
 
 It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-UI/Config.lua`, in real pixels.
 
+## Layouts
+
+The layout follows your spec. Boxes show real positions and sizes on a 2560×1600 screen.
+
+**DPS and tank**
+
+![DPS and tank layout](assets/layout-dps-tank.svg)
+
+**Healer**
+
+The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
+
+![Healer layout](assets/layout-healer.svg)
+
 ## What's included
 
 - Unit frames, party and raid frames, boss frames

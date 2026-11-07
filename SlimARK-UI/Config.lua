@@ -31,10 +31,10 @@ ns.C = {
 	},
 
 	units = {
-		player = { x = 720, y = 1160, w = 340, h = 66, font = 20, classPower = 12, heal = { x = 620, y = 1160 } },
+		player = { x = 720, y = 1160, w = 340, h = 66, font = 20, classPower = 12, heal = { x = 630, y = 1160 } },
 		target = { x = 1500, y = 1160, w = 340, h = 66, font = 20, heal = { x = 1600, y = 1160 } },
 		targettarget = { x = 1500, y = 1255, w = 170, h = 27, font = 16, heal = { x = 1600, y = 1255 } },
-		pet = { x = 720, y = 1255, w = 170, h = 27, font = 16, heal = { x = 620, y = 1120 } },
+		pet = { x = 720, y = 1255, w = 170, h = 27, font = 16, heal = { x = 630, y = 1120 } },
 		focus = { x = 1500, y = 1050, w = 260, h = 38, font = 18, heal = { x = 1600, y = 1050 } },
 		boss = { x = 1920, y = 430, w = 270, h = 50, gap = 8, font = 16 },
 		party = { x = 12, y = 860, w = 230, h = 50, gap = 6, debuff = 24, defensive = 22, font = 18 },
