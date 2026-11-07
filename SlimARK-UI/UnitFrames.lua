@@ -76,6 +76,8 @@ local function CreateHealth(self, bottomOffset)
 	health.colorTapping = true
 	health.colorClass = true
 	health.colorReaction = true
+	health.Texts = ns.TextLayer(health)
+	ns.AddShield(health)
 	self.Health = health
 	return health
 end
@@ -252,14 +254,14 @@ local function Style(self, unit)
 	end
 
 	local health = self.Health
-	local name = ns.Text(health, o.font)
-	local value = ns.Text(health, o.font, 'RIGHT')
+	local name = ns.Text(health.Texts, o.font)
+	local value = ns.Text(health.Texts, o.font, 'RIGHT')
 
 	if kind == 'boss' then
 		name:SetPoint('TOPLEFT', 5, -3)
 		name:SetPoint('RIGHT', -5, 0)
 		self:Tag(name, '[name]')
-		local current = ns.Text(health, 24, 'CENTER')
+		local current = ns.Text(health.Texts, 24, 'CENTER')
 		current:SetPoint('CENTER', 0, -5)
 		self:Tag(current, '[dead][slim:cur]')
 		value:SetPoint('BOTTOMRIGHT', -5, 3)
@@ -404,7 +406,7 @@ local function Style(self, unit)
 
 		-- Tank, heal or dps icon before the name.
 		if C.features.roleIcon then
-			local role = health:CreateTexture(nil, 'OVERLAY', nil, 7)
+			local role = health.Texts:CreateTexture(nil, 'OVERLAY', nil, 7)
 			role:SetSize(o.font + 2, o.font + 2)
 			role:SetPoint('TOPLEFT', 3, -3)
 			self.GroupRoleIndicator = role

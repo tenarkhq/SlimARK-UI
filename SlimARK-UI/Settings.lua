@@ -49,7 +49,8 @@ S.groups = {
 			secs = { { name = 'Colors', rows = {
 				Col('Bar background', 'colors.track'), Col('Target border', 'colors.target'), Col('Class power', 'colors.classPower'),
 				Col('Mana', 'colors.mana'),
-			} }, { name = 'Other', rows = { T('Version at login', 'features.loginMessage') } } } },
+			} }, { name = 'Shields', rows = { T('Shields on health bars', 'features.shields'), Col('Shield', 'colors.shield') } },
+			{ name = 'Other', rows = { T('Version at login', 'features.loginMessage') } } } },
 	} },
 	{ name = 'Unit frames', pages = {
 		{ id = 'player', name = 'Player', keys = { 'player' }, secs = { Pos('units.player', true), Size('units.player'), Font('units.player'),
@@ -99,6 +100,7 @@ S.groups = {
 				{ name = 'Bars', rows = { R('Width', 'cooldowns.w', 100, 700), R('Healer width', 'cooldowns.heal.w', 100, 700), R('Row height', 'cooldowns.rowH', 10, 40),
 					R('Gap', 'cooldowns.gap', 0, 20), R('Font size', 'cooldowns.font', 8, 30) } },
 				{ name = 'Rotation icons', rows = { R('Y', 'cooldowns.iconY', 0, 1600), R('Healer Y', 'cooldowns.heal.iconY', 0, 1600), R('Icon size', 'cooldowns.iconSize', 20, 80), R('Gap', 'cooldowns.iconGap', 0, 20) } },
+				{ name = 'Active effect', rows = { T('Count down the effect first', 'features.activeAuras') } },
 				{ name = 'Colors', rows = { Col('Main', 'colors.cdMain'), Col('Interrupt', 'colors.cdKick'), Col('Defensive', 'colors.cdDefensive'),
 					Col('Immunity', 'colors.cdImmune'), Col('Utility', 'colors.cdUtility'), Col('Bar fill', 'cooldowns.fillColor') } } } },
 		{ id = 'consumables', name = 'Consumables', module = 'modules.consumables', keys = { 'consumables' },
@@ -141,6 +143,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.2', lines = {
+		'Shields (damage absorbs) show on every unit frame and nameplate in light stripes, enemy shields too; damage takes the striped part first',
+		'Cooldown bars count down the effect first while it is up, like the wings, then the cooldown',
+	} },
 	{ version = '1.2.1', lines = {
 		'The settings panel opens with /slimark (was /slim); /slimark apply still sets up the layout',
 	} },

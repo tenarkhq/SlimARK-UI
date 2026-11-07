@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.2.2
+
+**Shields**
+- Shields (damage absorbs) show on the player, target, target of target, pet, focus, boss, party, raid and healer grid frames and on every nameplate, enemy shields too
+- Light stripes right after the health: damage takes the striped part first
+- A shield larger than the missing health is drawn from the right edge back over the health, with a bright line at the edge
+- Shield color and an on/off switch on the Colors page of `/slimark`
+
+**Cooldown bars**
+- While a spell's effect is up, like the wings, its bar counts down the effect with a gold frame; when the effect ends the cooldown follows in the same place
+- On/off switch on the Cooldown bars page of `/slimark`
+
+**Docs**
+- Layout images in the README and the CurseForge description
+
 ## 1.2.1
 
 - The settings panel opens with `/slimark` (was `/slim`). `/slimark apply` still sets up the layout

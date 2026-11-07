@@ -75,6 +75,10 @@ local function CreateRow(parent, index)
 	row.Time = ns.Text(bar, cfg.font, 'RIGHT')
 	row.Time:SetPoint('RIGHT', -5, 0)
 
+	-- Gold frame while the spell's effect is up.
+	row.Active = ns.Edge(row, 2, C.colors.classPower, 1)
+	row.Active:Hide()
+
 	row.binding = C_DurationUtil.CreateDurationTextBinding()
 	row.binding:SetFormatter(formatter)
 	row.binding:SetFontString(row.Time)
@@ -117,9 +121,53 @@ local function SetRowLook(row)
 	row.Name:SetText(C_Spell.GetSpellName(row.spellID))
 end
 
+-- The spell's effect while it is up, like the wings: the game's own aura when it is
+-- readable, otherwise the aura the game's Cooldown Manager tracks for the spell.
+local VIEWERS = { 'EssentialCooldownViewer', 'UtilityCooldownViewer', 'BuffIconCooldownViewer', 'BuffBarCooldownViewer' }
+
+local function FindAura(id)
+	local ok, aura = pcall(C_UnitAuras.GetPlayerAuraBySpellID, id)
+	if ok and aura and aura.auraInstanceID then return 'player', aura.auraInstanceID end
+	for _, name in ipairs(VIEWERS) do
+		local viewer = _G[name]
+		if viewer and viewer.itemFramePool then
+			for item in viewer.itemFramePool:EnumerateActive() do
+				if item.GetAuraSpellInstanceID and (item:GetSpellID() == id or item:GetBaseSpellID() == id) then
+					local instance = item:GetAuraSpellInstanceID()
+					if instance and not issecretvalue(instance) then
+						return item.GetAuraDataUnit and item:GetAuraDataUnit() or 'player', instance
+					end
+				end
+			end
+		end
+	end
+end
+
+local function AuraDuration(id)
+	if not C.features.activeAuras then return end
+	local ok, unit, instance = pcall(FindAura, id)
+	if not ok or not instance then return end
+	local got, duration = pcall(C_UnitAuras.GetAuraDuration, unit, instance)
+	return got and duration or nil
+end
+
 local function UpdateRow(row)
 	if not row:IsShown() then return end
 	local id = row.spellID
+
+	local aura = AuraDuration(id)
+	if aura then
+		row.Bar:SetTimerDuration(aura, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
+		row.binding:SetDuration(aura)
+		row.binding:SetEnabled(true)
+		row.Ready:Hide()
+		row.Active:Show()
+		local c = C.colors.classPower
+		row.Time:SetTextColor(c[1], c[2], c[3])
+		return
+	end
+	row.Active:Hide()
+	row.Time:SetTextColor(1, 1, 1)
 
 	local info = C_Spell.GetSpellCooldown(id)
 	local active = info and info.isActive and not info.isOnGCD
@@ -308,5 +356,19 @@ ns.On('PLAYER_LOGIN', function()
 	ns.On('PLAYER_ENTERING_WORLD', Refresh)
 	ns.On('PLAYER_SPECIALIZATION_CHANGED', Refresh)
 	ns.On('COOLDOWN_VIEWER_DATA_LOADED', Refresh)
+
+	-- An effect starts or ends: the bars are redrawn on the next frame, after the
+	-- Cooldown Manager has taken the same aura change.
+	local auraQueued = false
+	local auraWatch = CreateFrame('Frame')
+	auraWatch:RegisterUnitEvent('UNIT_AURA', 'player', 'target')
+	auraWatch:SetScript('OnEvent', function()
+		if auraQueued or not C.features.activeAuras then return end
+		auraQueued = true
+		C_Timer.After(0, function()
+			auraQueued = false
+			for _, row in ipairs(rows) do UpdateRow(row) end
+		end)
+	end)
 	ns.OnRole(Resize)
 end)

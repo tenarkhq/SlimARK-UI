@@ -136,14 +136,16 @@ local function PlateStyle(self)
 			element:SetStatusBarColor(c[1], c[2], c[3])
 		end
 	end
+	health.Texts = ns.TextLayer(health)
+	ns.AddShield(health)
 	self.Health = health
 
 	-- The name and the HP in the plate, in one line.
-	local pct = ns.Text(health, C.plate.font, 'RIGHT')
+	local pct = ns.Text(health.Texts, C.plate.font, 'RIGHT')
 	pct:SetPoint('RIGHT', -4, 0)
 	self:Tag(pct, '[slim:pct1]')
 
-	local name = ns.Text(health, C.plate.font, 'LEFT')
+	local name = ns.Text(health.Texts, C.plate.font, 'LEFT')
 	name:SetPoint('LEFT', 4, 0)
 	name:SetPoint('RIGHT', pct, 'LEFT', -4, 0)
 	self:Tag(name, '[name]')
@@ -217,7 +219,7 @@ local function PlateStyle(self)
 	-- Who is targeting this mob: the teammates' names on the right side of the plate.
 	local slots = {}
 	for i = 1, MAX_TARGETERS do
-		local slot = ns.Text(health, o.targeterFont)
+		local slot = ns.Text(health.Texts, o.targeterFont)
 		slot:SetPoint('LEFT', health, 'RIGHT', 20, (MAX_TARGETERS / 2 - i + 0.5) * (o.targeterFont + 2))
 		slot:SetWidth(90)
 		slot:SetAlpha(0)

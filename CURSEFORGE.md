@@ -57,6 +57,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - Health with one decimal, for example 74.6%
 - Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
 - Boss frames show current health in the center, so you can call phase changes at a glance
+- Shields (damage absorbs) in light stripes right after the health, on every frame including party, raid and boss frames. Damage takes the striped part first; a shield larger than the missing health is drawn back over the health with a bright line at the edge
 
 ## Party, raid and healer frames
 
@@ -75,6 +76,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color
 - See which group members target the mob
 - Debuffs you applied are shown above the plate
+- Enemy shields in light stripes, so you see what has to break first
 
 ## Buffs and debuffs
 
@@ -86,6 +88,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 ## Cooldowns and consumables
 
 - Slim countdown bars with your spec's own important cooldowns, for all 13 classes
+- While a spell's effect is up, like the wings, its bar counts the effect down first with a gold frame, then shows the cooldown
 - A bar updates only when its own spell changes, so busy fights cost almost nothing
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing

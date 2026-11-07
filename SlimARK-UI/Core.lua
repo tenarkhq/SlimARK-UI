@@ -135,6 +135,76 @@ function ns.Edge(parent, thickness, color, outset, anchor)
 	return f
 end
 
+-- Shields (damage absorbs) on a health bar, in light stripes. The part that fits
+-- in the missing health follows the health; what does not fit is drawn from the
+-- right edge back over the health, with a bright line at the edge. Damage takes the
+-- striped part first. The amounts are the game's own (secret in combat), the bars
+-- take them as they are.
+local SHIELD_FILL = [[Interface\RaidFrame\Shield-Fill]]
+local SHIELD_STRIPES = [[Interface\RaidFrame\Shield-Overlay]]
+
+local function ShieldBar(health, color)
+	local bar = CreateFrame('StatusBar', nil, health)
+	bar:SetFrameLevel(health:GetFrameLevel() + 1)
+	bar:SetStatusBarTexture(SHIELD_FILL)
+	bar:SetStatusBarColor(color[1], color[2], color[3], 0.35)
+	bar:SetPoint('TOP')
+	bar:SetPoint('BOTTOM')
+	local stripes = bar:CreateTexture(nil, 'ARTWORK', nil, 1)
+	stripes:SetTexture(SHIELD_STRIPES, 'REPEAT', 'REPEAT')
+	stripes:SetHorizTile(true)
+	stripes:SetVertTile(true)
+	stripes:SetVertexColor(color[1], color[2], color[3], 0.9)
+	stripes:SetAllPoints(bar:GetStatusBarTexture())
+	return bar
+end
+
+function ns.AddShield(health)
+	if not C.features.shields then return end
+	local color = C.colors.shield
+
+	-- oUF fills this one, clamped to the missing health.
+	local after = ShieldBar(health, color)
+	after:SetPoint('LEFT', health:GetStatusBarTexture(), 'RIGHT')
+	after:SetWidth(health:GetWidth())
+	health.DamageAbsorb = after
+	health.damageAbsorbClampMode = Enum.UnitDamageAbsorbClampMode.MissingHealthWithoutIncomingHeals
+
+	-- The whole shield from the right edge, shown only when it does not fit.
+	local over = ShieldBar(health, color)
+	over:SetPoint('LEFT')
+	over:SetPoint('RIGHT')
+	over:SetReverseFill(true)
+	over:SetAlpha(0)
+	local edge = over:CreateTexture(nil, 'OVERLAY', nil, 2)
+	edge:SetColorTexture(1, 1, 1, 1)
+	edge:SetWidth(2)
+	edge:SetPoint('TOPRIGHT')
+	edge:SetPoint('BOTTOMRIGHT')
+
+	local whole = CreateUnitHealPredictionCalculator()
+	whole:SetDamageAbsorbClampMode(Enum.UnitDamageAbsorbClampMode.MaximumHealth)
+	local post = health.PostUpdate
+	health.PostUpdate = function(element, unit, ...)
+		if element.values then
+			UnitGetDetailedHealPrediction(unit, 'player', whole)
+			over:SetMinMaxValues(0, whole:GetMaximumHealth())
+			over:SetValue(whole:GetDamageAbsorbs())
+			local _, clamped = element.values:GetDamageAbsorbs()
+			over:SetAlphaFromBoolean(clamped, 1, 0)
+		end
+		if post then return post(element, unit, ...) end
+	end
+end
+
+-- Texts and icons of a health bar go on this layer, above the shield.
+function ns.TextLayer(health)
+	local layer = CreateFrame('Frame', nil, health)
+	layer:SetAllPoints()
+	layer:SetFrameLevel(health:GetFrameLevel() + 2)
+	return layer
+end
+
 -- Soft glow on the bar: lighter on top, darker at the bottom. The text stays below it.
 function ns.Gloss(bar)
 	local top = bar:CreateTexture(nil, 'OVERLAY', nil, 1)

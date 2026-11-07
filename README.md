@@ -25,9 +25,10 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel
 - Nameplates: name and health inside the plate, highlighted target, casters marked before they cast, important casts in magenta, shows who interrupted a cast and who targets the mob
-- Cooldown bars with each spec's own cooldowns for all 13 classes, and a rotation icon row
+- Cooldown bars with each spec's own cooldowns for all 13 classes, and a rotation icon row; while a spell's effect is up, like the wings, its bar counts the effect down first
 - Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
 - Buffs and debuffs with the time left under each icon
+- Shields (damage absorbs) in light stripes on every unit frame and nameplate, enemy shields too
 - Compact Mythic+ panel: timer with +3 and +2 marks, enemy forces to two decimals, boss kill times
 - Group Finder: role checks accepted with your spec's role, one click on a premade listing signs you up
 - Skips cinematics you have already seen

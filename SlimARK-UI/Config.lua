@@ -30,6 +30,8 @@ ns.C = {
 		caster = { 0.62, 0.4, 1 },
 		target = { 1, 1, 1 },
 		mana = { 0.25, 0.5, 0.88 },
+		-- Shields (damage absorbs) on the health bars.
+		shield = { 0.85, 0.95, 1 },
 		-- The cooldown bars share these tables, so a color set in /slimark reaches every bar.
 		cdMain = MAIN,
 		cdKick = KICK,
@@ -49,7 +51,7 @@ ns.C = {
 	features = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
 		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,
-		skipCinematics = true, skipMovies = true, loginMessage = true,
+		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
 	},
 
 	units = {
