@@ -124,27 +124,22 @@ local function PlateStyle(self)
 
 	local raidIcon = health:CreateTexture(nil, 'OVERLAY')
 	raidIcon:SetSize(24, 24)
-	raidIcon:SetPoint('RIGHT', health, 'LEFT', -14, 0)
+	raidIcon:SetPoint('RIGHT', health, 'LEFT', -24, 0)
 	self.RaidTargetIndicator = raidIcon
 
-	-- Target: vastag fehér keret, két nagy oldalsáv, fehér fény a plate mögött.
+	-- Target: vékony fehér keret és két kis nyíl, ami a plate-re mutat.
 	-- Ha van targeted, a többi plate elhalványul.
-	local white = C.colors.target
-	local indicator = ns.Edge(self, 3, white, 4, health)
-
-	local back = CreateFrame('Frame', nil, indicator)
-	back:SetFrameLevel(math.max(0, health:GetFrameLevel() - 1))
-	back:SetPoint('TOPLEFT', health, 'TOPLEFT', -14, 14)
-	back:SetPoint('BOTTOMRIGHT', health, 'BOTTOMRIGHT', 14, -14)
-	local light = back:CreateTexture(nil, 'BACKGROUND')
-	light:SetAllPoints()
-	light:SetColorTexture(white[1], white[2], white[3], 0.22)
-
+	local indicator = ns.Edge(self, 1, C.colors.target, 2, health)
 	for _, side in ipairs({ 'LEFT', 'RIGHT' }) do
-		local t = indicator:CreateTexture(nil, 'OVERLAY')
-		t:SetColorTexture(white[1], white[2], white[3], 1)
-		t:SetSize(8, o.h + 26)
-		t:SetPoint(side == 'LEFT' and 'RIGHT' or 'LEFT', indicator, side, side == 'LEFT' and -5 or 5, 0)
+		local arrow = indicator:CreateTexture(nil, 'OVERLAY')
+		arrow:SetTexture([[Interface\AddOns\SlimARK-UI\Media\Arrow.tga]])
+		arrow:SetSize(o.arrowW, o.arrowH)
+		if side == 'LEFT' then
+			arrow:SetPoint('RIGHT', indicator, 'LEFT', -o.arrowGap, 0)
+		else
+			arrow:SetTexCoord(1, 0, 0, 1)
+			arrow:SetPoint('LEFT', indicator, 'RIGHT', o.arrowGap, 0)
+		end
 	end
 
 	indicator.PostUpdate = function(element, isTargeted)

@@ -35,7 +35,7 @@ ns.C = {
 		targetDebuffSize = 38,
 	},
 
-	plate = { w = 200, h = 18, casterH = 24, castH = 16, debuff = 24, font = 15, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6 },
+	plate = { w = 200, h = 18, casterH = 24, castH = 16, debuff = 24, font = 15, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6, arrowW = 11, arrowH = 16, arrowGap = 4 },
 
 	cooldowns = {
 		x = 1100, y = 1100, w = 360, rowH = 22, gap = 3, font = 16,
