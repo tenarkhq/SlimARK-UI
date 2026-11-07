@@ -1,46 +1,46 @@
 # SlimARK-UI
 
-Karcsú World of Warcraft UI retailre (Midnight, 12.x), nulláról építve az oUF-re. Az ElvUI és a LuckyoneUI kinézetét követi, a sok extra nélkül.
+A slim World of Warcraft UI for Retail (Midnight, 12.x), built from scratch on oUF. It follows the look of ElvUI and LuckyoneUI without the pile of extras.
 
-2560×1600 felbontásra és 65%-os UI scale-re készült, DPS Retribution paladinhoz. Minden pozíció a `SlimARK-UI/Config.lua` fájlban van, valódi képpontban.
+It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-UI/Config.lua`, in real pixels.
 
-## Mit tartalmaz
+## What's included
 
-- Unitframe-ek, party és raid keretek, boss keret
-- Nameplate-ek: kiemelt célpont, elkülönülő casterek, fontos castok narancsban, látszik, ki szakította a castot és ki targeteli a mobot
-- Cooldown sávok a fontos spellekhez és rotációs ikonsor
-- Buffok, debuffok, dispellelhető jelzések
-- Consumable bar: flask, poti, étel, fegyverolaj
-- Vendor két oldalon, automatikus javítás
-- Karakterlap: item level, gemek, enchantok és a hiányuk
-- Négyzet alakú minimap, a bal szélén az addon jelek
+- Unit frames, party and raid frames, boss frames
+- Nameplates: highlighted target, casters stand apart, important casts in orange, shows who interrupted a cast and who targets the mob
+- Cooldown bars for key spells and a rotation icon row
+- Buffs, debuffs and dispellable markers
+- Consumable bar: flasks, potions, food and weapon oils
+- Vendor with two pages, automatic repair
+- Character sheet: item level, gems, enchants and what is missing
+- Square minimap with addon buttons along its left edge
 - Quest tracker skin
-- Skin a Detailshez, DBM-hez, BigWigshez és Chattynatorhoz
-- Edit Mode layout, amely minden Blizzard elemet a helyére tesz
+- Skins for Details!, DBM, BigWigs and Chattynator
+- An Edit Mode layout that puts every Blizzard element in place
 
-A meglévő profilokat és layoutokat nem írja felül, mindenből saját, `SlimARK-UI` nevű újat hoz létre.
+It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` next to them.
 
-## Telepítés
+## Installation
 
-1. Töltsd le a zipet a [Releases](https://github.com/tenarkhq/SlimARK-UI/releases) oldalról.
-2. Csomagold ki a `World of Warcraft/_retail_/Interface/AddOns` mappába. Mindkét mappa kell: `SlimARK-UI` és `!SlimARK_Media`.
-3. Játékban írd be: `/slim apply`.
+1. Download the zip from the [Releases](https://github.com/tenarkhq/SlimARK-UI/releases) page.
+2. Extract it into `World of Warcraft/_retail_/Interface/AddOns`. Both folders are needed: `SlimARK-UI` and `!SlimARK_Media`.
+3. In game, type `/slim apply`.
 
-## Parancsok
+## Commands
 
-| Parancs | Mit csinál |
+| Command | What it does |
 | --- | --- |
-| `/slim apply` | Beállítja az összes pozíciót és skint, majd újratölt |
-| `/rl` | Újratölti a felületet |
+| `/slim apply` | Sets every position and skin, then reloads the UI |
+| `/rl` | Reloads the UI |
 
-A SlimARK-UI saját keretei Edit Mode-ban húzhatók. A Blizzard ablakok a címsoruknál mozgathatók, és Ctrl+görgővel méretezhetők.
+SlimARK-UI's own frames can be dragged in Edit Mode. Blizzard windows move by their title bar and resize with Ctrl + mouse wheel.
 
-## Felhasznált könyvtárak és betűtípus
+## Libraries and font
 
-| Név | Licenc |
+| Name | License |
 | --- | --- |
 | [oUF](https://github.com/oUF-wow/oUF) | `SlimARK-UI/Libs/oUF/LICENSE.txt` |
 | LibSharedMedia-3.0 | LGPL v2.1 |
 | LibStub | Public Domain |
-| CallbackHandler-1.0 | a könyvtár saját feltételei szerint |
-| [Barlow](https://github.com/jpt/barlow) betűtípus | SIL Open Font License 1.1, `SlimARK-UI/Media/SlimARK-font-OFL.txt` |
+| CallbackHandler-1.0 | under the library's own terms |
+| [Barlow](https://github.com/jpt/barlow) font | SIL Open Font License 1.1, `SlimARK-UI/Media/SlimARK-font-OFL.txt` |
