@@ -137,7 +137,12 @@ local function Style(self, unit)
 	if not o then return end
 
 	self:RegisterForClicks('AnyUp')
-	self:HookScript('OnEnter', function(frame) UnitFrame_OnEnter(frame) end)
+	-- A Blizzard tooltip a .unit mezőt olvassa, az oUF a __unit mezőben tartja az egységet.
+	self:HookScript('OnEnter', function(frame)
+		if not frame.__unit then return end
+		frame.unit = frame.__unit
+		UnitFrame_OnEnter(frame)
+	end)
 	self:HookScript('OnLeave', function(frame) UnitFrame_OnLeave(frame) end)
 	ns.Outline(self)
 

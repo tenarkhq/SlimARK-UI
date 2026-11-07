@@ -3,12 +3,9 @@ local C = ns.C
 
 local PROFILE = 'SlimARK-UI'
 
--- Bal panel az overall, jobb az aktuális harc. Az id a Details szegmense, a session a
--- Blizzard sebzésmérőé, Midnight alatt az ablak ez utóbbiból rajzol.
-local DETAILS_SEGMENTS = {
-	{ id = -1, session = 0 },
-	{ id = 0, session = 1 },
-}
+-- Bal panel az overall (0), jobb az aktuális harc (1). Midnight alatt az ablak a Blizzard
+-- sebzésmérő session típusából rajzol, a régi szegmens beállítás itt nem csinál semmit.
+local DETAILS_SESSIONS = { 0, 1 }
 
 -- A Details név szerint tárolja a betűt és a textúrát, ezt minden belépéskor visszaírjuk.
 -- A session típusát a Details nem tölti vissza, ezért az is itt áll vissza.
@@ -17,17 +14,13 @@ local function StyleDetails()
 	if not D or not D.GetInstance then return end
 	local cfg = C.details
 	local s = ns.Scale()
-	-- Bekapcsolva egy ablak szegmensváltása átíródna a másikra is.
-	D.instances_segments_locked = false
 	for i = 1, 2 do
 		local window = D:GetInstance(i)
 		if window then
 			window:SetBarSettings(math.floor(cfg.barHeight * s + 0.5), ns.SOFT_NAME)
 			window:SetBarTextSettings(math.floor(cfg.fontSize * s + 0.5), ns.FONT_NAME, nil, nil, nil, true, true)
-			local segment = DETAILS_SEGMENTS[i]
-			window:SetDisplay(segment.id)
 			-- A harmadik paraméter miatt húz vissza ide a Details minden harc elején.
-			if window.SetSegmentType then window:SetSegmentType(segment.session, true, true) end
+			window:SetSegmentType(DETAILS_SESSIONS[i], true, true)
 			-- Kulcs végén a Details overallra váltana, a jobb panel maradjon az aktuális harcon.
 			if window.automation then window.automation.overall_mythic_plus = i == 1 end
 		end

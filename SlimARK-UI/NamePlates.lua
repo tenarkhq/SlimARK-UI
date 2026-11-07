@@ -46,14 +46,15 @@ local function UpdateMembers()
 end
 
 local function UpdateTargeters(frame)
-	if not frame.unit then return end
+	local unit = frame.__unit
+	if not unit then return end
 	for i, slot in ipairs(frame.Targeters) do
 		local member = members[i]
-		if member and UnitExists(member.target) and C_Secrets.CanCompareUnitTokens(member.target, frame.unit) then
+		if member and UnitExists(member.target) and C_Secrets.CanCompareUnitTokens(member.target, unit) then
 			slot:SetText(UnitName(member.unit))
 			local c = member.color
 			if c then slot:SetTextColor(c.r, c.g, c.b) else slot:SetTextColor(1, 1, 1) end
-			slot:SetAlphaFromBoolean(UnitIsUnit(member.target, frame.unit), 1, 0)
+			slot:SetAlphaFromBoolean(UnitIsUnit(member.target, unit), 1, 0)
 		else
 			slot:SetAlpha(0)
 		end
