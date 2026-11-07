@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.6
+
+- Fixed: "C stack overflow" errors with a trinket that has no use or equip effect. Its item data was requested again and again
+
 ## 1.2.5
 
 - Fixed: a used trinket did not show above the cooldown bars when its item data was not loaded yet at login

@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.6', lines = {
+		'Fixed: C stack overflow errors with a trinket that has no use or equip effect',
+	} },
 	{ version = '1.2.5', lines = {
 		'Fixed: a used trinket did not show above the cooldown bars',
 		'Class buffs like the wings are never taken for a trinket or potion effect',

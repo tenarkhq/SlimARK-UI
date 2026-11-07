@@ -123,14 +123,20 @@ end
 
 local function SetupTrinket(e)
 	local item = GetInventoryItemID('player', e.slot)
+	if item ~= e.item then e.loaded = nil end
 	e.item, e.ids, e.names = item, {}, {}
 	e.texture = GetInventoryItemTexture('player', e.slot)
 	e.enabled = cfg.trinkets and item ~= nil
 	if not item then return end
 	local spellName, spellID = C_Item.GetItemSpell(item)
 	-- Right after login the item data may not be loaded yet; it is read again when it arrives.
-	e.loaded = spellName ~= nil or spellID ~= nil
-	if not e.loaded then C_Item.RequestLoadItemDataByID(item) end
+	-- A trinket may have no spell at all, so "loaded" comes from the item cache, and the
+	-- data is requested once per item: the request can fire its result event at once.
+	e.loaded = e.loaded or C_Item.IsItemDataCachedByID(item)
+	if not e.loaded and e.requested ~= item then
+		e.requested = item
+		C_Item.RequestLoadItemDataByID(item)
+	end
 	if spellID then e.ids[spellID] = true end
 	if spellName then e.names[spellName] = true end
 	local itemName = C_Item.GetItemNameByID(item)
@@ -357,7 +363,10 @@ ns.On('PLAYER_LOGIN', function()
 	-- Item data that was not loaded at login.
 	ns.On('ITEM_DATA_LOAD_RESULT', function(_, itemID)
 		for _, e in ipairs(entries) do
-			if e.kind == 'trinket' and e.item == itemID and not e.loaded then SetupTrinket(e) end
+			if e.kind == 'trinket' and e.item == itemID and not e.loaded then
+				e.loaded = true
+				SetupTrinket(e)
+			end
 		end
 	end)
 	ns.On('PLAYER_ENTERING_WORLD', function()
