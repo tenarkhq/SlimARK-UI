@@ -1,5 +1,43 @@
 # Changelog
 
+## 1.1.0
+
+**Nameplates**
+- The mob name now sits inside the plate, next to its health
+- Health shows one decimal, for example 74.6%
+- Casters are marked before they cast: mana users, mage type mobs and lieutenants, and every mob the addon has seen casting is remembered by name
+- Important casts are magenta, so they stand apart from red, orange and yellow plates
+- After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color
+
+**Party and raid frames**
+- Party frames (DPS and tank) are larger rectangles in a column right next to your character
+- Party, raid and healer grid frames show the role icon: tank, healer or damage
+- Party health shows one decimal
+
+**Buffs and debuffs**
+- Time left is shown under each icon, larger and easier to read
+- Small gap between icons, so they no longer run into each other
+- Stack counts are larger, with a thick outline
+
+**Mythic+**
+- Compact panel in place of the quest tracker while a key runs: key level and dungeon, deaths, timer with the +3 and +2 marks, enemy forces to two decimals, and one line per boss with its kill time
+
+**Group Finder**
+- Role checks are accepted automatically with your current spec's role
+- Clicking a premade group listing signs you up at once, with your spec's role and no extra confirmation
+
+**Quality of life**
+- Cinematics and movies you have already seen are skipped automatically
+- The version number is printed at login
+- Every in-game text is in English
+- Larger minimap addon buttons with a dark background
+- Boss mod bars moved to the right of the character, opposite the party frames (type `/slim apply` once to move them)
+
+**Performance**
+- Cooldown bars redraw only the spell whose cooldown changed instead of every bar on each global cooldown
+- Spell, talent and bag changes that arrive in a burst are handled once
+- The character sheet overlay updates only while the sheet is open
+
 ## 1.0.0
 
 First public release of SlimARK-UI, a slim UI for World of Warcraft Retail (Midnight), built from scratch on oUF.

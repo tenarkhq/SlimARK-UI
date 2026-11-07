@@ -23,17 +23,17 @@ function ns.On(event, fn)
 	table.insert(handlers[event], fn)
 end
 
--- Az a szorzó, amivel a keret 1 egysége pontosan 1 fizikai képpont lesz.
+-- The multiplier that makes 1 unit of the frame exactly 1 physical pixel.
 function ns.Scale()
 	local _, height = GetPhysicalScreenSize()
 	return (768 / height) / UIParent:GetEffectiveScale()
 end
 
 ns.Placed = {}
--- Gyógyító specben igaz. A Role.lua állítja.
+-- True in a healer spec. Set by Role.lua.
 ns.healer = false
 
--- A két elrendezés külön jegyzi a húzott helyeket. Ami nem mozdul a szereppel, az közös.
+-- The two layouts record dragged positions separately. What does not move with the role is shared.
 function ns.PosStore(item, create)
 	local owner = item.owner or item
 	if not ns.CharDB then return end
@@ -42,14 +42,14 @@ function ns.PosStore(item, create)
 	return ns.CharDB[name]
 end
 
--- A mentett pozíció és méret az Edit Mode húzásából jön, enélkül a Config.lua számít.
+-- The saved position and size come from dragging in Edit Mode, without them Config.lua applies.
 function ns.Saved(item)
 	local owner = item.owner or item
 	local store = ns.PosStore(item)
 	return owner.key and store and store[owner.key]
 end
 
--- A helyére teszi az elemet. Más frame is megadható, ilyen az Edit Mode doboza.
+-- Puts the element in its place. Another frame can be given too, like the Edit Mode box.
 function ns.Place(item, frame)
 	local saved = ns.Saved(item)
 	local size = saved and saved.scale or 1
@@ -66,10 +66,10 @@ function ns.Place(item, frame)
 	end
 end
 
--- opts.key: húzható az Edit Mode-ban. opts.w, opts.h: a doboz mérete üres fejlécnél.
--- opts.after, opts.owner: az előző keret alá kerül, annak a méretét követi.
--- opts.heal: a gyógyító elrendezés helye. opts.point: a keret melyik pontja az x, y.
--- opts.forHealer: csak az egyik szerepben létezik, a másikban nem húzható.
+-- opts.key: draggable in Edit Mode. opts.w, opts.h: size of the box with an empty header.
+-- opts.after, opts.owner: goes under the previous frame and follows its size.
+-- opts.heal: position in the healer layout. opts.point: which point of the frame the x, y refers to.
+-- opts.forHealer: exists in only one of the roles, not draggable in the other.
 function ns.Register(frame, x, y, opts)
 	local item = opts or {}
 	item.frame, item.x, item.y = frame, x, y
@@ -97,7 +97,7 @@ ns.On('PLAYER_REGEN_ENABLED', function()
 	end
 end)
 
--- Fekete 1 px-es keret a frame köré.
+-- Black 1 px border around the frame.
 function ns.Outline(frame)
 	local t = frame:CreateTexture(nil, 'BACKGROUND', nil, -8)
 	t:SetColorTexture(0, 0, 0, 1)
@@ -113,7 +113,7 @@ function ns.Track(frame)
 	return t
 end
 
--- Üres közepű színes keret saját frame-en, hogy egyben lehessen ki-be kapcsolni.
+-- Colored border with an empty center on its own frame, so it can be switched on and off as one.
 function ns.Edge(parent, thickness, color, outset, anchor)
 	local f = CreateFrame('Frame', nil, parent)
 	anchor = anchor or parent
@@ -135,7 +135,7 @@ function ns.Edge(parent, thickness, color, outset, anchor)
 	return f
 end
 
--- Puha fény a sávon: felül világosodik, alul sötétedik. A szöveg alatta marad.
+-- Soft glow on the bar: lighter on top, darker at the bottom. The text stays below it.
 function ns.Gloss(bar)
 	local top = bar:CreateTexture(nil, 'OVERLAY', nil, 1)
 	top:SetTexture(ns.TEX)
@@ -159,7 +159,7 @@ function ns.Text(parent, size, justify)
 	return fs
 end
 
--- Blizzard keret kikapcsolása, ugyanúgy, ahogy az oUF teszi a sajátjaival.
+-- Disables a Blizzard frame, the same way oUF does with its own.
 function ns.Block(frame)
 	if frame then
 		frame:UnregisterAllEvents()
@@ -171,11 +171,28 @@ function ns.Print(text)
 	print('|cfff2b84bSlimARK-UI|r ' .. text)
 end
 
+ns.version = C_AddOns.GetAddOnMetadata(addonName, 'Version') or '?'
+
 ns.On('ADDON_LOADED', function(_, name)
 	if name == addonName then
 		SlimARKCharDB = SlimARKCharDB or {}
 		ns.CharDB = SlimARKCharDB
+		-- 1.1.0 moved the party frames next to the character: an old dragged spot would hide that.
+		if (ns.CharDB.layoutRev or 0) < 3 then
+			if ns.CharDB.pos then ns.CharDB.pos.party = nil end
+			ns.CharDB.layoutRev = 3
+		end
+		-- Shared by every character: seen cutscenes, remembered caster mobs.
+		SlimARKDB = SlimARKDB or {}
+		SlimARKDB.seenMovies = SlimARKDB.seenMovies or {}
+		SlimARKDB.seenCinematics = SlimARKDB.seenCinematics or {}
+		SlimARKDB.casters = SlimARKDB.casters or {}
+		ns.DB = SlimARKDB
 	end
+end)
+
+ns.On('PLAYER_LOGIN', function()
+	ns.Print(ns.version .. ' loaded. Type /slim for commands.')
 end)
 
 SLASH_SLIMARK1 = '/slim'
@@ -183,7 +200,7 @@ SlashCmdList.SLIMARK = function(msg)
 	if msg == 'apply' then
 		ns.ApplyAll()
 	else
-		ns.Print('/slim apply: beállít minden pozíciót és skint, majd újratölti a felületet. A régi profilokhoz és layoutokhoz nem nyúl.')
+		ns.Print(ns.version .. ' - /slim apply: sets every position and skin, then reloads the UI. Your existing profiles and layouts stay untouched.')
 	end
 end
 

@@ -2,26 +2,76 @@ local _, ns = ...
 local oUF = ns.oUF
 local C = ns.C
 
--- Casternek jelöli a mage osztályú és a hadnagy NPC-ket: lila, magasabb plate.
--- Korlátozott tartalomban ez az adat rejtett lehet, ilyenkor a jelölés elmarad,
--- a cast kiemelés akkor is él.
-local function UpdateCasterMark(frame, unit)
-	local isCaster = false
+-- Caster marking before the cast already. A mob is a caster if it is mage class, a lieutenant,
+-- mana is its power (in the game mage and paladin NPCs get mana), or we have already
+-- seen it cast. The class can be hidden in restricted content, the mana type
+-- cannot, so it works in dungeons too. Seen casters are remembered by name.
+local function IsCaster(unit)
 	local class = UnitClassBase(unit)
-	if class and not issecretvalue(class) and class == 'MAGE' then
-		isCaster = true
-	end
+	if class and not issecretvalue(class) and class == 'MAGE' then return true end
 	local lieutenant = UnitIsLieutenant(unit)
-	if lieutenant and not issecretvalue(lieutenant) then
-		isCaster = true
-	end
+	if lieutenant and not issecretvalue(lieutenant) then return true end
+	local powerType = UnitPowerType(unit)
+	if powerType and not issecretvalue(powerType) and powerType == Enum.PowerType.Mana then return true end
+	local name = UnitName(unit)
+	if name and not issecretvalue(name) and ns.DB and ns.DB.casters[name] then return true end
+	return false
+end
+
+local function SetCasterMark(frame, isCaster)
 	frame.isCaster = isCaster
 	frame.Health:SetHeight(isCaster and C.plate.casterH or C.plate.h)
-	if isCaster then
-		local c = C.colors.caster
-		frame.PlateName:SetTextColor(c[1], c[2], c[3])
-	else
-		frame.PlateName:SetTextColor(1, 1, 1)
+	if frame.Health.ForceUpdate then frame.Health:ForceUpdate() end
+end
+
+local function UpdateCasterMark(frame, unit)
+	SetCasterMark(frame, IsCaster(unit))
+end
+
+-- If an unmarked mob casts, it is a caster from then on, and its name is kept.
+local function LearnCaster(frame, unit)
+	if frame.isCaster or UnitIsPlayer(unit) or UnitIsFriend('player', unit) then return end
+	SetCasterMark(frame, true)
+	local name = UnitName(unit)
+	if name and not issecretvalue(name) and ns.DB then ns.DB.casters[name] = true end
+end
+
+-- Who interrupted: the game gives the GUID, but in restricted content it can be hidden.
+-- So we also watch the party's own interrupt casts, the most recent wins.
+local lastKick = { name = nil, class = nil, time = 0 }
+
+local KICKS = {
+	[96231] = true, [1766] = true, [6552] = true, [47528] = true, [2139] = true,
+	[57994] = true, [106839] = true, [78675] = true, [116705] = true, [147362] = true,
+	[187707] = true, [183752] = true, [351338] = true, [15487] = true, [19647] = true,
+	[119910] = true, [132409] = true, [119914] = true, [31935] = true,
+}
+
+local kickWatch = CreateFrame('Frame')
+kickWatch:RegisterUnitEvent('UNIT_SPELLCAST_SUCCEEDED', 'player', 'party1', 'party2', 'party3', 'party4')
+kickWatch:SetScript('OnEvent', function(_, _, unit, _, spellID)
+	if issecretvalue(spellID) or not KICKS[spellID] then return end
+	local name = UnitName(unit)
+	if issecretvalue(name) then return end
+	lastKick.name, lastKick.class, lastKick.time = name, UnitClassBase(unit), GetTime()
+	if issecretvalue(lastKick.class) then lastKick.class = nil end
+end)
+
+-- The exact GUID is first, then the party's fresh interrupt, finally the hidden name.
+local function InterrupterName(guid)
+	local secret = issecretvalue(guid)
+	if not secret and guid and guid ~= '' then
+		local name = UnitNameFromGUID(guid)
+		if name and not issecretvalue(name) and name ~= '' then
+			local _, class = GetPlayerInfoByGUID(guid)
+			return name, class
+		end
+	end
+	if GetTime() - lastKick.time < 1.5 then
+		return lastKick.name, lastKick.class
+	end
+	if secret then
+		return UnitNameFromGUID(guid)
 	end
 end
 
@@ -29,7 +79,7 @@ local MAX_TARGETERS = 4
 local plateFrames = {}
 local members = {}
 
--- Partyban a négy társ, raidben a tankok. Raidben mindenkit figyelni drága lenne.
+-- In a party the four teammates, in a raid the tanks. Watching everyone in a raid would be expensive.
 local function UpdateMembers()
 	wipe(members)
 	local inRaid = IsInRaid()
@@ -88,26 +138,36 @@ local function PlateStyle(self)
 	end
 	self.Health = health
 
-	local name = ns.Text(health, C.plate.font, 'CENTER')
-	name:SetPoint('BOTTOM', health, 'TOP', 0, 3)
-	name:SetWidth(o.w)
+	-- The name and the HP in the plate, in one line.
+	local pct = ns.Text(health, C.plate.font, 'RIGHT')
+	pct:SetPoint('RIGHT', -4, 0)
+	self:Tag(pct, '[slim:pct1]')
+
+	local name = ns.Text(health, C.plate.font, 'LEFT')
+	name:SetPoint('LEFT', 4, 0)
+	name:SetPoint('RIGHT', pct, 'LEFT', -4, 0)
 	self:Tag(name, '[name]')
 	self.PlateName = name
 
-	local pct = ns.Text(health, C.plate.font, 'RIGHT')
-	pct:SetPoint('RIGHT', -3, 0)
-	self:Tag(pct, '[slim:pct]')
-
 	local cb = ns.CreateCastbar(self, o.w, o.castH, true, 14)
 	cb:SetPoint('TOP', health, 'BOTTOM', 0, -3)
-	-- Szakítás után a bar még látszik, rajta a szakító neve.
+	-- After an interrupt the bar is still visible: Interrupted and the interrupter's name in class color.
 	cb.timeToHold = o.holdTime
 	cb.PostCastInterrupted = function(element, _, _, interruptedBy)
-		element.Text:SetText('Szakította:')
-		element.Time:SetText(UnitNameFromGUID(interruptedBy))
+		element.Text:SetText('Interrupted')
+		local name, class = InterrupterName(interruptedBy)
+		local color = class and C_ClassColor.GetClassColor(class)
+		element.Time:SetText(name)
+		if color then element.Time:SetTextColor(color.r, color.g, color.b) else element.Time:SetTextColor(1, 1, 1) end
 	end
-	-- Amíg castol, a plate körül világoskék keret van, fontos castnál narancs.
-	-- Mindkettő a castbarral együtt tűnik el.
+	local postStart = cb.PostCastStart
+	cb.PostCastStart = function(element, unit, ...)
+		element.Time:SetTextColor(1, 1, 1)
+		LearnCaster(element.__owner, unit)
+		if postStart then return postStart(element, unit, ...) end
+	end
+	-- While it casts, there is a light blue border around the plate, magenta for an important cast.
+	-- Both disappear together with the castbar.
 	ns.Edge(cb, 2, C.colors.casting, 2, health)
 	cb.ImportantPlate = ns.Edge(cb, 3, C.colors.important, 2, health)
 	cb.ImportantPlate:SetFrameLevel(cb:GetFrameLevel() + 12)
@@ -115,7 +175,7 @@ local function PlateStyle(self)
 
 	local debuffs = self:CreateAuras({ initialAnchor = 'BOTTOMLEFT', growthX = 'RIGHT', growthY = 'UP', layoutLimit = o.w })
 	debuffs:SetSize(o.w, o.debuff)
-	debuffs:SetPoint('BOTTOMLEFT', health, 'TOPLEFT', 0, 18)
+	debuffs:SetPoint('BOTTOMLEFT', health, 'TOPLEFT', 0, 4)
 	debuffs.size = o.debuff
 	debuffs.elementSpacing = 2
 	debuffs.disableMouse = true
@@ -128,8 +188,8 @@ local function PlateStyle(self)
 	raidIcon:SetPoint('RIGHT', health, 'LEFT', -24, 0)
 	self.RaidTargetIndicator = raidIcon
 
-	-- Target: vékony fehér keret és két kis nyíl, ami a plate-re mutat.
-	-- Ha van targeted, a többi plate elhalványul.
+	-- Target: thin white border and two small arrows pointing at the plate.
+	-- If there is a target, the other plates fade.
 	local indicator = ns.Edge(self, 1, C.colors.target, 2, health)
 	for _, side in ipairs({ 'LEFT', 'RIGHT' }) do
 		local arrow = indicator:CreateTexture(nil, 'OVERLAY')
@@ -153,7 +213,7 @@ local function PlateStyle(self)
 	end
 	self.TargetIndicator = indicator
 
-	-- Kik targetelik ezt a mobot: a társak neve a plate jobb oldalán.
+	-- Who is targeting this mob: the teammates' names on the right side of the plate.
 	local slots = {}
 	for i = 1, MAX_TARGETERS do
 		local slot = ns.Text(health, o.targeterFont)

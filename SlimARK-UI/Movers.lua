@@ -1,6 +1,6 @@
 local _, ns = ...
 
--- Mozgatható Blizzard ablakok. A betöltés nélküliek akkor kerülnek sorra, amikor megjelennek.
+-- Movable Blizzard windows. The ones not loaded yet are handled when they appear.
 local WINDOWS = {
 	'CharacterFrame', 'PlayerSpellsFrame', 'ProfessionsBookFrame', 'ProfessionsFrame', 'CollectionsJournal',
 	'EncounterJournal', 'AchievementFrame', 'FriendsFrame', 'PVEFrame', 'CommunitiesFrame', 'GuildFrame',
@@ -24,7 +24,7 @@ local function Store(name)
 	return ns.CharDB.windows[name]
 end
 
--- A pozíció UIParent egységben van tárolva, így a méretezés nem tolja el az ablakot.
+-- The position is stored in UIParent units, so scaling does not shift the window.
 local function Apply(frame, name)
 	local saved = ns.CharDB.windows and ns.CharDB.windows[name]
 	if not saved or applying or Blocked(frame) then return end
@@ -62,7 +62,7 @@ local function Hook(name)
 	frame:SetMovable(true)
 	frame:SetClampedToScreen(true)
 
-	-- A fejléc sávja húzható, az ablak felett Ctrl+görgő méretez.
+	-- The header bar can be dragged, and Ctrl+scroll over the window resizes it.
 	local handle = CreateFrame('Frame', nil, frame)
 	handle:SetPoint('TOPLEFT', 0, 0)
 	handle:SetPoint('TOPRIGHT', -28, 0)
@@ -95,7 +95,7 @@ ns.On('ADDON_LOADED', function()
 	if ns.CharDB then HookAll() end
 end)
 
--- A saját keretek az Edit Mode-ban húzhatók, Ctrl+görgővel méretezhetők.
+-- Our own frames can be dragged in Edit Mode and resized with Ctrl+scroll.
 local overlays = {}
 
 local function Pixels(frame, point)
@@ -178,7 +178,7 @@ ns.On('PLAYER_LOGIN', function()
 	EventRegistry:RegisterCallback('EditMode.Exit', HideOverlays, ns)
 end)
 
--- A Blizzard FPS kijelző a micro menü mellé tenné magát, felül középen van jó helyen.
+-- The Blizzard FPS display would sit next to the micro menu, it belongs at the top center.
 ns.On('PLAYER_LOGIN', function()
 	local fps = FramerateFrame
 	if not fps then return end

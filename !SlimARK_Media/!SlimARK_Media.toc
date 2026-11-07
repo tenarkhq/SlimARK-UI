@@ -1,8 +1,8 @@
 ## Interface: 120105, 120107
 ## Title: SlimARK-UI Media
-## Notes: A SlimARK-UI betűtípusa és textúrája. Elsőként töltődik, hogy a Details, BigWigs és Chattynator már induláskor lássa.
+## Notes: Font and texture for SlimARK-UI. Loads first, so Details, BigWigs and Chattynator see them at startup.
 ## Author: Roland
-## Version: 1.0.0
+## Version: 1.1.0
 
 Libs\LibStub.lua
 Libs\CallbackHandler-1.0.lua

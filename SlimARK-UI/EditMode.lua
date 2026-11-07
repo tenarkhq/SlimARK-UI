@@ -28,7 +28,7 @@ local function Set(info, setting, value)
 	table.insert(info.settings, { setting = setting, value = value })
 end
 
--- x, y: valódi képpont a bal felső saroktól. A Blizzard az eltolást maga osztja a keret skálájával.
+-- x, y: real pixels from the top left. Blizzard divides the offset by the frame's scale itself.
 local function Move(info, point, x, y)
 	local unit = ns.Scale()
 	info.isInDefaultPosition = false
@@ -36,7 +36,7 @@ local function Move(info, point, x, y)
 	info.anchorInfo2 = nil
 end
 
--- A kért képpontméret a mostani UI scale-en hány százalék, tízesre kerekítve.
+-- What percent the requested pixel size is at the current UI scale, rounded to tens.
 local function IconPercent(pixels)
 	local percent = pixels * ns.Scale() / 45 * 100
 	return math.max(50, math.min(200, math.floor(percent / 10 + 0.5) * 10))
@@ -56,7 +56,7 @@ local function ArrangeBars(layout)
 	local percent = IconPercent(b.size)
 	local rowHeight = (45 * percent / 100 + b.padding) / ns.Scale()
 
-	-- A bekapcsolt barok jönnek előre, a kikapcsoltak mögéjük.
+	-- The enabled bars come first, the disabled ones behind them.
 	local order = {}
 	local function IsOn(bar)
 		local frame = bar.frame and _G[bar.frame]
@@ -156,7 +156,7 @@ local function WantedName()
 	return ns.healer and cfg.healName or cfg.name
 end
 
--- A presetek is a listába kerülnek, így az indexek egyeznek az activeLayout számozásával.
+-- The presets also go into the list, so the indexes match the activeLayout numbering.
 local function AllLayouts()
 	local info = C_EditMode.GetLayouts()
 	local all = EditModePresetLayoutManager:GetCopyOfPresetLayouts()
@@ -165,8 +165,8 @@ local function AllLayouts()
 	return info, all
 end
 
--- A két saját layoutot hozza létre vagy frissíti, és a szerephez illőt kapcsolja be.
--- A többi layoutot nem érinti. Az onlyNew a már meglévő saját layoutot is érintetlenül hagyja.
+-- Creates or updates our two layouts and enables the one that fits the role.
+-- It does not touch other layouts. onlyNew also leaves an already existing own layout untouched.
 function ns.ApplyEditMode(onlyNew)
 	local info, all = AllLayouts()
 
@@ -175,7 +175,7 @@ function ns.ApplyEditMode(onlyNew)
 		if not IndexOf(all, name) then
 			local kind, slot = NewLayoutSlot(all)
 			if not kind then
-				ns.Print('Az Edit Mode layoutok elérték a maximumot. Törölj egyet, és futtasd újra a /slim apply parancsot.')
+				ns.Print('Edit Mode has reached its layout limit. Delete one and run /slim apply again.')
 				return false
 			end
 			local layout = CopyTable(all[IndexOf(all, cfg.name) or info.activeLayout])
@@ -206,8 +206,8 @@ local function IsOurs(layout)
 	return layout and (layout.layoutName == cfg.name or layout.layoutName == cfg.healName)
 end
 
--- A játék specenként jegyzi az aktív layoutot, ezért spec váltás után már más lehet aktív.
--- Ha előtte a miénk volt, a szerephez illő saját layoutra lépünk, különben nem nyúlunk hozzá.
+-- The game records the active layout per spec, so after a spec switch a different one may be active.
+-- If ours was active before, we step to the own layout that fits the role, otherwise we leave it alone.
 local usesOurs = false
 
 function ns.SyncLayout()
@@ -223,7 +223,7 @@ function ns.SyncLayout()
 	end
 end
 
--- Aki az Edit Mode-ban más layoutot választ, annál a spec váltás sem kapcsol vissza.
+-- Whoever picks another layout in Edit Mode does not get switched back on a spec switch either.
 ns.On('PLAYER_LOGIN', function()
 	EventRegistry:RegisterCallback('EditMode.Exit', function()
 		local info, all = AllLayouts()

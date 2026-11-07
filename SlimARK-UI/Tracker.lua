@@ -7,7 +7,7 @@ local MODULES = {
 	'BonusObjectiveTracker', 'WorldQuestObjectiveTracker',
 }
 
--- A díszes fejlécsáv helyett egy vékony vonal.
+-- A thin line instead of the fancy header bar.
 local function CleanHeader(header)
 	if not header or header.slimLine then return end
 	if header.Background then header.Background:SetAlpha(0) end

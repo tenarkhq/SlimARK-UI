@@ -1,9 +1,10 @@
 ## Interface: 120105, 120107
 ## Title: SlimARK-UI
-## Notes: Karcsú UI 2560x1600-ra: keretek, nameplate, cooldown sávok, vendor, karakterlap, skinek.
+## Notes: Slim UI for 2560x1600: unit frames, nameplates, cooldown bars, vendor, character sheet, skins.
 ## Author: Roland
-## Version: 1.0.0
+## Version: 1.1.0
 ## IconTexture: Interface\AddOns\SlimARK-UI\Media\Icon
+## SavedVariables: SlimARKDB
 ## SavedVariablesPerCharacter: SlimARKCharDB
 ## OptionalDeps: !SlimARK_Media, Details, BigWigs, DBM-Core, DBM-StatusBarTimers, Chattynator
 ## X-oUF: SlimARK_oUF
@@ -22,6 +23,8 @@ Consumables.lua
 ActionBars.lua
 Minimap.lua
 Tracker.lua
+MythicPlus.lua
+Quality.lua
 Movers.lua
 EditMode.lua
 Skins.lua

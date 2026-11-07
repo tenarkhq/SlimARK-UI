@@ -5,7 +5,7 @@ local holder, row
 local adopted = {}
 local placing = false
 
--- Csak az ikon marad, a keret, a rajta lévő szám és a később ráírt szöveg eltűnik.
+-- Only the icon stays; the frame, the number on it and the text written onto it later disappear.
 local function Strip(button)
 	for _, region in ipairs({ button:GetRegions() }) do
 		if region ~= button.icon then region:SetAlpha(0) end
@@ -15,7 +15,7 @@ local function Strip(button)
 	end
 end
 
--- Az addon jelek oszlopban a térkép bal szélén, a térkép alatti hely a koordinátáké.
+-- The addon icons go in a column at the left edge of the map, the space below the map is for the coordinates.
 local function LayoutButtons()
 	local shown = {}
 	for _, button in ipairs(adopted) do
@@ -46,6 +46,15 @@ local function Adopt(button)
 		button.icon:ClearAllPoints()
 		button.icon:SetAllPoints()
 		button.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	end
+	-- A dark square behind the icon, so transparent icons stay readable on the map art.
+	local bg = button:CreateTexture(nil, 'BACKGROUND', nil, -7)
+	bg:SetAllPoints()
+	bg:SetColorTexture(0.06, 0.065, 0.08, 0.92)
+	if button.icon then
+		button.icon:ClearAllPoints()
+		button.icon:SetPoint('TOPLEFT', 2, -2)
+		button.icon:SetPoint('BOTTOMRIGHT', -2, 2)
 	end
 	ns.Outline(button)
 	hooksecurefunc(button, 'SetPoint', function()
@@ -94,7 +103,7 @@ local function StyleClock()
 	end
 end
 
--- A Blizzard az Edit Mode betöltésekor visszateszi a fejléc elemeit, ezért ez újra lefut.
+-- Blizzard puts the header elements back when Edit Mode loads, so this runs again.
 local function Arrange()
 	local cluster = MinimapCluster
 	if cluster.BorderTop then cluster.BorderTop:SetAlpha(0) end
@@ -119,7 +128,7 @@ local function Arrange()
 
 	Inside(cluster.IndicatorFrame, 'BOTTOMLEFT', 3, 3)
 	Inside(cluster.InstanceDifficulty, 'TOPRIGHT', -2, -2)
-	-- Az addon lista számlálója, az addon jelek feleslegessé teszik.
+	-- The addon list counter, the addon icons make it unnecessary.
 	if AddonCompartmentFrame then
 		AddonCompartmentFrame:SetAlpha(0)
 		AddonCompartmentFrame:EnableMouse(false)
@@ -132,7 +141,7 @@ local function Arrange()
 end
 
 ns.On('PLAYER_LOGIN', function()
-	-- Az addonok ebből tudják, hogy négyzet alakú a térkép.
+	-- Addons use this to know that the map is square.
 	function GetMinimapShape() return 'SQUARE' end
 
 	holder = CreateFrame('Frame', 'SlimARK_Minimap', UIParent)

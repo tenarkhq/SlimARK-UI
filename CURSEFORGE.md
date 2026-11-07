@@ -22,14 +22,17 @@ A slim, clean UI for World of Warcraft Retail (Midnight), built from scratch on 
 - Boss frames show current health in the center
 
 **Party and raid frames**
+- Party frames as large rectangles right next to your character
+- Role icon on every frame: tank, healer or damage
 - Defensive cooldowns on every frame with time left, both personal and external
 - Debuff icons on every frame
 - The whole frame lights up in the debuff type color when you can dispel it
 
 **Nameplates**
 - Your target is marked with a thin frame and two arrows, and other plates fade back
-- Casters stand apart from the rest of the pack
-- Light blue cast bars, orange for important casts you should interrupt
+- Name and health with one decimal inside the plate
+- Casters are marked before they start casting
+- Light blue cast bars, magenta for important casts you should interrupt
 - See who interrupted a cast and who in your group targets the mob
 
 **Cooldowns and consumables**
@@ -37,7 +40,14 @@ A slim, clean UI for World of Warcraft Retail (Midnight), built from scratch on 
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils
 
+**Mythic+**
+- Compact panel in place of the quest tracker while a key runs
+- Timer with the +3 and +2 marks, enemy forces to two decimals, boss kill times, deaths
+
 **Quality of life**
+- Buffs and debuffs show the time left under each icon
+- Role checks are accepted with your spec's role, one click on a premade listing signs you up
+- Cinematics you have already seen are skipped
 - Vendor shows two pages at once, hides what you already own, and marks items you lack the currency or reputation for
 - Automatic repair
 - Character sheet shows item level, gems, enchants and what is missing
@@ -59,7 +69,6 @@ SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It crea
 ## Good to know
 
 - The layout is designed for 2560×1600 at 65% UI scale. On other screens, drag the frames in Edit Mode.
-- Some in-game labels are in Hungarian for now.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 
 ## Credits

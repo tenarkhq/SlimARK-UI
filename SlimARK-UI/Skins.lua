@@ -3,12 +3,12 @@ local C = ns.C
 
 local PROFILE = 'SlimARK-UI'
 
--- Bal panel az overall (0), jobb az aktuális harc (1). Midnight alatt az ablak a Blizzard
--- sebzésmérő session típusából rajzol, a régi szegmens beállítás itt nem csinál semmit.
+-- The left panel is overall (0), the right is the current fight (1). Under Midnight the window draws from the Blizzard
+-- damage meter session type, and the old segment setting does nothing here.
 local DETAILS_SESSIONS = { 0, 1 }
 
--- A Details név szerint tárolja a betűt és a textúrát, ezt minden belépéskor visszaírjuk.
--- A session típusát a Details nem tölti vissza, ezért az is itt áll vissza.
+-- Details stores the font and the texture by name, we write them back on every login.
+-- Details does not restore the session type, so that is also restored here.
 local function StyleDetails()
 	local D = _G.Details
 	if not D or not D.GetInstance then return end
@@ -19,9 +19,9 @@ local function StyleDetails()
 		if window then
 			window:SetBarSettings(math.floor(cfg.barHeight * s + 0.5), ns.SOFT_NAME)
 			window:SetBarTextSettings(math.floor(cfg.fontSize * s + 0.5), ns.FONT_NAME, nil, nil, nil, true, true)
-			-- A harmadik paraméter miatt húz vissza ide a Details minden harc elején.
+			-- Because of the third parameter, Details pulls back to here at the start of every fight.
 			window:SetSegmentType(DETAILS_SESSIONS[i], true, true)
-			-- Kulcs végén a Details overallra váltana, a jobb panel maradjon az aktuális harcon.
+			-- At the end of a key Details would switch to overall; the right panel should stay on the current fight.
 			if window.automation then window.automation.overall_mythic_plus = i == 1 end
 		end
 	end
@@ -46,7 +46,7 @@ local function ApplyDetails()
 		window.baseframe:SetPoint('BOTTOMRIGHT', UIParent, 'TOPLEFT', right * s, -cfg.bottom * s)
 		window:SetSize(cfg.w * s, cfg.h * s)
 		window:SaveMainWindowPosition()
-		window:SetDisplay(nil, 1, 1) -- mindkét panel sebzés
+		window:SetDisplay(nil, 1, 1) -- both panels show damage
 		window:LockInstance(true)
 	end
 	StyleDetails()
@@ -90,7 +90,7 @@ local function ApplyDBM()
 	StyleDBM()
 end
 
--- BigWigs sávstílus: ugyanaz a lapos, fekete szegélyes kinézet, mint a keretek.
+-- BigWigs bar style: the same flat, black bordered look as the frames.
 local function RegisterBigWigsStyle()
 	local API = _G.BigWigsAPI
 	if not API or ns.bigWigsStyle then return end
@@ -128,7 +128,7 @@ local function RegisterBigWigsStyle()
 	})
 end
 
--- Ha a Bars plugin még nincs betöltve, közvetlenül a profilba írunk.
+-- If the Bars plugin is not loaded yet, we write straight into the profile.
 local function BigWigsBars()
 	local BW = _G.BigWigs
 	local plugin = BW and BW.GetPlugin and BW:GetPlugin('Bars', true)
@@ -174,8 +174,8 @@ local function ApplyBigWigs()
 	StyleBigWigs()
 end
 
--- A Chattynator külső skint nem fogad, ezért a saját sötét skinjét állítjuk be a SlimARK-UI profilban.
--- Az új profil a mostani másolata, és a /slim apply utáni újratöltéskor lép életbe.
+-- Chattynator does not accept an external skin, so we set its own dark skin in the SlimARK-UI profile.
+-- The new profile is a copy of the current one, and it takes effect on the reload after /slim apply.
 local function ChattynatorProfile()
 	local cfg = _G.CHATTYNATOR_CONFIG
 	if not cfg or not cfg.Profiles then return nil end
@@ -212,13 +212,13 @@ local function ApplyChattynator()
 	profile.show_buttons = 'hover'
 end
 
--- Profilváltók. Visszatérés: nil, ha az addon nem fut; true, ha most készült az
--- új profil; false, ha már létezett. Az új profil a jelenlegi beállítások másolata,
--- a régi profil érintetlen marad.
+-- Profile switchers. Returns: nil if the addon is not running; true if the
+-- new profile was just created; false if it already existed. The new profile is a copy of the current settings,
+-- the old profile stays untouched.
 local function DetailsProfile()
 	local D = _G.Details
 	if not D or not D.GetProfile or not D.tabela_instancias then return nil end
-	-- Az "always use this profile" beállítás belépéskor visszaváltana. Csak erre a karakterre kapcsoljuk ki.
+	-- The "always use this profile" setting would switch back on login. We turn it off for this character only.
 	if D.always_use_profile_exception then
 		D.always_use_profile_exception[UnitName('player')] = true
 	end
@@ -253,7 +253,7 @@ local function BigWigsProfile()
 
 	local created = not (sv.profiles and sv.profiles[PROFILE])
 	if created then
-		-- Nyers másolat, így a még be nem töltött boss modulok beállításai is átjönnek.
+		-- Raw copy, so the settings of boss modules not loaded yet come over too.
 		sv.profiles = sv.profiles or {}
 		sv.profiles[PROFILE] = sv.profiles[current] and CopyTable(sv.profiles[current]) or {}
 		for _, space in pairs(sv.namespaces or {}) do
@@ -277,10 +277,10 @@ local function Try(fn)
 	return xpcall(fn, geterrorhandler())
 end
 
--- Minden pozíció és beállítás egy paranccsal, utána újratöltés, hogy minden betöltse az újat.
+-- Every position and setting with one command, then a reload so that everything loads the new values.
 function ns.ApplyAll()
 	if InCombatLockdown() then
-		ns.Print('Harc közben nem lehet, próbáld utána.')
+		ns.Print('Not possible in combat, try again afterwards.')
 		return
 	end
 	for _, target in ipairs(targets) do
@@ -290,7 +290,7 @@ function ns.ApplyAll()
 			if result ~= nil then target.apply() end
 		end)
 		if result == nil then
-			ns.Print(target.name .. ' most nincs betöltve, kimaradt.')
+			ns.Print(target.name .. ' is not loaded right now, skipped.')
 		end
 	end
 	Try(ns.ApplyEditMode)
@@ -298,12 +298,15 @@ function ns.ApplyAll()
 	ReloadUI()
 end
 
--- Belépéskor visszaáll a profil, ha valami elváltotta, és újra rákerül a kinézet.
--- A pozíciókhoz itt nem nyúlunk, azok a profilban vannak.
+-- On login the profile is restored if something switched it, and the look is applied again.
+-- We do not touch the positions here, they are in the profile.
 local function KeepSkins()
 	if not ns.CharDB.applied then
-		ns.Print('Az elrendezéshez és a skinekhez írd be: /slim apply')
+		ns.Print('To set up the layout and skins, type /slim apply')
 		return
+	end
+	if ns.CharDB.applied < C.version then
+		ns.Print('This version moved some frames and boss mod bars. Type /slim apply to update them.')
 	end
 	for _, target in ipairs(targets) do
 		if target.style then

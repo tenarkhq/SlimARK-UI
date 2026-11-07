@@ -7,7 +7,7 @@ local visible = {}
 local hiddenCount = 0
 local slot11Point, slot12Point
 
--- Autorepair minden kalapácsos NPC-nél.
+-- Autorepair at every NPC with a hammer.
 ns.On('MERCHANT_SHOW', function()
 	wipe(ownedCache)
 	C_Timer.After(0.5, function()
@@ -18,9 +18,9 @@ ns.On('MERCHANT_SHOW', function()
 	if not canRepair or cost <= 0 then return end
 	if GetMoney() >= cost then
 		RepairAllItems()
-		ns.Print('Javítás: ' .. GetMoneyString(cost, true))
+		ns.Print('Repaired: ' .. GetMoneyString(cost, true))
 	else
-		ns.Print('Nincs elég pénz a javításra: ' .. GetMoneyString(cost, true))
+		ns.Print('Not enough gold to repair: ' .. GetMoneyString(cost, true))
 	end
 end)
 
@@ -66,7 +66,7 @@ local function IsOwned(index)
 	return owned
 end
 
--- Az Blizzard ellenőrzésén felül a currency és item költséget is nézi.
+-- On top of the Blizzard check, it also looks at the currency and item cost.
 local function CanPay(index, info)
 	if GetMoney() < (info.price or 0) then return false end
 	if CanAffordMerchantItem(index) == false then return false end
@@ -99,7 +99,7 @@ local function ResetSlot(i)
 	_G['MerchantItem' .. i .. 'AltCurrencyFrame']:Hide()
 end
 
--- A Blizzard ugyanezt az értéket a saját fájljában, helyi változóként tartja.
+-- Blizzard keeps this same value in its own file as a local variable.
 local MONEY_WIDTH = 120
 
 local function FillSlot(i, index)
@@ -241,7 +241,7 @@ local function Render()
 	MerchantPrevPageButton:SetEnabled(page > 1)
 	MerchantNextPageButton:SetEnabled(page < pages)
 
-	ns.vendorNote:SetText(hiddenCount > 0 and (hiddenCount .. ' rejtve, már megvan') or '')
+	ns.vendorNote:SetText(hiddenCount > 0 and (hiddenCount .. ' hidden, already known') or '')
 end
 
 local function Restore()
@@ -257,7 +257,7 @@ ns.On('PLAYER_LOGIN', function()
 	slot11Point = { MerchantItem11:GetPoint(1) }
 	slot12Point = { MerchantItem12:GetPoint(1) }
 
-	-- A jobb oldali két oszlop: 11-12 a Blizzardé, 13-20 a miénk.
+	-- The two right-hand columns: 11-12 are Blizzard's, 13-20 are ours.
 	for i = 13, PER_PAGE do
 		local slot = CreateFrame('Frame', 'MerchantItem' .. i, MerchantFrame, 'MerchantItemTemplate')
 		local above = i - 2

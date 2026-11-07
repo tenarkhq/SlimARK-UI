@@ -7,12 +7,12 @@ local rows, icons = {}, {}
 local formatter, zero
 local barFrame, iconFrame
 
--- A gyógyító elrendezésben keskenyebb a sáv és az ikonsor.
+-- In the healer layout the bar and the icon row are narrower.
 local function Width()
 	return ns.healer and cfg.heal.w or cfg.w
 end
 
--- A pet spelljei külön könyvben vannak, ilyen a warlock Spell Lock.
+-- Pet spells are in a separate book, like the warlock Spell Lock.
 local function Known(id)
 	return C_SpellBook.IsSpellInSpellBook(id)
 		or C_SpellBook.IsSpellInSpellBook(id, Enum.SpellBookSpellBank.Pet)
@@ -24,7 +24,7 @@ local function PickSpell(ids)
 	end
 end
 
--- A játék Cooldown Viewer listája az adott spechez.
+-- The game's Cooldown Viewer list for the given spec.
 local function ViewerSpells(category)
 	local spells = {}
 	if not C_CooldownViewer.IsCooldownViewerAvailable() then return spells end
@@ -65,7 +65,7 @@ local function CreateRow(parent, index)
 	ns.Gloss(bar)
 	row.Bar = bar
 
-	-- Kész állapotban teli, élénk sáv. Cooldown alatt eltűnik, és a fogyó sáv látszik.
+	-- When ready, a full, vivid bar. On cooldown it disappears and the draining bar shows.
 	local ready = bar:CreateTexture(nil, 'ARTWORK', nil, 1)
 	ready:SetAllPoints()
 	row.Ready = ready
@@ -78,7 +78,7 @@ local function CreateRow(parent, index)
 	row.binding = C_DurationUtil.CreateDurationTextBinding()
 	row.binding:SetFormatter(formatter)
 	row.binding:SetFontString(row.Time)
-	row.binding:SetExpiredText('kész')
+	row.binding:SetExpiredText('ready')
 	return row
 end
 
@@ -88,8 +88,8 @@ local function SetRow(row, id, color)
 	row.Ready:SetColorTexture(color[1], color[2], color[3], 0.85)
 end
 
--- A spec saját listája megy előre, a maradék helyet a játék listája tölti ki.
--- Visszaadja, mely spellek kerültek sávra.
+-- The spec's own list goes first, the game's list fills the remaining space.
+-- Returns which spells ended up on a bar.
 local function AssignRows(spec)
 	local used, count = {}, 0
 	local function Add(id, color)
@@ -111,12 +111,15 @@ local function AssignRows(spec)
 	return used
 end
 
+-- Icon and name only change with spells or talents, so Refresh sets them, not every cooldown event.
+local function SetRowLook(row)
+	row.Icon:SetTexture(C_Spell.GetSpellTexture(row.spellID))
+	row.Name:SetText(C_Spell.GetSpellName(row.spellID))
+end
+
 local function UpdateRow(row)
 	if not row:IsShown() then return end
 	local id = row.spellID
-
-	row.Icon:SetTexture(C_Spell.GetSpellTexture(id))
-	row.Name:SetText(C_Spell.GetSpellName(id))
 
 	local info = C_Spell.GetSpellCooldown(id)
 	local active = info and info.isActive and not info.isOnGCD
@@ -129,7 +132,7 @@ local function UpdateRow(row)
 	else
 		row.Bar:SetTimerDuration(zero, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
 		row.binding:SetEnabled(false)
-		row.Time:SetText('kész')
+		row.Time:SetText('ready')
 		row.Ready:Show()
 	end
 end
@@ -157,7 +160,6 @@ end
 
 local function UpdateIcon(f)
 	local id = f.spellID
-	f.Icon:SetTexture(C_Spell.GetSpellTexture(id))
 
 	local charges = C_Spell.GetSpellCharges(id)
 	if charges and charges.maxCharges > 1 then
@@ -185,7 +187,7 @@ local function UpdateIcon(f)
 	end
 end
 
--- A rotációs sor a spec saját listája, ahol nincs, ott a játéké a sávokon lévők nélkül.
+-- The rotation row is the spec's own list, where there is none the game's, without the ones already on bars.
 local function IconSpells(spec, used)
 	local spells, seen = {}, {}
 	for _, id in ipairs(spec.icons or ViewerSpells(Enum.CooldownViewerCategory.Essential)) do
@@ -225,10 +227,47 @@ local function UpdateAll()
 	end
 end
 
-local function Refresh()
+-- The game names the spell whose cooldown changed; only that bar or icon is redrawn.
+-- Without a spell, or when it is hidden from us, everything updates.
+local function OnCooldown(_, spellID, baseSpellID)
+	if spellID == nil or issecretvalue(spellID) or (baseSpellID ~= nil and issecretvalue(baseSpellID)) then
+		UpdateAll()
+		return
+	end
+	-- A bar may hold the base spell or its talent override, either can arrive here.
+	local override = C_Spell.GetOverrideSpell(spellID)
+	local function Match(id)
+		return id == spellID or id == baseSpellID or id == override
+	end
+	for _, row in ipairs(rows) do
+		if row:IsShown() and Match(row.spellID) then UpdateRow(row) end
+	end
+	for _, f in ipairs(icons) do
+		if f:IsShown() and Match(f.spellID) then UpdateIcon(f) end
+	end
+end
+
+local function RefreshNow()
 	local spec = CurrentSpec()
 	LayoutIcons(spec, AssignRows(spec))
+	for _, row in ipairs(rows) do
+		if row:IsShown() then SetRowLook(row) end
+	end
+	for _, f in ipairs(icons) do
+		if f:IsShown() then f.Icon:SetTexture(C_Spell.GetSpellTexture(f.spellID)) end
+	end
 	UpdateAll()
+end
+
+-- Spell, talent and spec events often come in bursts: one rebuild on the next frame covers them all.
+local refreshQueued = false
+local function Refresh()
+	if refreshQueued then return end
+	refreshQueued = true
+	C_Timer.After(0, function()
+		refreshQueued = false
+		RefreshNow()
+	end)
 end
 
 local function Resize()
@@ -259,8 +298,8 @@ ns.On('PLAYER_LOGIN', function()
 		icons[i] = CreateIcon(iconFrame)
 	end
 
-	Refresh()
-	ns.On('SPELL_UPDATE_COOLDOWN', UpdateAll)
+	RefreshNow()
+	ns.On('SPELL_UPDATE_COOLDOWN', OnCooldown)
 	ns.On('SPELL_UPDATE_CHARGES', UpdateAll)
 	ns.On('SPELLS_CHANGED', Refresh)
 	ns.On('PLAYER_TALENT_UPDATE', Refresh)

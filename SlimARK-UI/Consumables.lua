@@ -3,7 +3,7 @@ local C = ns.C
 local cfg = C.consumables
 
 local IMBUE_SUBCLASS = 6
--- Thalassian Phoenix Oil és Smuggler's Enchanted Edge, mindkét minőség. Ezek osztálytól függetlenül számítanak.
+-- Thalassian Phoenix Oil and Smuggler's Enchanted Edge, both qualities. These count regardless of class.
 local KNOWN_IMBUES = { [243733] = true, [243734] = true, [243737] = true, [243738] = true }
 
 local buttons = {}
@@ -18,8 +18,8 @@ end
 
 local imbues = {}
 
--- A fegyverolajok osztálya kiegészítésenként más, ezért a leírásukból ismerjük fel őket:
--- a használati sor fegyverről szól, percekre vagy órákra szól, és nem gyógyító olaj.
+-- The class of weapon oils differs per expansion, so we recognize them from their description:
+-- the use line is about a weapon, lasts minutes or hours, and is not a healing oil.
 local function IsWeaponImbue(bag, slot, id)
 	if KNOWN_IMBUES[id] then return true end
 	if imbues[id] ~= nil then return imbues[id] end
@@ -57,7 +57,7 @@ local function Scan()
 					subclass = IMBUE_SUBCLASS
 					isConsumable = true
 				elseif subclass == IMBUE_SUBCLASS then
-					-- Ebbe az osztályba más is esik, például spark, ide csak a felismert olaj kerül.
+					-- Other items fall into this class too, for example spark, so only recognized oils go here.
 					isConsumable = false
 				end
 				if isConsumable then
@@ -170,7 +170,16 @@ ns.On('PLAYER_LOGIN', function()
 		buttons[i] = CreateButton(i)
 	end
 	Refresh()
-	ns.On('BAG_UPDATE_DELAYED', Refresh)
+	-- Looting fires many bag updates in a row: the bags are scanned once they settle.
+	local queued = false
+	ns.On('BAG_UPDATE_DELAYED', function()
+		if queued then return end
+		queued = true
+		C_Timer.After(0.3, function()
+			queued = false
+			Refresh()
+		end)
+	end)
 	ns.On('BAG_UPDATE_COOLDOWN', UpdateCounts)
 	ns.On('PLAYER_REGEN_ENABLED', function()
 		if pending then

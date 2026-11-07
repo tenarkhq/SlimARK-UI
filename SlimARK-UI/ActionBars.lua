@@ -14,7 +14,7 @@ local BARS = {
 	{ 'PetActionButton', 10 },
 }
 
--- Szögletes ikon, vékony fekete keret. A gombok működéséhez nem nyúl, csak a textúrákhoz és a betűkhöz.
+-- Square icon, thin black border. It does not touch how the buttons work, only the textures and the fonts.
 local function Skin(button)
 	local icon = button.icon or button.Icon
 	if not icon then return end

@@ -93,7 +93,7 @@ local function Update(button, side, slot)
 		local isWeaponSlot = slot == 16 or slot == 17
 		local classID = select(6, C_Item.GetItemInfoInstant(link))
 		if not isWeaponSlot or classID == Enum.ItemClass.Weapon then
-			o.Enchant:SetText('Nincs enchant')
+			o.Enchant:SetText('No enchant')
 			o.Enchant:SetTextColor(1, 0.25, 0.25)
 		end
 	end
@@ -131,7 +131,8 @@ ns.On('PLAYER_LOGIN', function()
 	collect(BOTTOM, 'bottom')
 
 	hooksecurefunc('PaperDollItemSlotButton_Update', function(button)
+		-- Only while the character sheet is open: it updates every slot again when shown.
 		local s = slots[button]
-		if s then Update(button, s.side, s.id) end
+		if s and CharacterFrame and CharacterFrame:IsShown() then Update(button, s.side, s.id) end
 	end)
 end)

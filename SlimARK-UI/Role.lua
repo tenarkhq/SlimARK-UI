@@ -1,10 +1,10 @@
 local _, ns = ...
 
--- Két elrendezés van: DPS és tank közös, a gyógyító külön. A spec dönt, harc közben a váltás vár.
+-- There are two layouts: DPS and tank share one, the healer has its own. The spec decides, and in combat the switch waits.
 local headers, listeners = {}, {}
 local pending = false
 
--- A mostani spec azonosítója és szerepe. Spec nélkül mindkettő üres.
+-- ID and role of the current spec. Both are empty without a spec.
 function ns.SpecInfo()
 	local index = C_SpecializationInfo.GetSpecialization()
 	if not index or index == 0 then return end
@@ -17,12 +17,12 @@ local function IsHealerSpec()
 	return role == 'HEALER'
 end
 
--- Betöltéskor a keretek már a jó helyen jönnek létre, ezért itt nincs mozgatás.
+-- At load the frames are created in the right place already, so there is no moving here.
 function ns.ReadRole()
 	ns.healer = IsHealerSpec()
 end
 
--- Mindkét szerep csoportkeretei léteznek, mindig csak az egyiké látszik.
+-- The group frames of both roles exist, but only one of them is shown at a time.
 local function ShowHeader(entry)
 	entry.header:SetVisibility(entry.forHealer == ns.healer and entry.visibility or 'custom hide')
 end

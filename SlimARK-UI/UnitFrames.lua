@@ -12,22 +12,56 @@ Tags.Methods['slim:pct'] = function(u)
 	if UnitIsDead(u) or UnitIsGhost(u) or not UnitIsConnected(u) then return end
 	return string.format('%d%%', UnitHealthPercent(u, true, CurveConstants.ScaleTo100))
 end
+-- To tenths, used by the nameplate and the party frames.
+Tags.Methods['slim:pct1'] = function(u)
+	if UnitIsDead(u) or UnitIsGhost(u) or not UnitIsConnected(u) then return end
+	return string.format('%.1f%%', UnitHealthPercent(u, true, CurveConstants.ScaleTo100))
+end
 Tags.Methods['slim:hp'] = function(u)
 	if UnitIsDead(u) or UnitIsGhost(u) or not UnitIsConnected(u) then return end
 	return string.format('%s · %d%%', AbbreviateNumbers(UnitHealth(u)), UnitHealthPercent(u, true, CurveConstants.ScaleTo100))
 end
-for _, tag in ipairs({ 'slim:cur', 'slim:pct', 'slim:hp' }) do
+for _, tag in ipairs({ 'slim:cur', 'slim:pct', 'slim:pct1', 'slim:hp' }) do
 	Tags.Events[tag] = 'UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION'
 end
 
 function ns.StyleAuraButton(element, button)
 	if button.Icon then button.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) end
 	ns.Outline(button)
-	if button.Count then button.Count:SetFont(ns.FONT, 16, 'OUTLINE') end
+	if button.Count then button.Count:SetFont(ns.FONT, 17, 'THICKOUTLINE') end
 	if button.Time then
 		button.Time:SetFont(ns.FONT, 15, 'OUTLINE')
 		button.Time:ClearAllPoints()
 		button.Time:SetPoint('BOTTOM', button, 'BOTTOM', 0, 1)
+	end
+end
+
+-- The player's buffs and debuffs: the icon on top, the countdown below it,
+-- the stack count large with a thick outline in the top right corner.
+local function AuraBelowStyle(cfg)
+	return function(_, button)
+		local icon = button.Icon
+		icon:ClearAllPoints()
+		icon:SetPoint('TOPLEFT')
+		icon:SetPoint('TOPRIGHT')
+		icon:SetHeight(cfg.size)
+		icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+		local edge = button:CreateTexture(nil, 'BACKGROUND', nil, -8)
+		edge:SetColorTexture(0, 0, 0, 1)
+		edge:SetPoint('TOPLEFT', icon, -1, 1)
+		edge:SetPoint('BOTTOMRIGHT', icon, 1, -1)
+		if button.Border then button.Border:SetAllPoints(icon) end
+		if button.Count then
+			button.Count:SetFont(ns.FONT, cfg.countFont, 'THICKOUTLINE')
+			button.Count:ClearAllPoints()
+			button.Count:SetPoint('TOPRIGHT', icon, 'TOPRIGHT', 1, 1)
+		end
+		if button.Time then
+			button.Time:SetFont(ns.FONT, cfg.timeFont, 'OUTLINE')
+			button.Time:SetTextColor(1, 0.85, 0.35)
+			button.Time:ClearAllPoints()
+			button.Time:SetPoint('TOP', icon, 'BOTTOM', 0, -2)
+		end
 	end
 end
 
@@ -58,7 +92,7 @@ local function CreatePower(self, bottomOffset)
 	self.Power = power
 end
 
--- Az oUF a játék halvány színét adná, itt minden osztálynál sárgás narancs.
+-- oUF would give the game's pale color, here it is a yellowish orange for every class.
 local function ColorPips(element)
 	local c = C.colors.classPower
 	for i = 1, #element do
@@ -66,7 +100,7 @@ local function ColorPips(element)
 	end
 end
 
--- A pipek mindig kitöltik a keret szélességét, akármennyi van belőlük.
+-- The pips always fill the width of the frame, however many there are.
 local function SizePips(pips, count)
 	local gap = 1
 	local w = (pips.width - gap * (count - 1)) / count
@@ -91,7 +125,7 @@ local function CreatePips(self, count, width, height)
 	return pips
 end
 
--- Class power nélkül a csík helyét az életerő kapja meg.
+-- Without class power the health gets the place of the strip.
 local function ShowClassPowerStrip(self, shown)
 	local strip = shown and C.units.player.classPower + 1 or 0
 	self.Power:SetPoint('BOTTOMLEFT', 0, strip)
@@ -100,7 +134,7 @@ local function ShowClassPowerStrip(self, shown)
 end
 
 local RUNES = 6
--- A legtöbb pipet az Enhancement shaman kéri, Maelstrom Weaponből tizet.
+-- The Enhancement shaman asks for the most pips, ten from Maelstrom Weapon.
 local MAX_PIPS = 10
 
 local function CreateClassPower(self, width, height)
@@ -122,8 +156,8 @@ local function CreateClassPower(self, width, height)
 	self.ClassPower = pips
 end
 
--- Közös castbar. Ellenfélnél világoskék, a játék szerint fontos castnál narancs,
--- nem szakítható castnál szürke.
+-- Shared castbar. Light blue for an enemy, magenta for a cast the game marks important,
+-- gray for an uninterruptible cast.
 function ns.CreateCastbar(self, width, height, canInterrupt, fontSize)
 	local cb = CreateFrame('StatusBar', nil, self)
 	cb:SetSize(width, height)
@@ -175,7 +209,7 @@ local GROUP_KINDS = {
 	SlimARK_HealRaid = 'grid',
 }
 
--- A defensive ideje a kis ikon közepén, jól olvashatóan.
+-- The defensive's time in the middle of the small icon, easy to read.
 local function StyleDefensive(element, button)
 	ns.StyleAuraButton(element, button)
 	button.Time:SetFont(ns.FONT, 15, 'OUTLINE')
@@ -192,7 +226,7 @@ local function Style(self, unit)
 	if not o then return end
 
 	self:RegisterForClicks('AnyUp')
-	-- A Blizzard tooltip a .unit mezőt olvassa, az oUF a __unit mezőben tartja az egységet.
+	-- The Blizzard tooltip reads the .unit field, oUF keeps the unit in the __unit field.
 	self:HookScript('OnEnter', function(frame)
 		if not frame.__unit then return end
 		frame.unit = frame.__unit
@@ -231,14 +265,15 @@ local function Style(self, unit)
 		value:SetPoint('BOTTOMRIGHT', -5, 3)
 		self:Tag(value, '[slim:pct]')
 	elseif kind == 'party' or kind == 'grid' then
-		-- A név felül van, hogy alul elférjenek a defensive és a debuff ikonok.
+		-- The name is on top so the defensive and debuff icons fit below.
+		-- The role icon comes before it.
 		value:SetPoint('TOPRIGHT', -5, -3)
-		self:Tag(value, '[dead][offline][slim:pct]')
-		name:SetPoint('TOPLEFT', 5, -3)
+		self:Tag(value, '[dead][offline][slim:pct1]')
+		name:SetPoint('TOPLEFT', o.font + 7, -3)
 		name:SetPoint('TOPRIGHT', value, 'TOPLEFT', -4, 0)
 		self:Tag(name, '[name]')
 	elseif kind == 'raid' then
-		name:SetPoint('TOPLEFT', 5, -3)
+		name:SetPoint('TOPLEFT', o.font + 7, -3)
 		name:SetPoint('RIGHT', -4, 0)
 		self:Tag(name, '[name]')
 		value:SetFont(ns.FONT, 14, 'OUTLINE')
@@ -276,27 +311,30 @@ local function Style(self, unit)
 		local buffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = a.width })
 		buffs:SetSize(a.width, a.height)
 		buffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', a.right, -a.y)
-		buffs.size = a.size
-		buffs.elementSpacing = 3
-		buffs.lineSpacing = 3
+		buffs.width = a.size
+		buffs.height = a.size + a.timeH
+		buffs.elementSpacing = a.gap
+		buffs.lineSpacing = a.gap
 		buffs.disableCooldown = true
 		buffs.showDuration = true
 		buffs.showCount = true
 		buffs.cancelButton = 'RightButtonUp'
-		buffs.PostCreateButton = ns.StyleAuraButton
+		buffs.PostCreateButton = AuraBelowStyle(a)
 		buffs:AddGroup('HELPFUL', { maxFrameCount = a.max })
 
 		local d = C.auras.debuffs
 		local debuffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = d.width })
 		debuffs:SetSize(d.width, d.height)
 		debuffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', d.right, -d.y)
-		debuffs.size = d.size
-		debuffs.elementSpacing = 3
+		debuffs.width = d.size
+		debuffs.height = d.size + d.timeH
+		debuffs.elementSpacing = d.gap
+		debuffs.lineSpacing = d.gap
 		debuffs.disableCooldown = true
 		debuffs.showDuration = true
 		debuffs.showCount = true
 		debuffs.showDebuffBorder = true
-		debuffs.PostCreateButton = ns.StyleAuraButton
+		debuffs.PostCreateButton = AuraBelowStyle(d)
 		debuffs:AddGroup('HARMFUL', { maxFrameCount = d.max })
 	elseif kind == 'target' then
 		local size = C.auras.targetDebuffSize
@@ -314,7 +352,7 @@ local function Style(self, unit)
 	if isGroup then
 		self.Range = { insideAlpha = 1, outsideAlpha = 0.45 }
 
-		-- Minden debuff kis ikonnal, a típus színes kerettel.
+		-- Every debuff with a small icon, the type with a colored border.
 		local debuffs = self:CreateAuras({ initialAnchor = 'BOTTOMRIGHT', growthX = 'LEFT', growthY = 'UP', layoutLimit = o.w })
 		debuffs:SetSize(o.w, o.debuff)
 		debuffs:SetPoint('BOTTOMRIGHT', health, 'BOTTOMRIGHT', -1, 1)
@@ -327,7 +365,7 @@ local function Style(self, unit)
 		debuffs.PostCreateButton = ns.StyleAuraButton
 		debuffs:AddGroup('HARMFUL', { maxFrameCount = 3 })
 
-		-- A saját nagy defensive és a kapott külső defensive, hátralévő idővel.
+		-- Our own big defensive and the external defensive received, with the remaining time.
 		local defensives = self:CreateAuras({ initialAnchor = 'BOTTOMLEFT', growthX = 'RIGHT', growthY = 'UP', layoutLimit = o.w })
 		defensives:SetSize(o.w, o.defensive)
 		defensives:SetPoint('BOTTOMLEFT', health, 'BOTTOMLEFT', 1, 1)
@@ -341,8 +379,8 @@ local function Style(self, unit)
 		defensives:AddGroup('HELPFUL|BIG_DEFENSIVE', { maxFrameCount = 2 })
 		defensives:AddGroup('HELPFUL|EXTERNAL_DEFENSIVE', { maxFrameCount = 2 })
 
-		-- Amit te tudsz levenni: a teljes keret felvillan a típus színével.
-		-- A RAID szűrő retrinél a poisont és a diseaset adja.
+		-- What you can dispel: the whole frame flashes in the type's color.
+		-- The RAID filter gives poison and disease for Retribution.
 		local glow = self:CreateAuras({ initialAnchor = 'TOPLEFT', layoutLimit = o.w })
 		glow:SetAllPoints(self)
 		glow:SetFrameLevel(health:GetFrameLevel() + 5)
@@ -361,6 +399,12 @@ local function Style(self, unit)
 		})
 
 		self.TargetIndicator = ns.Edge(self, 2, C.colors.target, 1)
+
+		-- Tank, heal or dps icon before the name.
+		local role = health:CreateTexture(nil, 'OVERLAY', nil, 7)
+		role:SetSize(o.font + 2, o.font + 2)
+		role:SetPoint('TOPLEFT', 3, -3)
+		self.GroupRoleIndicator = role
 	end
 end
 
@@ -412,7 +456,7 @@ oUF:Factory(function(self)
 	ns.AddGroupHeader(raid, false, RAID_SHOWN)
 	ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false })
 
-	-- A gyógyító rács: öt keret egy sorban, a bal alsó sarka áll, a sorok felfelé nőnek.
+	-- The healer grid: five frames in a row, the bottom left corner is anchored, the rows grow upward.
 	local g = C.units.grid
 	local gridWidth = 5 * (g.w + g.gap) - g.gap
 	local healParty = self:SpawnHeader('SlimARK_HealParty', nil,

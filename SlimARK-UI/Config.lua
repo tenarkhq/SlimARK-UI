@@ -1,21 +1,22 @@
--- Minden pozíció és méret itt van, valódi képpontban, a 2560x1600-as kép bal felső sarkától.
--- A Blizzard elemek helyét és méretét a /slim apply ebből számolja ki az aktuális UI scale-hez.
+-- Every position and size is here, in real pixels, from the top left corner of the 2560x1600 image.
+-- /slim apply calculates the position and size of the Blizzard elements from this for the current UI scale.
 local _, ns = ...
 
--- A cooldown sávok színei szerepenként.
+-- Colors of the cooldown bars per role.
 local MAIN = { 0.89, 0.70, 0.24 }
 local KICK = { 0.84, 0.42, 0.23 }
 local DEFENSIVE = { 0.50, 0.82, 0.91 }
 local IMMUNE = { 0.95, 0.88, 0.54 }
 local UTILITY = { 0.44, 0.80, 0.55 }
 
--- Egy sáv. Több ID esetén az első ismert spell él.
+-- One bar. With several IDs, the first known spell is used.
 local function Bar(color, ...)
 	return { ids = { ... }, color = color }
 end
 
 ns.C = {
-	version = 2,
+	-- Raised when /slim apply has new positions to write (Edit Mode, boss mods).
+	version = 3,
 
 	colors = {
 		track = { 0.137, 0.145, 0.169 },
@@ -23,7 +24,8 @@ ns.C = {
 		cast = { 0.79, 0.64, 0.29 },
 		notInterruptible = { 0.45, 0.45, 0.48 },
 		enemyCast = { 0.35, 0.75, 1 },
-		important = { 1, 0.5, 0.05 },
+		-- Magenta: far from the red, orange and yellow plates and the purple caster.
+		important = { 1, 0.2, 0.75 },
 		casting = { 0.35, 0.75, 1 },
 		caster = { 0.62, 0.4, 1 },
 		target = { 1, 1, 1 },
@@ -37,29 +39,31 @@ ns.C = {
 		pet = { x = 720, y = 1255, w = 170, h = 27, font = 16, heal = { x = 630, y = 1120 } },
 		focus = { x = 1500, y = 1050, w = 260, h = 38, font = 18, heal = { x = 1600, y = 1050 } },
 		boss = { x = 1920, y = 430, w = 270, h = 50, gap = 8, font = 16 },
-		party = { x = 12, y = 860, w = 230, h = 50, gap = 6, debuff = 24, defensive = 22, font = 18 },
+		-- Party (DPS and tank): a column of large frames right next to the character.
+		party = { x = 790, y = 690, w = 160, h = 64, gap = 4, debuff = 22, defensive = 24, font = 16 },
 		raid = { x = 12, y = 760, w = 112, h = 48, gap = 3, debuff = 18, defensive = 20, font = 15 },
-		-- A gyógyító csoport rácsa az action barok fölött. Az y a rács alja, felfelé nő.
+		-- The grid of the healer group above the action bars. The y is the bottom of the grid, it grows upward.
 		grid = { x = 974, y = 1420, w = 120, h = 56, gap = 3, debuff = 22, defensive = 26, font = 16 },
 	},
 
 	auras = {
-		buffs = { right = 2254, y = 12, size = 40, width = 700, height = 86, max = 32 },
-		debuffs = { right = 2254, y = 104, size = 52, width = 400, height = 56, max = 8 },
+		-- timeH: the countdown bar under the icon. gap: space between the icons.
+		buffs = { right = 2254, y = 12, size = 40, timeH = 18, gap = 6, width = 700, height = 122, max = 30, timeFont = 16, countFont = 18 },
+		debuffs = { right = 2254, y = 142, size = 52, timeH = 20, gap = 6, width = 400, height = 72, max = 7, timeFont = 18, countFont = 22 },
 		targetDebuffSize = 38,
 	},
 
-	plate = { w = 200, h = 18, casterH = 24, castH = 16, debuff = 24, font = 15, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6, arrowW = 11, arrowH = 16, arrowGap = 4 },
+	plate = { w = 200, h = 22, casterH = 28, castH = 16, debuff = 24, font = 14, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6, arrowW = 11, arrowH = 16, arrowGap = 4 },
 
 	cooldowns = {
 		x = 1100, y = 1100, w = 360, rowH = 22, gap = 3, font = 16,
 		iconY = 1228, iconSize = 46, iconGap = 3,
-		-- Gyógyító elrendezésben a sávok és az ikonok a játékos kerete alá kerülnek.
+		-- In the healer layout the bars and the icons go under the player frame.
 		heal = { x = 640, y = 1262, w = 320, iconY = 1390 },
-		-- Ha egy spec listájából kevesebb mint öt spell ismert, a játék saját listája tölti ki.
+		-- If fewer than five spells of a spec's list are known, the game's own list fills the rest.
 		fillColor = { 0.62, 0.66, 0.72 },
-		-- Spec azonosító szerint. Amit a karakter nem ismer, az nem jelenik meg.
-		-- Az icons a rotációs sor. Ahol nincs, ott a játék saját spec listája adja.
+		-- By spec ID. What the character does not know is not shown.
+		-- The icons are the rotation row. Where there is none, the game's own spec list provides it.
 		specs = {
 			-- Death Knight: Blood, Frost, Unholy
 			[250] = { bars = { Bar(MAIN, 49028), Bar(KICK, 47528), Bar(DEFENSIVE, 55233), Bar(DEFENSIVE, 48792), Bar(DEFENSIVE, 48707) } },
@@ -122,17 +126,17 @@ ns.C = {
 
 	vendor = { perPage = 20 },
 
-	-- Midnight: fej, váll, mell, láb (spellthread), csizma, gyűrűk, fegyverek.
+	-- Midnight: head, shoulder, chest, legs (spellthread), boots, rings, weapons.
 	enchantSlots = { [1] = true, [3] = true, [5] = true, [7] = true, [8] = true, [11] = true, [12] = true, [16] = true, [17] = true },
 
 	consumables = {
 		x = 1942, y = 1284, size = 40, gap = 3,
-		-- Sorrend és darabszám kategóriánként. A subclass az Enum.ItemConsumableSubclass értéke.
+		-- Order and count per category. The subclass is the Enum.ItemConsumableSubclass value.
 		groups = {
 			{ subclass = 3, count = 2 }, -- flask, phial
-			{ subclass = 1, count = 3 }, -- poti
-			{ subclass = 5, count = 1 }, -- étel
-			{ subclass = 6, count = 1 }, -- olaj, fegyverkő
+			{ subclass = 1, count = 3 }, -- potion
+			{ subclass = 5, count = 1 }, -- food
+			{ subclass = 6, count = 1 }, -- oil, weightstone
 		},
 		extraItems = { 5512, 224464 }, -- healthstone
 	},
@@ -145,25 +149,27 @@ ns.C = {
 	chat = { x = 12, bottom = 1588, w = 614, h = 300, fontSize = 15 },
 
 	bossmods = {
-		normal = { x = 1860, y = 760, w = 320, h = 24 },
+		-- Normal bars sit opposite the party frames, on the right of the character.
+		normal = { x = 1590, y = 690, w = 320, h = 24 },
 		huge = { x = 1100, y = 620, w = 360, h = 28 },
 		gap = 3, fontSize = 16,
 	},
 
-	minimap = { x = 2290, y = 8, size = 260, buttonSize = 22, buttonGap = 3 },
+	minimap = { x = 2290, y = 8, size = 260, buttonSize = 28, buttonGap = 3 },
 
-	tracker = { height = 580, textSize = 12 },
+	-- x, y: the top right corner of the quest tracker. The M+ panel takes its place during a key.
+	tracker = { x = 2548, y = 330, height = 580, textSize = 12 },
 	fps = { y = 6 },
 
 	actionbars = { font = 15, hotkeyFont = 13 },
 
-	-- Blizzard elemek az Edit Mode layoutjában.
-	-- { rendszer, alindex, a keret melyik pontja, x, y }, x és y valódi képpont a bal felső saroktól.
+	-- Blizzard elements in the Edit Mode layout.
+	-- { system, subindex, which point of the frame, x, y }, x and y are real pixels from the top left.
 	layout = {
 		name = 'SlimARK-UI',
 		healName = 'SlimARK-UI Heal',
 		bars = { size = 48, padding = 2, bottom = 1578, center = 1280 },
-		-- Az első három bekapcsolt bar alul középen, alulról felfelé. A többi a chat fölé kerül.
+		-- The first three enabled bars go bottom center, from the bottom up. The rest go above the chat.
 		centerRows = 3,
 		order = {
 			{ index = 'MainBar' },
@@ -193,8 +199,8 @@ ns.C = {
 			{ 'ExtraAbilities', nil, 'BOTTOM', 960, 1150 },
 			{ 'VehicleLeaveButton', nil, 'BOTTOM', 780, 1150 },
 			{ 'LootFrame', nil, 'TOPLEFT', 640, 300 },
-			{ 'DurabilityFrame', nil, 'TOPRIGHT', 2280, 170 },
-			{ 'VehicleSeatIndicator', nil, 'TOPRIGHT', 1900, 170 },
+			{ 'DurabilityFrame', nil, 'TOPRIGHT', 2280, 230 },
+			{ 'VehicleSeatIndicator', nil, 'TOPRIGHT', 1900, 230 },
 			{ 'ArchaeologyBar', nil, 'BOTTOM', 1280, 1040 },
 			{ 'PersonalResourceDisplay', nil, 'BOTTOM', 1280, 1000 },
 			{ 'LossOfControl', nil, 'CENTER', 1280, 560 },
@@ -203,10 +209,10 @@ ns.C = {
 			{ 'CooldownViewer', 'Utility', 'BOTTOM', 1280, 1378 },
 			{ 'CooldownViewer', 'BuffIcon', 'BOTTOM', 1280, 1420 },
 			{ 'CooldownViewer', 'BuffBar', 'BOTTOM', 1280, 1092 },
-			{ 'AuraFrame', 'ExternalDefensivesFrame', 'TOPRIGHT', 2170, 170 },
+			{ 'AuraFrame', 'ExternalDefensivesFrame', 'TOPRIGHT', 2170, 230 },
 			{ 'CastBar', nil, 'BOTTOM', 1280, 1000 },
 		},
-		-- A gyógyító layout ugyanez, csak ezek az elemek állnak máshol.
+		-- The healer layout is the same, only these elements are placed elsewhere.
 		healSystems = {
 			{ 'CooldownViewer', 'Essential', 'BOTTOM', 1770, 1336 },
 			{ 'CooldownViewer', 'Utility', 'BOTTOM', 1770, 1378 },
