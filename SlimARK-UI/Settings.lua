@@ -147,6 +147,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.5', lines = {
+		'Fixed: a used trinket did not show above the cooldown bars',
+		'Class buffs like the wings are never taken for a trinket or potion effect',
+	} },
 	{ version = '1.2.4', lines = {
 		'Active trinket and potion effects: icons with a gold countdown above the cooldown bars, above the player frame for healers',
 		'Both trinkets have their own place, the one you use and the one that procs by itself',

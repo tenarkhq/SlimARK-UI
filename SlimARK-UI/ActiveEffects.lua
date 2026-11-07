@@ -14,7 +14,7 @@ local cfg = C.effects
 -- A trinket that procs by itself has no use event, so it shows only through 1 and 3.
 
 local SLOTS = { 13, 14 }
-local CAST_WINDOW = 0.5
+local CAST_WINDOW = 1
 local POTION = Enum.ItemConsumableSubclass and Enum.ItemConsumableSubclass.Potion or 1
 
 local entries = {}
@@ -94,7 +94,7 @@ end
 local function Show(e, instance, icon)
 	local ok, duration = pcall(C_UnitAuras.GetAuraDuration, 'player', instance)
 	if not ok or not duration then return false end
-	e.instance, e.castAt = instance, nil
+	e.instance, e.castAt, e.shownAt = instance, nil, GetTime()
 	local f = e.f
 	f.Icon:SetTexture(icon or e.texture)
 	f.Bar:SetTimerDuration(duration, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
@@ -128,6 +128,9 @@ local function SetupTrinket(e)
 	e.enabled = cfg.trinkets and item ~= nil
 	if not item then return end
 	local spellName, spellID = C_Item.GetItemSpell(item)
+	-- Right after login the item data may not be loaded yet; it is read again when it arrives.
+	e.loaded = spellName ~= nil or spellID ~= nil
+	if not e.loaded then C_Item.RequestLoadItemDataByID(item) end
 	if spellID then e.ids[spellID] = true end
 	if spellName then e.names[spellName] = true end
 	local itemName = C_Item.GetItemNameByID(item)
@@ -162,6 +165,24 @@ local function SetupPotion(e)
 	e.enabled = cfg.potions and #e.items > 0
 end
 
+-- Auras the game's Cooldown Manager tracks belong to class spells (like the wings), never to a trinket or potion.
+local VIEWERS = { 'EssentialCooldownViewer', 'UtilityCooldownViewer', 'BuffIconCooldownViewer', 'BuffBarCooldownViewer' }
+
+local function ClassAura(instance)
+	for _, name in ipairs(VIEWERS) do
+		local viewer = _G[name]
+		if viewer and viewer.itemFramePool then
+			for item in viewer.itemFramePool:EnumerateActive() do
+				if item.GetAuraSpellInstanceID then
+					local ok, id = pcall(item.GetAuraSpellInstanceID, item)
+					if ok and Readable(id) and id == instance then return true end
+				end
+			end
+		end
+	end
+	return false
+end
+
 -- Which entry a new aura belongs to, and a spell ID to learn when the match came another way.
 local function Match(aura, now)
 	local id, name = aura.spellId, aura.name
@@ -172,6 +193,7 @@ local function Match(aura, now)
 			if nameOk and e.names[name] then return e, idOk and id or nil end
 		end
 	end
+	if ClassAura(aura.auraInstanceID) then return end
 	for _, e in ipairs(entries) do
 		if e.enabled and e.castAt and now - e.castAt <= CAST_WINDOW then
 			return e, idOk and id or nil
@@ -265,7 +287,7 @@ local function Used(e, now, spellID)
 	-- The effect's aura may have come a moment before the cast event.
 	for i = #recent, 1, -1 do
 		local r = recent[i]
-		if now - r.time <= CAST_WINDOW then
+		if now - r.time <= CAST_WINDOW and not ClassAura(r.instance) then
 			table.remove(recent, i)
 			local id = r.aura.spellId
 			Learn(e, Readable(id) and id or nil)
@@ -277,14 +299,21 @@ end
 
 local function OnCast(spellID)
 	local now = GetTime()
-	if Readable(spellID) then
+	local readable = Readable(spellID)
+	local matched = false
+	if readable then
 		for _, e in ipairs(entries) do
-			if e.enabled and e.ids[spellID] then Used(e, now, spellID) end
+			if e.enabled and e.ids[spellID] then
+				Used(e, now, spellID)
+				matched = true
+			end
 		end
-		return
 	end
+	if matched then return end
+	-- Hidden or unknown spell: the trinket or potion whose cooldown has just started was the one used.
 	for _, e in ipairs(entries) do
-		if e.enabled and JustUsed(e, now) then Used(e, now) end
+		local busy = (e.castAt and now - e.castAt <= CAST_WINDOW) or (e.shownAt and now - e.shownAt <= CAST_WINDOW)
+		if e.enabled and not busy and JustUsed(e, now) then Used(e, now) end
 	end
 end
 
@@ -325,5 +354,16 @@ ns.On('PLAYER_LOGIN', function()
 		end
 	end)
 	ns.On('BAG_UPDATE_DELAYED', function() SetupPotion(entries[3]) end)
+	-- Item data that was not loaded at login.
+	ns.On('ITEM_DATA_LOAD_RESULT', function(_, itemID)
+		for _, e in ipairs(entries) do
+			if e.kind == 'trinket' and e.item == itemID and not e.loaded then SetupTrinket(e) end
+		end
+	end)
+	ns.On('PLAYER_ENTERING_WORLD', function()
+		for _, e in ipairs(entries) do
+			if e.kind == 'trinket' and not e.loaded then SetupTrinket(e) end
+		end
+	end)
 	FullCheck()
 end)

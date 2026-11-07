@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.5
+
+- Fixed: a used trinket did not show above the cooldown bars when its item data was not loaded yet at login
+- A trinket use is now also recognized from its cooldown starting, and its buff may come up to one second after the use
+- Class buffs that the Cooldown Manager tracks, like the wings, are never taken for a trinket or potion effect, even when a macro uses both at once
+
 ## 1.2.4
 
 - Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame in the healer layout
