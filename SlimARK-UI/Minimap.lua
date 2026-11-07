@@ -63,7 +63,31 @@ local function Adopt(button)
 	button:HookScript('OnShow', LayoutButtons)
 	button:HookScript('OnHide', LayoutButtons)
 	table.insert(adopted, button)
-	table.sort(adopted, function(a, b) return a:GetName() < b:GetName() end)
+	-- SlimARK's own button comes first, the others follow by name.
+	table.sort(adopted, function(a, b)
+		if a.slimOwn ~= b.slimOwn then return a.slimOwn == true end
+		return (a:GetName() or '') < (b:GetName() or '')
+	end)
+end
+
+-- SlimARK-UI's own button in the column: a click opens the settings.
+local function OwnButton()
+	local button = CreateFrame('Button', 'SlimARK_MinimapButton', row)
+	button.slimOwn = true
+	button.icon = button:CreateTexture(nil, 'ARTWORK')
+	button.icon:SetTexture([[Interface\AddOns\SlimARK-UI\Media\Icon]])
+	button:RegisterForClicks('AnyUp')
+	button:SetScript('OnClick', function()
+		if ns.OpenSettings then ns.OpenSettings() end
+	end)
+	button:SetScript('OnEnter', function(self)
+		GameTooltip:SetOwner(self, 'ANCHOR_LEFT')
+		GameTooltip:AddLine('SlimARK-UI ' .. ns.version)
+		GameTooltip:AddLine('Click: open the settings', 1, 1, 1)
+		GameTooltip:Show()
+	end)
+	button:SetScript('OnLeave', GameTooltip_Hide)
+	Adopt(button)
 end
 
 local function CollectButtons()
@@ -141,6 +165,7 @@ local function Arrange()
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not ns.C.modules.minimap then return end
 	-- Addons use this to know that the map is square.
 	function GetMinimapShape() return 'SQUARE' end
 
@@ -175,6 +200,7 @@ ns.On('PLAYER_LOGIN', function()
 			Inside(ExpansionLandingPageMinimapButton, 'BOTTOMRIGHT', -3, 26)
 		end)
 	end
+	OwnButton()
 	CollectButtons()
 	C_Timer.After(3, CollectButtons)
 	C_Timer.After(10, LayoutButtons)

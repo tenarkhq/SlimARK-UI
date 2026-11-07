@@ -306,7 +306,7 @@ local function Style(self, unit)
 		cb:SetPoint('RIGHT', self, 'LEFT', -5, 0)
 	end
 
-	if kind == 'player' then
+	if kind == 'player' and C.modules.auras then
 		local a = C.auras.buffs
 		local buffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = a.width })
 		buffs:SetSize(a.width, a.height)
@@ -381,30 +381,34 @@ local function Style(self, unit)
 
 		-- What you can dispel: the whole frame flashes in the type's color.
 		-- The RAID filter gives poison and disease for Retribution.
-		local glow = self:CreateAuras({ initialAnchor = 'TOPLEFT', layoutLimit = o.w })
-		glow:SetAllPoints(self)
-		glow:SetFrameLevel(health:GetFrameLevel() + 5)
-		glow:AddSlot('HARMFUL|RAID', {
-			CreateButton = function(element, _, button)
-				button:SetSize(o.w, o.h)
-				button:EnableMouse(false)
-				local border = button:CreateTexture(nil, 'OVERLAY')
-				border:SetAllPoints()
-				button:AddDispelTypeTexture(border, {
-					style = Enum.CustomAuraButtonDispelTypeTextureStyle.Border,
-					showWhenHarmful = true,
-					customDispelColorMap = element.__owner.colors.dispel,
-				})
-			end,
-		})
+		if C.features.dispelGlow then
+			local glow = self:CreateAuras({ initialAnchor = 'TOPLEFT', layoutLimit = o.w })
+			glow:SetAllPoints(self)
+			glow:SetFrameLevel(health:GetFrameLevel() + 5)
+			glow:AddSlot('HARMFUL|RAID', {
+				CreateButton = function(element, _, button)
+					button:SetSize(o.w, o.h)
+					button:EnableMouse(false)
+					local border = button:CreateTexture(nil, 'OVERLAY')
+					border:SetAllPoints()
+					button:AddDispelTypeTexture(border, {
+						style = Enum.CustomAuraButtonDispelTypeTextureStyle.Border,
+						showWhenHarmful = true,
+						customDispelColorMap = element.__owner.colors.dispel,
+					})
+				end,
+			})
+		end
 
 		self.TargetIndicator = ns.Edge(self, 2, C.colors.target, 1)
 
 		-- Tank, heal or dps icon before the name.
-		local role = health:CreateTexture(nil, 'OVERLAY', nil, 7)
-		role:SetSize(o.font + 2, o.font + 2)
-		role:SetPoint('TOPLEFT', 3, -3)
-		self.GroupRoleIndicator = role
+		if C.features.roleIcon then
+			local role = health:CreateTexture(nil, 'OVERLAY', nil, 7)
+			role:SetSize(o.font + 2, o.font + 2)
+			role:SetPoint('TOPLEFT', 3, -3)
+			self.GroupRoleIndicator = role
+		end
 	end
 end
 
@@ -414,70 +418,84 @@ oUF:Factory(function(self)
 	self:SetActiveStyle('SlimARK-UI')
 	ns.ReadRole()
 
-	for _, unit in ipairs({ 'player', 'target', 'targettarget', 'pet', 'focus' }) do
-		local o = C.units[unit]
-		ns.Register(self:Spawn(unit, 'SlimARK_' .. unit), o.x, o.y, { key = unit, w = o.w, h = o.h, heal = o.heal })
-	end
-
-	local b = C.units.boss
-	local first, previous
-	for i = 1, 5 do
-		local frame = self:Spawn('boss' .. i, 'SlimARK_Boss' .. i)
-		if i == 1 then
-			first = ns.Register(frame, b.x, b.y, { key = 'boss', w = b.w, h = 5 * (b.h + b.gap) - b.gap })
-		else
-			ns.Register(frame, b.x, b.y, { owner = first, after = previous, gap = b.gap })
+	local M = C.modules
+	if M.unitframes then
+		for _, unit in ipairs({ 'player', 'target', 'targettarget', 'pet', 'focus' }) do
+			local o = C.units[unit]
+			ns.Register(self:Spawn(unit, 'SlimARK_' .. unit), o.x, o.y, { key = unit, w = o.w, h = o.h, heal = o.heal })
 		end
-		previous = frame
+
+		local b = C.units.boss
+		local first, previous
+		for i = 1, 5 do
+			local frame = self:Spawn('boss' .. i, 'SlimARK_Boss' .. i)
+			if i == 1 then
+				first = ns.Register(frame, b.x, b.y, { key = 'boss', w = b.w, h = 5 * (b.h + b.gap) - b.gap })
+			else
+				ns.Register(frame, b.x, b.y, { owner = first, after = previous, gap = b.gap })
+			end
+			previous = frame
+		end
 	end
 
 	local function init(o)
 		return ('self:SetWidth(%d) self:SetHeight(%d)'):format(o.w, o.h)
 	end
 
-	local p = C.units.party
-	local party = self:SpawnHeader('SlimARK_Party', nil,
-		'showParty', true, 'showPlayer', true, 'showRaid', true,
-		'point', 'TOP', 'yOffset', -p.gap,
-		'oUF-initialConfigFunction', init(p))
 	local PARTY_SHOWN = 'custom [@raid6,exists] hide; [group] show; hide'
 	local RAID_SHOWN = 'custom [@raid6,exists] show; hide'
-	ns.AddGroupHeader(party, false, PARTY_SHOWN)
-	ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 5 * (p.h + p.gap) - p.gap, forHealer = false })
 
-	local r = C.units.raid
-	local raid = self:SpawnHeader('SlimARK_Raid', nil,
-		'showRaid', true,
-		'groupFilter', '1,2,3,4,5,6,7,8', 'groupingOrder', '1,2,3,4,5,6,7,8', 'groupBy', 'GROUP',
-		'point', 'LEFT', 'xOffset', r.gap,
-		'unitsPerColumn', 5, 'maxColumns', 8,
-		'columnAnchorPoint', 'TOP', 'columnSpacing', r.gap,
-		'oUF-initialConfigFunction', init(r))
-	ns.AddGroupHeader(raid, false, RAID_SHOWN)
-	ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false })
+	if M.party then
+		local p = C.units.party
+		local party = self:SpawnHeader('SlimARK_Party', nil,
+			'showParty', true, 'showPlayer', true, 'showRaid', true,
+			'point', 'TOP', 'yOffset', -p.gap,
+			'oUF-initialConfigFunction', init(p))
+		ns.AddGroupHeader(party, false, PARTY_SHOWN)
+		ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 5 * (p.h + p.gap) - p.gap, forHealer = false })
+	end
 
-	-- The healer grid: five frames in a row, the bottom left corner is anchored, the rows grow upward.
-	local g = C.units.grid
-	local gridWidth = 5 * (g.w + g.gap) - g.gap
-	local healParty = self:SpawnHeader('SlimARK_HealParty', nil,
-		'showParty', true, 'showPlayer', true, 'showRaid', true,
-		'point', 'LEFT', 'xOffset', g.gap,
-		'oUF-initialConfigFunction', init(g))
-	ns.AddGroupHeader(healParty, true, PARTY_SHOWN)
-	ns.Register(healParty, g.x, g.y, { key = 'healparty', w = gridWidth, h = g.h, point = 'BOTTOMLEFT', forHealer = true })
+	if M.raid then
+		local r = C.units.raid
+		local raid = self:SpawnHeader('SlimARK_Raid', nil,
+			'showRaid', true,
+			'groupFilter', '1,2,3,4,5,6,7,8', 'groupingOrder', '1,2,3,4,5,6,7,8', 'groupBy', 'GROUP',
+			'point', 'LEFT', 'xOffset', r.gap,
+			'unitsPerColumn', 5, 'maxColumns', 8,
+			'columnAnchorPoint', 'TOP', 'columnSpacing', r.gap,
+			'oUF-initialConfigFunction', init(r))
+		ns.AddGroupHeader(raid, false, RAID_SHOWN)
+		ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false })
+	end
 
-	local healRaid = self:SpawnHeader('SlimARK_HealRaid', nil,
-		'showRaid', true,
-		'groupFilter', '1,2,3,4,5,6,7,8', 'groupingOrder', '1,2,3,4,5,6,7,8', 'groupBy', 'GROUP',
-		'point', 'LEFT', 'xOffset', g.gap,
-		'unitsPerColumn', 5, 'maxColumns', 8,
-		'columnAnchorPoint', 'BOTTOM', 'columnSpacing', g.gap,
-		'oUF-initialConfigFunction', init(g))
-	ns.AddGroupHeader(healRaid, true, RAID_SHOWN)
-	ns.Register(healRaid, g.x, g.y, { key = 'healraid', w = gridWidth, h = 8 * (g.h + g.gap) - g.gap, point = 'BOTTOMLEFT', forHealer = true })
+	if M.grid then
+		-- The healer grid: five frames in a row, the bottom left corner is anchored, the rows grow upward.
+		local g = C.units.grid
+		local gridWidth = 5 * (g.w + g.gap) - g.gap
+		local healParty = self:SpawnHeader('SlimARK_HealParty', nil,
+			'showParty', true, 'showPlayer', true, 'showRaid', true,
+			'point', 'LEFT', 'xOffset', g.gap,
+			'oUF-initialConfigFunction', init(g))
+		ns.AddGroupHeader(healParty, true, PARTY_SHOWN)
+		ns.Register(healParty, g.x, g.y, { key = 'healparty', w = gridWidth, h = g.h, point = 'BOTTOMLEFT', forHealer = true })
 
-	ns.Block(CompactRaidFrameContainer)
-	ns.Block(CompactPartyFrame)
-	ns.Block(BuffFrame)
-	ns.Block(DebuffFrame)
+		local healRaid = self:SpawnHeader('SlimARK_HealRaid', nil,
+			'showRaid', true,
+			'groupFilter', '1,2,3,4,5,6,7,8', 'groupingOrder', '1,2,3,4,5,6,7,8', 'groupBy', 'GROUP',
+			'point', 'LEFT', 'xOffset', g.gap,
+			'unitsPerColumn', 5, 'maxColumns', 8,
+			'columnAnchorPoint', 'BOTTOM', 'columnSpacing', g.gap,
+			'oUF-initialConfigFunction', init(g))
+		ns.AddGroupHeader(healRaid, true, RAID_SHOWN)
+		ns.Register(healRaid, g.x, g.y, { key = 'healraid', w = gridWidth, h = 8 * (g.h + g.gap) - g.gap, point = 'BOTTOMLEFT', forHealer = true })
+	end
+
+	-- A Blizzard group frame stays when our frame for that group is switched off.
+	if M.raid or M.grid then ns.Block(CompactRaidFrameContainer) end
+	if M.party or M.grid then ns.Block(CompactPartyFrame) end
+	-- The buffs and debuffs belong to the player frame.
+	if M.unitframes and M.auras then
+		ns.Block(BuffFrame)
+		ns.Block(DebuffFrame)
+	end
 end)

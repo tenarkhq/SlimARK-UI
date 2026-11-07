@@ -36,6 +36,7 @@ local function Skin(button)
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not ns.C.modules.actionbars then return end
 	for _, bar in ipairs(BARS) do
 		for i = 1, bar[2] do
 			local button = _G[bar[1] .. i]

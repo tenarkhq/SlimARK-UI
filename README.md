@@ -20,6 +20,7 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## What's included
 
+- Settings panel (`/slim`, the SlimARK button at the minimap, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
 - Unit frames, party and raid frames, boss frames
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel
@@ -35,22 +36,23 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Character sheet: item level, gems, enchants and what is missing
 - Square minimap with addon buttons along its left edge
 - Quest tracker skin
-- Skins for Details!, DBM, BigWigs and Chattynator
+- Skins for Details!, DBM, BigWigs, Chattynator and BetterBags (classic bags and BetterBags Next)
 - An Edit Mode layout that puts every Blizzard element in place
 
-It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` and `SlimARK-UI Heal` next to them.
+It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` and `SlimARK-UI Heal` next to them. For BetterBags it only selects the SlimARK theme, which you can change back in BetterBags' theme menu.
 
 ## Installation
 
 1. Download the zip from the [Releases](https://github.com/tenarkhq/SlimARK-UI/releases) page.
 2. Extract it into `World of Warcraft/_retail_/Interface/AddOns`. Both folders are needed: `SlimARK-UI` and `!SlimARK_Media`.
-3. In game, type `/slim apply`.
+3. In game, type `/slimark apply`. After each update a window asks for it once; click Apply now.
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `/slim apply` | Sets every position and skin, then reloads the UI |
+| `/slim` | Opens the settings panel |
+| `/slimark apply` | Sets every position and skin, then reloads the UI |
 | `/rl` | Reloads the UI |
 
 SlimARK-UI's own frames can be dragged in Edit Mode, and the DPS and healer layouts remember their positions separately. Blizzard windows move by their title bar and resize with Ctrl + mouse wheel.

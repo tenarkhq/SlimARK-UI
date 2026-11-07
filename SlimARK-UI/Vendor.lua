@@ -13,7 +13,7 @@ ns.On('MERCHANT_SHOW', function()
 	C_Timer.After(0.5, function()
 		if MerchantFrame:IsShown() then MerchantFrame.update = true end
 	end)
-	if not CanMerchantRepair() then return end
+	if not C.features.autoRepair or not CanMerchantRepair() then return end
 	local cost, canRepair = GetRepairAllCost()
 	if not canRepair or cost <= 0 then return end
 	if GetMoney() >= cost then
@@ -254,6 +254,7 @@ local function Restore()
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not C.modules.vendor then return end
 	slot11Point = { MerchantItem11:GetPoint(1) }
 	slot12Point = { MerchantItem12:GetPoint(1) }
 

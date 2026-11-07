@@ -192,15 +192,22 @@ ns.On('ADDON_LOADED', function(_, name)
 end)
 
 ns.On('PLAYER_LOGIN', function()
-	ns.Print(ns.version .. ' loaded. Type /slim for commands.')
+	if not C.features.loginMessage then return end
+	ns.Print(ns.version .. ' loaded. /slim opens the settings, /slimark apply sets up the layout.')
 end)
 
+-- /slim opens the settings panel, /slimark apply writes every position and skin.
 SLASH_SLIMARK1 = '/slim'
-SlashCmdList.SLIMARK = function(msg)
-	if msg == 'apply' then
+SlashCmdList.SLIMARK = function()
+	if ns.OpenSettings then ns.OpenSettings() end
+end
+
+SLASH_SLIMARKAPPLY1 = '/slimark'
+SlashCmdList.SLIMARKAPPLY = function(msg)
+	if strtrim(msg or ''):lower() == 'apply' then
 		ns.ApplyAll()
 	else
-		ns.Print(ns.version .. ' - /slim apply: sets every position and skin, then reloads the UI. Your existing profiles and layouts stay untouched.')
+		ns.Print(ns.version .. ' - /slimark apply: sets every position and skin, then reloads the UI. Your existing profiles and layouts stay untouched. /slim opens the settings.')
 	end
 end
 

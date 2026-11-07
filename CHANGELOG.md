@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.2.0
+
+**Settings panel**
+- Type `/slim`, click the SlimARK button at the minimap, or open Options > AddOns > SlimARK-UI
+- Every element has its own page: unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, action bars, minimap, quest tracker, vendor, windows, Details!, boss mods, BetterBags, chat, Group Finder and cinematics
+- Positions, sizes, fonts, colors and on/off switches, each with a slider and a box you can type into
+- Changed values are marked; reset one value, one page or everything
+- Search box in the header, version and changelog in the panel
+- Save and reload UI applies the changes; values kept by Edit Mode or another addon run `/slimark apply` on their own
+
+**Setup**
+- `/slimark apply` sets up the layout (was `/slim apply`)
+- After an update a window in the middle of the screen asks for `/slimark apply` once, with an Apply now button. It does not come back once the current version is applied
+
+**Skins**
+- BetterBags: flat dark SlimARK theme for the classic bags and BetterBags Next, with black edges, cropped item icons and quality colored borders
+- Details!: player names no longer run into the numbers; two value columns with room for the name
+
+**Minimap**
+- SlimARK-UI has its own button in the minimap button column, and an entry in the minimap's addon menu
+
 ## 1.1.0
 
 **Nameplates**

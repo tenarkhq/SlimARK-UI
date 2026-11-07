@@ -20,6 +20,7 @@ local function CleanHeader(header)
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not ns.C.modules.tracker then return end
 	for size = 12, 22 do
 		local font = _G['ObjectiveTrackerFont' .. size]
 		if font then

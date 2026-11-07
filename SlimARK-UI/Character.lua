@@ -120,6 +120,7 @@ end
 local slots = {}
 
 ns.On('PLAYER_LOGIN', function()
+	if not C.modules.character then return end
 	local function collect(list, side)
 		for name, id in pairs(list) do
 			local button = _G['Character' .. name .. 'Slot']

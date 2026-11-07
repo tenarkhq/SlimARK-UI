@@ -162,6 +162,7 @@ local function CreateButton(i)
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not C.modules.consumables then return end
 	local count = TotalSlots()
 	bar = CreateFrame('Frame', 'SlimARK_Consumables', UIParent)
 	bar:SetSize(count * (cfg.size + cfg.gap), cfg.size)

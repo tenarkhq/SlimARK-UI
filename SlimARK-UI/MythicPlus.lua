@@ -228,10 +228,12 @@ local function Stop()
 end
 
 local function Check()
+	if not panel then return end
 	if C_ChallengeMode.IsChallengeModeActive() then Start() else Stop() end
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not C.modules.mythicplus then return end
 	Build()
 	KeepTrackerHidden()
 end)
@@ -241,7 +243,7 @@ ns.On('WORLD_STATE_TIMER_START', function()
 	if active then FindTimer() end
 end)
 ns.On('CHALLENGE_MODE_COMPLETED', function()
-	if not active then return end
+	if not active or not panel then return end
 	UpdateCriteria()
 	UpdateTime()
 	-- The panel keeps the final time until you leave the dungeon.
@@ -250,7 +252,9 @@ ns.On('CHALLENGE_MODE_COMPLETED', function()
 		ticker = nil
 	end
 end)
-ns.On('CHALLENGE_MODE_RESET', Stop)
+ns.On('CHALLENGE_MODE_RESET', function()
+	if panel then Stop() end
+end)
 ns.On('SCENARIO_CRITERIA_UPDATE', function()
 	if active then UpdateCriteria() end
 end)

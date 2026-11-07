@@ -87,6 +87,7 @@ local function Hook(name)
 end
 
 local function HookAll()
+	if not ns.C.modules.movers then return end
 	for _, name in ipairs(WINDOWS) do Hook(name) end
 end
 

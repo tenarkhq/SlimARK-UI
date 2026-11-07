@@ -155,7 +155,8 @@ local function PlateStyle(self)
 	cb.timeToHold = o.holdTime
 	cb.PostCastInterrupted = function(element, _, _, interruptedBy)
 		element.Text:SetText('Interrupted')
-		local name, class = InterrupterName(interruptedBy)
+		local name, class
+		if C.features.interrupter then name, class = InterrupterName(interruptedBy) end
 		local color = class and C_ClassColor.GetClassColor(class)
 		element.Time:SetText(name)
 		if color then element.Time:SetTextColor(color.r, color.g, color.b) else element.Time:SetTextColor(1, 1, 1) end
@@ -191,7 +192,7 @@ local function PlateStyle(self)
 	-- Target: thin white border and two small arrows pointing at the plate.
 	-- If there is a target, the other plates fade.
 	local indicator = ns.Edge(self, 1, C.colors.target, 2, health)
-	for _, side in ipairs({ 'LEFT', 'RIGHT' }) do
+	for _, side in ipairs(C.features.plateArrows and { 'LEFT', 'RIGHT' } or {}) do
 		local arrow = indicator:CreateTexture(nil, 'OVERLAY')
 		arrow:SetTexture([[Interface\AddOns\SlimARK-UI\Media\Arrow.tga]])
 		arrow:SetSize(o.arrowW, o.arrowH)
@@ -229,6 +230,7 @@ end
 oUF:RegisterStyle('SlimARKPlate', PlateStyle)
 
 oUF:Factory(function(self)
+	if not C.modules.nameplates then return end
 	self:SetActiveStyle('SlimARKPlate')
 	local plates = self:SpawnNamePlates('SlimARKPlate')
 	plates:SetSize(C.plate.w, C.plate.h + 16)

@@ -4,7 +4,7 @@ local _, ns = ...
 -- Movies are identified by their ID, in-game cutscenes by the map and zone
 -- name, because these have no ID of their own.
 ns.On('PLAY_MOVIE', function(_, movieID)
-	if not ns.DB or not movieID then return end
+	if not ns.DB or not movieID or not ns.C.features.skipMovies then return end
 	if ns.DB.seenMovies[movieID] then
 		-- MovieFrame starts the movie on the same event, we stop it afterwards.
 		C_Timer.After(0, function()
@@ -21,7 +21,7 @@ local function CinematicKey()
 end
 
 ns.On('CINEMATIC_START', function(_, canBeCancelled)
-	if not ns.DB then return end
+	if not ns.DB or not ns.C.features.skipCinematics then return end
 	local scene = not canBeCancelled and IsInCinematicScene and IsInCinematicScene()
 	-- We do not touch the vehicle cutscene: it could only be cancelled after leaving the vehicle.
 	if not canBeCancelled and not scene then return end
@@ -61,6 +61,7 @@ end)
 
 -- Role check: accepts on its own with the role by spec.
 ns.On('LFG_ROLE_CHECK_SHOW', function()
+	if not ns.C.features.autoRoleCheck then return end
 	C_Timer.After(0, function()
 		local tank, healer, dps = MyRoles()
 		if not (tank or healer or dps) then return end
@@ -82,7 +83,7 @@ end)
 -- game allows this application.
 local premadeHooked = false
 local function HookPremade()
-	if premadeHooked or not LFGListApplicationDialog or not LFGListSearchEntry_OnClick then return end
+	if premadeHooked or not ns.C.features.oneClickSignup or not LFGListApplicationDialog or not LFGListSearchEntry_OnClick then return end
 	premadeHooked = true
 
 	hooksecurefunc('LFGListSearchEntry_OnClick', function(entry, button)

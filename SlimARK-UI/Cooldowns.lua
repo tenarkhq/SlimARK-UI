@@ -279,6 +279,7 @@ local function Resize()
 end
 
 ns.On('PLAYER_LOGIN', function()
+	if not C.modules.cooldowns then return end
 	formatter = C_StringUtil.CreateSecondsFormatter()
 	formatter:SetDefaultAbbreviation(Enum.SecondsFormatterAbbreviation.OneLetter)
 	formatter:SetMinInterval(Enum.SecondsFormatterInterval.Seconds)

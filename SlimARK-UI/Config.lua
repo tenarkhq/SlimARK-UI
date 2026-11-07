@@ -1,5 +1,5 @@
 -- Every position and size is here, in real pixels, from the top left corner of the 2560x1600 image.
--- /slim apply calculates the position and size of the Blizzard elements from this for the current UI scale.
+-- /slimark apply calculates the position and size of the Blizzard elements from this for the current UI scale.
 local _, ns = ...
 
 -- Colors of the cooldown bars per role.
@@ -15,7 +15,7 @@ local function Bar(color, ...)
 end
 
 ns.C = {
-	-- Raised when /slim apply has new positions to write (Edit Mode, boss mods).
+	-- Raised when /slimark apply has new positions to write (Edit Mode, boss mods).
 	version = 3,
 
 	colors = {
@@ -30,6 +30,26 @@ ns.C = {
 		caster = { 0.62, 0.4, 1 },
 		target = { 1, 1, 1 },
 		mana = { 0.25, 0.5, 0.88 },
+		-- The cooldown bars share these tables, so a color set in /slim reaches every bar.
+		cdMain = MAIN,
+		cdKick = KICK,
+		cdDefensive = DEFENSIVE,
+		cdImmune = IMMUNE,
+		cdUtility = UTILITY,
+	},
+
+	-- Whole modules, switched in /slim. Off leaves the Blizzard frame in place.
+	modules = {
+		unitframes = true, party = true, raid = true, grid = true, nameplates = true, auras = true,
+		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
+		tracker = true, vendor = true, character = true, movers = true, betterbags = true,
+	},
+
+	-- Single features, switched in /slim.
+	features = {
+		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
+		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,
+		skipCinematics = true, skipMovies = true, loginMessage = true,
 	},
 
 	units = {

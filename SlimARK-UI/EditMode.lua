@@ -175,7 +175,7 @@ function ns.ApplyEditMode(onlyNew)
 		if not IndexOf(all, name) then
 			local kind, slot = NewLayoutSlot(all)
 			if not kind then
-				ns.Print('Edit Mode has reached its layout limit. Delete one and run /slim apply again.')
+				ns.Print('Edit Mode has reached its layout limit. Delete one and run /slimark apply again.')
 				return false
 			end
 			local layout = CopyTable(all[IndexOf(all, cfg.name) or info.activeLayout])

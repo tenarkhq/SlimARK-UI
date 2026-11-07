@@ -9,16 +9,63 @@ local DETAILS_SESSIONS = { 0, 1 }
 
 -- Details stores the font and the texture by name, we write them back on every login.
 -- Details does not restore the session type, so that is also restored here.
+-- Under Midnight Details gets the player names as hidden values, so it cannot measure them and
+-- never shortens them: a long name ran under the numbers. The name gets a right edge here, left
+-- of the value columns, and the game cuts it with an ellipsis.
+local nameRoom = 0
+
+local function FitName(row)
+	if not row or not row.statusbar or nameRoom <= 0 then return end
+	for _, key in ipairs({ 'lineText1', 'lineText11' }) do
+		local text = row[key]
+		if text then
+			local point, relativeTo, relativePoint, x, y = text:GetPoint(1)
+			if point then
+				text:ClearAllPoints()
+				text:SetPoint(point, relativeTo, relativePoint, x, y)
+				text:SetPoint('RIGHT', row.statusbar, 'RIGHT', -nameRoom, 0)
+				text:SetJustifyH('LEFT')
+				text:SetWordWrap(false)
+				text:SetNonSpaceWrap(false)
+				text:SetMaxLines(1)
+			end
+		end
+	end
+end
+
+local fitHooked = false
+local function FitAllNames(D, window)
+	for _, row in pairs(window.barras or {}) do FitName(row) end
+	if not fitHooked and D.gump and D.gump.CreateNewLine then
+		fitHooked = true
+		hooksecurefunc(D.gump, 'CreateNewLine', function(_, instance, index)
+			FitName(instance and instance.barras and instance.barras[index])
+		end)
+	end
+end
+
 local function StyleDetails()
 	local D = _G.Details
 	if not D or not D.GetInstance then return end
 	local cfg = C.details
 	local s = ns.Scale()
+	local fontSize = math.floor(cfg.fontSize * s + 0.5)
+	-- Two value columns, total and per second: three do not leave room for a name in a 300 px panel.
+	-- The share of each player is already the length of the bar.
+	local format = D.righttext_simple_formatting
+	if format then
+		format.enabled = false
+		format.use_alignment = true
+		format.alignment_space = math.floor(fontSize * 4.2 + 0.5)
+		nameRoom = format.alignment_space * 2 + 4
+	end
 	for i = 1, 2 do
 		local window = D:GetInstance(i)
 		if window then
 			window:SetBarSettings(math.floor(cfg.barHeight * s + 0.5), ns.SOFT_NAME)
-			window:SetBarTextSettings(math.floor(cfg.fontSize * s + 0.5), ns.FONT_NAME, nil, nil, nil, true, true)
+			window:SetBarTextSettings(fontSize, ns.FONT_NAME, nil, nil, nil, true, true)
+			if window.SetBarRightTextSettings then window:SetBarRightTextSettings(true, true, false) end
+			FitAllNames(D, window)
 			-- Because of the third parameter, Details pulls back to here at the start of every fight.
 			window:SetSegmentType(DETAILS_SESSIONS[i], true, true)
 			-- At the end of a key Details would switch to overall; the right panel should stay on the current fight.
@@ -175,7 +222,7 @@ local function ApplyBigWigs()
 end
 
 -- Chattynator does not accept an external skin, so we set its own dark skin in the SlimARK-UI profile.
--- The new profile is a copy of the current one, and it takes effect on the reload after /slim apply.
+-- The new profile is a copy of the current one, and it takes effect on the reload after /slimark apply.
 local function ChattynatorProfile()
 	local cfg = _G.CHATTYNATOR_CONFIG
 	if not cfg or not cfg.Profiles then return nil end
@@ -271,6 +318,7 @@ local targets = {
 	{ name = 'DBM', profile = DBMProfile, apply = ApplyDBM, style = StyleDBM },
 	{ name = 'BigWigs', profile = BigWigsProfile, apply = ApplyBigWigs, style = StyleBigWigs },
 	{ name = 'Chattynator', profile = ChattynatorProfile, apply = ApplyChattynator },
+	{ name = 'BetterBags', module = 'betterbags', profile = function() return ns.BetterBagsProfile() end, apply = function() ns.ApplyBetterBags() end },
 }
 
 local function Try(fn)
@@ -284,30 +332,57 @@ function ns.ApplyAll()
 		return
 	end
 	for _, target in ipairs(targets) do
-		local result
-		Try(function()
-			result = target.profile()
-			if result ~= nil then target.apply() end
-		end)
-		if result == nil then
-			ns.Print(target.name .. ' is not loaded right now, skipped.')
+		-- A skin switched off in /slim is left alone.
+		if not target.module or C.modules[target.module] then
+			local result
+			Try(function()
+				result = target.profile()
+				if result ~= nil then target.apply() end
+			end)
+			if result == nil then
+				ns.Print(target.name .. ' is not loaded right now, skipped.')
+			end
 		end
 	end
 	Try(ns.ApplyEditMode)
 	ns.CharDB.applied = C.version
+	ns.CharDB.appliedVersion = ns.version
 	ReloadUI()
 end
+
+-- A new version asks for /slimark apply once, in a window in the middle of the screen.
+StaticPopupDialogs.SLIMARK_APPLY = {
+	text = 'SlimARK-UI %s\n\nRun /slimark apply to set up the positions and skins of this version. The UI reloads afterwards. Your own profiles and layouts stay untouched.',
+	button1 = 'Apply now',
+	button2 = 'Later',
+	OnAccept = function() ns.ApplyAll() end,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+}
+
+local function AskForApply()
+	if ns.CharDB.appliedVersion == ns.version then return end
+	if InCombatLockdown() then
+		ns.applyAskPending = true
+		return
+	end
+	StaticPopup_Show('SLIMARK_APPLY', ns.version)
+end
+
+ns.On('PLAYER_REGEN_ENABLED', function()
+	if ns.applyAskPending then
+		ns.applyAskPending = nil
+		AskForApply()
+	end
+end)
 
 -- On login the profile is restored if something switched it, and the look is applied again.
 -- We do not touch the positions here, they are in the profile.
 local function KeepSkins()
-	if not ns.CharDB.applied then
-		ns.Print('To set up the layout and skins, type /slim apply')
-		return
-	end
-	if ns.CharDB.applied < C.version then
-		ns.Print('This version moved some frames and boss mod bars. Type /slim apply to update them.')
-	end
+	AskForApply()
+	if not ns.CharDB.applied then return end
 	for _, target in ipairs(targets) do
 		if target.style then
 			Try(function()
