@@ -87,6 +87,7 @@ ns.C = {
 	minimap = { x = 2290, y = 8, size = 260, buttonSize = 22, buttonGap = 3 },
 
 	tracker = { height = 580, textSize = 12 },
+	fps = { y = 6 },
 
 	actionbars = { font = 15, hotkeyFont = 13 },
 

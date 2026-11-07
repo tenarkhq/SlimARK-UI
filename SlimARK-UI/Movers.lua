@@ -177,3 +177,15 @@ ns.On('PLAYER_LOGIN', function()
 	EventRegistry:RegisterCallback('EditMode.Enter', ShowOverlays, ns)
 	EventRegistry:RegisterCallback('EditMode.Exit', HideOverlays, ns)
 end)
+
+-- A Blizzard FPS kijelző a micro menü mellé tenné magát, felül középen van jó helyen.
+ns.On('PLAYER_LOGIN', function()
+	local fps = FramerateFrame
+	if not fps then return end
+	local function Place()
+		fps:ClearAllPoints()
+		fps:SetPoint('TOP', UIParent, 'TOP', 0, -ns.C.fps.y * ns.Scale())
+	end
+	Place()
+	hooksecurefunc(fps, 'UpdatePosition', Place)
+end)
