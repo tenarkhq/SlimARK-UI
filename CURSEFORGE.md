@@ -89,6 +89,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 
 - Slim countdown bars with your spec's own important cooldowns, for all 13 classes
 - While a spell's effect is up, like the wings, its bar counts the effect down first with a gold frame, then shows the cooldown
+- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself
 - A bar updates only when its own spell changes, so busy fights cost almost nothing
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing

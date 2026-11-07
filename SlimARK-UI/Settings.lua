@@ -43,7 +43,7 @@ S.groups = {
 				T('Cooldown bars', 'modules.cooldowns'), T('Consumables', 'modules.consumables'), T('Mythic+ panel', 'modules.mythicplus'),
 				T('Action bar skin', 'modules.actionbars'), T('Minimap', 'modules.minimap'), T('Quest tracker', 'modules.tracker'),
 				T('Vendor', 'modules.vendor'), T('Character sheet', 'modules.character'), T('Window mover', 'modules.movers'),
-				T('BetterBags skin', 'modules.betterbags'),
+				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'),
 			} } } },
 		{ id = 'colors', name = 'Colors', desc = 'Colors shared by several elements.',
 			secs = { { name = 'Colors', rows = {
@@ -103,6 +103,10 @@ S.groups = {
 				{ name = 'Active effect', rows = { T('Count down the effect first', 'features.activeAuras') } },
 				{ name = 'Colors', rows = { Col('Main', 'colors.cdMain'), Col('Interrupt', 'colors.cdKick'), Col('Defensive', 'colors.cdDefensive'),
 					Col('Immunity', 'colors.cdImmune'), Col('Utility', 'colors.cdUtility'), Col('Bar fill', 'cooldowns.fillColor') } } } },
+		{ id = 'effects', name = 'Trinkets and potions', module = 'modules.effects', keys = { 'effects' },
+			desc = 'Icons with a gold countdown while a trinket or potion effect is up: above the cooldown bars, above the player frame for healers.',
+			secs = { Pos('effects', true), { name = 'Icons', rows = { R('Icon size', 'effects.size', 20, 80), R('Gap', 'effects.gap', 0, 20), R('Font size', 'effects.font', 8, 30) } },
+				{ name = 'Show', rows = { T('Trinkets', 'effects.trinkets'), T('Potions', 'effects.potions') } } } },
 		{ id = 'consumables', name = 'Consumables', module = 'modules.consumables', keys = { 'consumables' },
 			secs = { Pos('consumables'), { name = 'Icons', rows = { R('Icon size', 'consumables.size', 20, 80), R('Gap', 'consumables.gap', 0, 20) } } } },
 		{ id = 'mythicplus', name = 'Mythic+ panel', module = 'modules.mythicplus', desc = 'Compact panel in place of the quest tracker while a key runs. It sits left of the quest tracker position (Interface: Quest tracker); drag it in Edit Mode to move it.',
@@ -143,6 +147,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.4', lines = {
+		'Active trinket and potion effects: icons with a gold countdown above the cooldown bars, above the player frame for healers',
+		'Both trinkets have their own place, the one you use and the one that procs by itself',
+	} },
 	{ version = '1.2.3', lines = {
 		'Fixed: unit frames and nameplates lost their colors in 1.2.2 (white health and power bars)',
 	} },

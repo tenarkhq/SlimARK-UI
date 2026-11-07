@@ -26,6 +26,7 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel
 - Nameplates: name and health inside the plate, highlighted target, casters marked before they cast, important casts in magenta, shows who interrupted a cast and who targets the mob
 - Cooldown bars with each spec's own cooldowns for all 13 classes, and a rotation icon row; while a spell's effect is up, like the wings, its bar counts the effect down first
+- Active trinket and potion effects as icons with a gold countdown above the cooldown bars (above the player frame for healers), both trinkets and your potion
 - Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
 - Buffs and debuffs with the time left under each icon
 - Shields (damage absorbs) in light stripes on every unit frame and nameplate, enemy shields too

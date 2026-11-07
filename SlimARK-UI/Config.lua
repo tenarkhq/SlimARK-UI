@@ -44,7 +44,7 @@ ns.C = {
 	modules = {
 		unitframes = true, party = true, raid = true, grid = true, nameplates = true, auras = true,
 		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
-		tracker = true, vendor = true, character = true, movers = true, betterbags = true,
+		tracker = true, vendor = true, character = true, movers = true, betterbags = true, effects = true,
 	},
 
 	-- Single features, switched in /slimark.
@@ -150,6 +150,12 @@ ns.C = {
 
 	-- Midnight: head, shoulder, chest, legs (spellthread), boots, rings, weapons.
 	enchantSlots = { [1] = true, [3] = true, [5] = true, [7] = true, [8] = true, [11] = true, [12] = true, [16] = true, [17] = true },
+
+	-- Active trinket and potion effects: icons above the cooldown bars, above the player frame for healers.
+	effects = {
+		x = 1216, y = 1028, size = 40, gap = 4, font = 16, trinkets = true, potions = true,
+		heal = { x = 736, y = 1048 },
+	},
 
 	consumables = {
 		x = 1942, y = 1284, size = 40, gap = 3,

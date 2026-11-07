@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.4
+
+- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame in the healer layout
+- Fixed order: upper trinket, lower trinket, potion. A trinket you use shows from the moment you use it; a trinket that procs by itself shows from its own buff
+- Its own page in `/slimark` (position for DPS and healer, icon size, trinkets and potions on or off) and draggable in Edit Mode
+
 ## 1.2.3
 
 - Fixed: unit frames and nameplates lost their colors in 1.2.2 (white health and power bars). The shield code broke the health update before the bar was colored
