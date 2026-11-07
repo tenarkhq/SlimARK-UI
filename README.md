@@ -20,7 +20,7 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## What's included
 
-- Settings panel (`/slim`, the SlimARK button at the minimap, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
+- Settings panel (`/slimark`, the SlimARK button at the minimap, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
 - Unit frames, party and raid frames, boss frames
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel
@@ -51,7 +51,7 @@ It never overwrites your existing profiles or layouts. It creates new ones named
 
 | Command | What it does |
 | --- | --- |
-| `/slim` | Opens the settings panel |
+| `/slimark` | Opens the settings panel |
 | `/slimark apply` | Sets every position and skin, then reloads the UI |
 | `/rl` | Reloads the UI |
 

@@ -30,7 +30,7 @@ ns.C = {
 		caster = { 0.62, 0.4, 1 },
 		target = { 1, 1, 1 },
 		mana = { 0.25, 0.5, 0.88 },
-		-- The cooldown bars share these tables, so a color set in /slim reaches every bar.
+		-- The cooldown bars share these tables, so a color set in /slimark reaches every bar.
 		cdMain = MAIN,
 		cdKick = KICK,
 		cdDefensive = DEFENSIVE,
@@ -38,14 +38,14 @@ ns.C = {
 		cdUtility = UTILITY,
 	},
 
-	-- Whole modules, switched in /slim. Off leaves the Blizzard frame in place.
+	-- Whole modules, switched in /slimark. Off leaves the Blizzard frame in place.
 	modules = {
 		unitframes = true, party = true, raid = true, grid = true, nameplates = true, auras = true,
 		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
 		tracker = true, vendor = true, character = true, movers = true, betterbags = true,
 	},
 
-	-- Single features, switched in /slim.
+	-- Single features, switched in /slimark.
 	features = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
 		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,

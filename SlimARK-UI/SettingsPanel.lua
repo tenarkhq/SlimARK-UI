@@ -1,7 +1,7 @@
 local _, ns = ...
 local S = ns.Settings
 
--- The /slim panel: sections listed on the left, the chosen one's settings on the
+-- The /slimark panel: sections listed on the left, the chosen one's settings on the
 -- right, search in the header, save and resets in the footer. Values are in
 -- real pixels, like Config.lua. Changes apply after the reload that saving does.
 local W, H, NAV, BAR = 980, 640, 210, 46
@@ -522,7 +522,7 @@ local function RenderAbout(width)
 	Line('Version', ns.version)
 	Line('Game', 'World of Warcraft Retail, Midnight')
 	Line('Layout made for', '2560x1600, UI scale 65%')
-	Line('Commands', '/slim opens this panel, /slimark apply sets up the layout, /rl reloads the UI')
+	Line('Commands', '/slimark opens this panel, /slimark apply sets up the layout, /rl reloads the UI')
 	Line('Bugs', 'github.com/tenarkhq/SlimARK-UI/issues')
 	y = y - 10
 	local sec = Acquire('section', mainChild, SectionHeader)
@@ -807,7 +807,7 @@ ns.On('PLAYER_LOGIN', function()
 	title:SetText('SlimARK-UI ' .. ns.version)
 	local note = canvas:CreateFontString(nil, 'ARTWORK', 'GameFontHighlight')
 	note:SetPoint('TOPLEFT', title, 'BOTTOMLEFT', 0, -10)
-	note:SetText('Every SlimARK-UI setting is in its own panel. You can also open it with /slim.')
+	note:SetText('Every SlimARK-UI setting is in its own panel. You can also open it with /slimark.')
 	local open = CreateFrame('Button', nil, canvas, 'UIPanelButtonTemplate')
 	open:SetSize(220, 26)
 	open:SetPoint('TOPLEFT', note, 'BOTTOMLEFT', 0, -14)

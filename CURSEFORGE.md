@@ -14,13 +14,13 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 
 | Command | What it does |
 | --- | --- |
-| `/slim` | Opens the settings panel |
+| `/slimark` | Opens the settings panel |
 | `/slimark apply` | Sets every position and skin, then reloads the UI |
 | `/rl` | Reloads the UI |
 
 ## Settings panel
 
-Type `/slim`, click the SlimARK button at the minimap, or open Options → AddOns → SlimARK-UI.
+Type `/slimark`, click the SlimARK button at the minimap, or open Options → AddOns → SlimARK-UI.
 
 - Every element has its own page in a list on the left: unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, minimap, action bars, boss mods, Details!, chat, Group Finder and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
@@ -123,7 +123,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 ## Good to know
 
-- The layout is designed for 2560×1600 at 65% UI scale. On other screens, change the sizes in `/slim` or drag the frames in Edit Mode.
+- The layout is designed for 2560×1600 at 65% UI scale. On other screens, change the sizes in `/slimark` or drag the frames in Edit Mode.
 - Made for Midnight's addon rules: it works with the protected values the game uses in combat.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 

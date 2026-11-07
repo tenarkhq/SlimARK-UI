@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+- The settings panel opens with `/slimark` (was `/slim`). `/slimark apply` still sets up the layout
+
 ## 1.2.0
 
 **Settings panel**

@@ -332,7 +332,7 @@ function ns.ApplyAll()
 		return
 	end
 	for _, target in ipairs(targets) do
-		-- A skin switched off in /slim is left alone.
+		-- A skin switched off in /slimark is left alone.
 		if not target.module or C.modules[target.module] then
 			local result
 			Try(function()

@@ -1,7 +1,7 @@
 local addonName, ns = ...
 local C = ns.C
 
--- The /slim settings: every adjustable value of Config.lua, by its path in ns.C.
+-- The /slimark settings: every adjustable value of Config.lua, by its path in ns.C.
 -- Changed values are kept in SlimARKDB.settings and written over ns.C when the
 -- addon loads, before any module builds its frames, so a reload applies them.
 local S = {}
@@ -141,9 +141,12 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.1', lines = {
+		'The settings panel opens with /slimark (was /slim); /slimark apply still sets up the layout',
+	} },
 	{ version = '1.2.0', lines = {
-		'Settings panel: type /slim, or click the SlimARK button at the minimap, to change every element',
-		'/slimark apply sets up the layout (was /slim apply); a new version asks for it once in a window',
+		'Settings panel: type /slimark, or click the SlimARK button at the minimap, to change every element',
+		'/slimark apply sets up the layout; a new version asks for it once in a window',
 		'Details! names no longer run into the numbers',
 		'BetterBags skin for the classic bags and BetterBags Next',
 	} },
