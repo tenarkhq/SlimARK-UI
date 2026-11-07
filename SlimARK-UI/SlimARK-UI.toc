@@ -3,6 +3,7 @@
 ## Notes: Karcsú UI 2560x1600-ra: keretek, nameplate, cooldown sávok, vendor, karakterlap, skinek.
 ## Author: Roland
 ## Version: 0.2.9
+## IconTexture: Interface\AddOns\SlimARK-UI\Media\Icon
 ## SavedVariablesPerCharacter: SlimARKCharDB
 ## OptionalDeps: !SlimARK_Media, Details, BigWigs, DBM-Core, DBM-StatusBarTimers, Chattynator
 ## X-oUF: SlimARK_oUF
