@@ -30,8 +30,8 @@ ns.C = {
 	},
 
 	auras = {
-		buffs = { right = 2280, y = 12, size = 40, width = 700, height = 86, max = 32 },
-		debuffs = { right = 2280, y = 104, size = 52, width = 400, height = 56, max = 8 },
+		buffs = { right = 2254, y = 12, size = 40, width = 700, height = 86, max = 32 },
+		debuffs = { right = 2254, y = 104, size = 52, width = 400, height = 56, max = 8 },
 		targetDebuffSize = 38,
 	},
 
