@@ -166,22 +166,32 @@ local function UpdateDeaths()
 end
 
 -- The quest tracker steps aside while the key runs. It holds secure quest item
--- buttons, so it is only hidden and shown out of combat.
-local function SetTrackerHidden(hide)
-	if not ObjectiveTrackerFrame or trackerHidden == hide then return end
+-- buttons, so it is only hidden and shown out of combat; in combat it goes
+-- transparent at once and is hidden when the combat ends.
+local function ApplyTracker()
+	local frame = ObjectiveTrackerFrame
+	if not frame then return end
+	frame:SetAlpha(trackerHidden and 0 or 1)
+	if frame:IsShown() ~= trackerHidden then return end
 	if InCombatLockdown() then
 		ns.trackerPending = true
-		return
+	else
+		frame:SetShown(not trackerHidden)
 	end
-	trackerHidden = hide
-	ObjectiveTrackerFrame:SetShown(not hide)
 end
 
--- Blizzard may show the tracker again on its own updates.
+local function SetTrackerHidden(hide)
+	-- A tracker we did not hide is left as it is.
+	if not hide and not trackerHidden then return end
+	trackerHidden = hide
+	ApplyTracker()
+end
+
+-- Blizzard shows the tracker again on its own updates, in combat too.
 local function KeepTrackerHidden()
 	if not ObjectiveTrackerFrame then return end
-	ObjectiveTrackerFrame:HookScript('OnShow', function(frame)
-		if trackerHidden and not InCombatLockdown() then frame:Hide() end
+	ObjectiveTrackerFrame:HookScript('OnShow', function()
+		if trackerHidden then ApplyTracker() end
 	end)
 end
 
@@ -264,6 +274,6 @@ end)
 ns.On('PLAYER_REGEN_ENABLED', function()
 	if ns.trackerPending then
 		ns.trackerPending = nil
-		SetTrackerHidden(active and C_ChallengeMode.IsChallengeModeActive())
+		ApplyTracker()
 	end
 end)

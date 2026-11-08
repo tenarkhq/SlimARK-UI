@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.9
+
+- Fixed: during a Mythic+ key the quest tracker could come back in combat and stand on top of the Mythic+ panel. It now turns invisible at once and is hidden when the combat ends
+- Interrupted casts on nameplates keep the interrupter's name: the cast timer no longer writes over it
+- Dungeons hide who interrupted behind a secret value. The castbar no longer stops on it, and the name is shown from it where the game allows (without class color). Your own interrupts are always named
+
 ## 1.2.8
 
 - Party frames are wider and a little taller (240x72 instead of 160x64), with larger debuff and defensive icons, so nothing is crowded. The right edge stays in place, the column grows to the left

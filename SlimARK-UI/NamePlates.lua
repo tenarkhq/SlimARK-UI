@@ -57,7 +57,9 @@ kickWatch:SetScript('OnEvent', function(_, _, unit, _, spellID)
 	if issecretvalue(lastKick.class) then lastKick.class = nil end
 end)
 
--- The exact GUID is first, then the party's fresh interrupt, finally the hidden name.
+-- The exact GUID is first, then the party's fresh interrupt, finally the name
+-- behind a secret GUID. Enemy casts in dungeons give the GUID as a secret: the
+-- name can still be shown (SetText takes a secret), only its class color is unknown.
 local function InterrupterName(guid)
 	local secret = issecretvalue(guid)
 	if not secret and guid and guid ~= '' then
@@ -67,11 +69,12 @@ local function InterrupterName(guid)
 			return name, class
 		end
 	end
-	if GetTime() - lastKick.time < 1.5 then
+	if lastKick.name and GetTime() - lastKick.time < 0.5 then
 		return lastKick.name, lastKick.class
 	end
 	if secret then
-		return UnitNameFromGUID(guid)
+		local ok, name = pcall(UnitNameFromGUID, guid)
+		if ok then return name end
 	end
 end
 
@@ -155,16 +158,29 @@ local function PlateStyle(self)
 	cb:SetPoint('TOP', health, 'BOTTOM', 0, -3)
 	-- After an interrupt the bar is still visible: Interrupted and the interrupter's name in class color.
 	cb.timeToHold = o.holdTime
-	cb.PostCastInterrupted = function(element, _, _, interruptedBy)
+	-- The time text is driven by a duration binding that would write the countdown
+	-- over the name on the next frame, so it rests until the next cast.
+	local function ShowInterrupter(element, guid)
 		element.Text:SetText('Interrupted')
-		local name, class
-		if C.features.interrupter then name, class = InterrupterName(interruptedBy) end
+		if not C.features.interrupter then return end
+		local name, class = InterrupterName(guid)
+		-- A secret name can not be tested, only shown.
+		if not issecretvalue(name) and not name then return end
+		if element.Time.binding then element.Time.binding:SetEnabled(false) end
 		local color = class and C_ClassColor.GetClassColor(class)
 		element.Time:SetText(name)
 		if color then element.Time:SetTextColor(color.r, color.g, color.b) else element.Time:SetTextColor(1, 1, 1) end
 	end
+	cb.PostCastInterrupted = function(element, _, _, interruptedBy)
+		ShowInterrupter(element, interruptedBy)
+	end
+	-- When the game leaves out who interrupted, our own or a party interrupt seen right then still names them.
+	cb.PostCastFail = function(element)
+		if element.Text:GetText() == (INTERRUPTED or 'Interrupted') then ShowInterrupter(element, nil) end
+	end
 	local postStart = cb.PostCastStart
 	cb.PostCastStart = function(element, unit, ...)
+		if element.Time.binding then element.Time.binding:SetEnabled(true) end
 		element.Time:SetTextColor(1, 1, 1)
 		LearnCaster(element.__owner, unit)
 		if postStart then return postStart(element, unit, ...) end

@@ -397,7 +397,7 @@ local function CastStop(self, event, unit, _, spellID, ...)
 
 	if(element.Spark) then element.Spark:Hide() end
 
-	if(interruptedBy) then
+	if(issecretvalue(interruptedBy) or interruptedBy) then -- SlimARK: a secret GUID must not be tested
 		if(element.Text) then element.Text:SetText(INTERRUPTED) end
 
 		STATE[element].holdTime = element.timeToHold or 0
@@ -407,7 +407,7 @@ local function CastStop(self, event, unit, _, spellID, ...)
 		element:SetValue(1)
 	end
 
-	if(interruptedBy) then
+	if(issecretvalue(interruptedBy) or interruptedBy) then -- SlimARK: a secret GUID must not be tested
 		--[[ Callback: Castbar:PostCastInterrupted(unit, spellID, interruptedBy)
 		Called after the element has been updated when a spell cast or channel has stopped.
 
@@ -465,7 +465,7 @@ local function CastFail(self, event, unit, _, spellID, ...)
 	element:SetMinMaxValues(0, 1)
 	element:SetValue(1)
 
-	if(interruptedBy) then
+	if(issecretvalue(interruptedBy) or interruptedBy) then -- SlimARK: a secret GUID must not be tested
 		if(element.PostCastInterrupted) then
 			element:PostCastInterrupted(unit, spellID, interruptedBy)
 		end

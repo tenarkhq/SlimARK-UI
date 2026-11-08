@@ -147,6 +147,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.9', lines = {
+		'Fixed: the quest tracker over the Mythic+ panel in combat',
+		'Nameplates keep the name of who interrupted, also in dungeons where the game allows it',
+	} },
 	{ version = '1.2.8', lines = {
 		'Wider party frames with larger icons',
 	} },
