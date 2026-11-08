@@ -449,12 +449,13 @@ oUF:Factory(function(self)
 
 	if M.party then
 		local p = C.units.party
+		-- The player has an own frame, so the DPS party column holds only the other four.
 		local party = self:SpawnHeader('SlimARK_Party', nil,
-			'showParty', true, 'showPlayer', true, 'showRaid', true,
+			'showParty', true, 'showRaid', true,
 			'point', 'TOP', 'yOffset', -p.gap,
 			'oUF-initialConfigFunction', init(p))
 		ns.AddGroupHeader(party, false, PARTY_SHOWN)
-		ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 5 * (p.h + p.gap) - p.gap, forHealer = false })
+		ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 4 * (p.h + p.gap) - p.gap, forHealer = false })
 	end
 
 	if M.raid then

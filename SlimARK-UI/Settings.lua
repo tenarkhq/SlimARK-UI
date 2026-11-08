@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.7', lines = {
+		'The party frames show only the other four members, the healer grid still shows you',
+	} },
 	{ version = '1.2.6', lines = {
 		'Fixed: C stack overflow errors with a trinket that has no use or equip effect',
 	} },

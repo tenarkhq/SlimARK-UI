@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.7
+
+- The party frames next to your character show only the other four members. You have your own player frame; the healer grid still shows you
+
 ## 1.2.6
 
 - Fixed: "C stack overflow" errors with a trinket that has no use or equip effect. Its item data was requested again and again
