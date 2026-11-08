@@ -33,6 +33,10 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Compact Mythic+ panel: timer with +3 and +2 marks, enemy forces to two decimals, boss kill times
 - Keystone: goes into the Font of Power by itself, your new keystone is posted to the party after a run
 - Hides the red combat error spam (range, facing, line of sight, target, moving, mana) and its voice
+- Flat tooltip: class or quality color stripe, thin health bar, Mythic+ rating, item level and target of players
+- Loot rolls and pop-ups in one flat column left of your character
+- Marker bar in groups: target and ground markers, ready check and pull countdown
+- Ready check window that shows your missing flask, food, rune, oil and class buffs, with a button to use them
 - Group Finder: role checks accepted with your spec's role, one click on a premade listing signs you up
 - Skips cinematics you have already seen
 - Consumable bar: flasks, potions, food and weapon oils

@@ -41,6 +41,8 @@ local function IsWeaponImbue(bag, slot, id)
 	return found
 end
 
+ns.IsWeaponImbue = IsWeaponImbue
+
 local function Scan()
 	local bySubclass = {}
 	local seen = {}

@@ -125,7 +125,8 @@ local function ArrangeSystems(layout)
 
 	local tracker = Find(layout, 'ObjectiveTracker')
 	if tracker then
-		Move(tracker, 'TOPRIGHT', C.tracker.x, C.tracker.y + ns.TopInset(), 'RIGHT')
+		-- The marker bar under the minimap pushes the tracker down by its height.
+		Move(tracker, 'TOPRIGHT', C.tracker.x, C.tracker.y + ns.TopInset() + (ns.MarkerInset and ns.MarkerInset() or 0), 'RIGHT')
 		local S = Enum.EditModeObjectiveTrackerSetting
 		Set(tracker, S.Height, (C.tracker.height - 400) / 10)
 		Set(tracker, S.TextSize, C.tracker.textSize - 12)

@@ -91,7 +91,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
-- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder, keystone, error messages and quality of life features
+- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, error messages and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Every page can be reset to the SlimARK defaults on its own
 - A search box finds any setting by name
@@ -162,6 +162,15 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Your keystone goes into the Font of Power the moment you open it
 - After a run your new keystone is posted to the party as a link
 
+## Tooltip, loot and group tools
+
+- Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar under it
+- Players show their guild in green, their Mythic+ rating in its color, their item level with spec and their target; the item level is asked for out of combat only
+- Fixed above the Details windows or next to the mouse, your choice
+- Loot rolls and the loot won, upgrade, money, achievement and new mount, pet or toy pop-ups in one flat column left of your character; drag it in Edit Mode
+- Marker bar in a group: target markers, ground markers, clear all, and for the leader a ready check and a pull countdown. Under the minimap or next to the party frames; the marker buttons work in combat
+- Ready check window: what is on you and what is missing (flask, food, augment rune, weapon oil, class buffs, durability), with a button that uses the missing item from your bags
+
 ## Group Finder
 
 - Role checks are accepted automatically with your current spec's role
@@ -204,7 +213,7 @@ SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It crea
 
 SlimARK-UI is written to stay out of your frame time:
 
-- Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, and the Mythic+ clock while a key runs. The action bar fade has no timer: the mouse over a button wakes it
+- Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, the Mythic+ clock while a key runs, and the ready check countdown while the window is open. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
 - Panels that are not shown, such as the character sheet overlay, do no work at all
 

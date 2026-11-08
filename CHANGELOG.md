@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.8.0
+
+- **Tooltip:** flat, with a black edge and the SlimARK font. The class, reaction or item quality color is a thin stripe on top, the health bar a thin line under it. Players show their guild in green, their Mythic+ rating in its color, their item level with spec and their target. The item level is asked for out of combat only and kept for 10 minutes. Place: fixed above the Details windows or next to the mouse, on the Tooltip page
+- **Loot rolls and pop-ups:** one column left of your character. Rolls are flat rows with the item, its slot, item level and BoP, Need, Greed or Transmog and Pass buttons and a gold time bar. Loot won, upgrades, money, achievements and new mounts, pets, toys and cosmetics pop up as flat rows above them. Drag the column in Edit Mode
+- **Marker bar:** in a group only. Eight target markers, eight ground markers (left click places, right click picks up), clear all, and for the leader a ready check and a 10 second pull countdown (right click stops it). Under the minimap, where the quest tracker moves down by its height, or next to the party frames
+- **Ready check:** a flat window with the question and what is on you: flask, food, augment rune, weapon oil, the class buffs of your group and your durability. A missing flask, food, rune or oil gets a button that uses it from your bags. In combat Blizzard's window stays
+- Every new part has its own switch, and the two-way choices are on their pages
+
 ## 1.7.0
 
 - **Keystone:** your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party as a link, as soon as the game allows addon chat again. Both on the Keystone page

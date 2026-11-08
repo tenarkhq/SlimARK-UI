@@ -71,7 +71,7 @@ ns.C = {
 		unitframes = true, party = true, raid = true, grid = true, nameplates = true, auras = true,
 		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
 		tracker = true, vendor = true, character = true, movers = true, betterbags = true, effects = true,
-		databar = true,
+		databar = true, tooltip = true, loot = true, markers = true, readycheck = true,
 	},
 
 	-- Single features, switched in /slimark.
@@ -196,6 +196,18 @@ ns.C = {
 		},
 		extraItems = { 5512, 224464 }, -- healthstone
 	},
+
+	-- anchor: 'fixed' puts the tooltip's bottom right corner above the Details windows, 'cursor' next to the mouse.
+	tooltip = { anchor = 'fixed' },
+
+	-- The column of loot rolls and pop-ups: x, y is its top left, the rows stack up from its bottom.
+	loot = { x = 640, y = 480, w = 380, rowH = 50, gap = 4, font = 16, alerts = true },
+
+	-- place: 'map' under the minimap in three rows, 'party' in two columns next to the party frames.
+	markers = { place = 'map', size = 28, gap = 3 },
+
+	-- useButtons: a button on each missing row uses the item from your bags.
+	readycheck = { x = 1115, y = 380, useButtons = true },
 
 	details = {
 		right = 2548, bottom = 1588, w = 300, h = 230, gap = 6,

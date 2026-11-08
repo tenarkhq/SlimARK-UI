@@ -452,19 +452,25 @@ local function ButtonRow(parent)
 	return row
 end
 
--- A row of buttons, one of them pressed (gold): the test mode's choices. It acts at once, nothing to save.
+-- A row of buttons, one of them pressed (gold). With a path it is saved like the other values,
+-- with set (the test mode's choices) it acts at once.
 local function ChoiceRow(parent)
 	local row = CreateFrame('Frame', nil, parent)
 	row:SetHeight(ROW_H)
 	row.buttons = {}
 	function row:Refresh()
-		local current = self.data.get and self.data.get()
+		local current
+		if self.data.get then current = self.data.get() elseif self.data.path then current = S.Value(self.data.path) end
 		local x = 0
 		for i, option in ipairs(self.data.options) do
 			local b = self.buttons[i]
 			if not b then
 				b = MakeButton(self, '', 10, 26, 'plain')
-				b:SetScript('OnClick', function(button) if self.data.set then self.data.set(button.value) end end)
+				b:SetScript('OnClick', function(button)
+					-- A choice with a path is saved like the other values; the test mode's acts at once.
+					if self.data.set then self.data.set(button.value) elseif self.data.path then S.Set(self.data.path, button.value) end
+					Changed(self)
+				end)
 				self.buttons[i] = b
 			end
 			b.value = option[1]

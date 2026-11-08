@@ -11,6 +11,8 @@ local function R(label, path, min, max, step) return { t = 'range', label = labe
 local function T(label, path) return { t = 'toggle', label = label, path = path } end
 local function Col(label, path) return { t = 'color', label = label, path = path } end
 local function Btn(label, fn) return { t = 'button', label = label, fn = fn } end
+-- A saved choice between a few options, shown as a row of buttons.
+local function Choice(label, path, options) return { t = 'choice', label = label, path = path, options = options } end
 local function Pos(path, heal)
 	local rows = { R('X', path .. '.x', 0, 2560), R('Y', path .. '.y', 0, 1600) }
 	if heal then
@@ -44,6 +46,7 @@ S.groups = {
 				T('Action bar skin', 'modules.actionbars'), T('Minimap', 'modules.minimap'), T('Quest tracker', 'modules.tracker'),
 				T('Vendor', 'modules.vendor'), T('Character sheet', 'modules.character'), T('Window mover', 'modules.movers'),
 				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'), T('Top bar', 'modules.databar'),
+				T('Tooltip', 'modules.tooltip'), T('Loot and pop-ups', 'modules.loot'), T('Marker bar', 'modules.markers'), T('Ready check', 'modules.readycheck'),
 			} } } },
 		{ id = 'testmode', name = 'Test mode', noReset = true,
 			desc = 'Fills the frames with made-up players so you can see the layout without a group. Combat or a reload ends it. Edit Mode works while it is on, so you can drag the filled frames. Layout opens on your current spec; the other one moves only the SlimARK frames, Blizzard\'s own elements stay where your spec has them.',
@@ -86,6 +89,13 @@ S.groups = {
 					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow') } }, Font('units.grid') } },
 	} },
 	{ name = 'Combat', pages = {
+		{ id = 'markers', name = 'Marker bar', module = 'modules.markers', apply = true, keys = { 'markers' },
+			desc = 'Target markers, ground markers, ready check and pull countdown, only in a group. Ready check and pull show for the leader and assistants. Under the minimap the quest tracker moves down by the bar\'s height.',
+			secs = { { name = 'Place', rows = { Choice('Place', 'markers.place', { { 'map', 'Under the minimap' }, { 'party', 'Next to the party frames' } }) } },
+				{ name = 'Buttons', rows = { R('Button size', 'markers.size', 20, 44), R('Gap', 'markers.gap', 0, 10) } } } },
+		{ id = 'readycheck', name = 'Ready check', module = 'modules.readycheck', keys = { 'readycheck' },
+			desc = 'A flat ready check window that shows what is on you and what is missing: flask, food, augment rune, weapon oil, the group\'s class buffs and durability. In combat Blizzard\'s window stays.',
+			secs = { Pos('readycheck'), { name = 'Missing items', rows = { T('A button that uses the missing item', 'readycheck.useButtons') } } } },
 		{ id = 'plates', name = 'Nameplates', module = 'modules.nameplates', desc = 'Enemy nameplates: name and health inside the plate, caster mark, cast bar and interrupts.',
 			secs = { { name = 'Size', rows = { R('Width', 'plate.w', 80, 400), R('Height', 'plate.h', 8, 50), R('Caster height', 'plate.casterH', 8, 60), R('Cast bar height', 'plate.castH', 6, 40) } },
 				{ name = 'Text and icons', rows = { R('Font size', 'plate.font', 8, 28), R('Targeter font', 'plate.targeterFont', 8, 28), R('Debuff size', 'plate.debuff', 10, 48) } },
@@ -135,6 +145,13 @@ S.groups = {
 				{ name = 'Text', rows = { R('Font size', 'actionbars.font', 8, 28), R('Hotkey font', 'actionbars.hotkeyFont', 8, 28), R('Cooldown font', 'actionbars.cooldownFont', 10, 36),
 					T('Short hotkeys (sT)', 'actionbars.shortKeys'), T('Macro names', 'actionbars.macroNames') } },
 				{ name = 'Fade', rows = { T('Fade the upper bars out of combat', 'actionbars.fade'), R('Faded opacity (%)', 'actionbars.fadeAlpha', 0, 100) } } } },
+		{ id = 'tooltip', name = 'Tooltip', module = 'modules.tooltip',
+			desc = 'Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar. Players show their Mythic+ rating, item level and target; the item level is asked for out of combat only.',
+			secs = { { name = 'Place', rows = { Choice('Place', 'tooltip.anchor', { { 'fixed', 'Fixed, above the Details windows' }, { 'cursor', 'Next to the mouse' } }) } } } },
+		{ id = 'loot', name = 'Loot and pop-ups', module = 'modules.loot', keys = { 'loot' },
+			desc = 'Loot rolls and the loot won, achievement, money and new mount, pet or toy pop-ups in one column left of your character. Drag it in Edit Mode.',
+			secs = { Pos('loot'), { name = 'Rows', rows = { R('Width', 'loot.w', 240, 600), R('Row height', 'loot.rowH', 36, 80), R('Font size', 'loot.font', 10, 24) } },
+				{ name = 'Pop-ups', rows = { T('Flat pop-ups', 'loot.alerts') } } } },
 		{ id = 'minimap', name = 'Minimap', module = 'modules.minimap', keys = { 'minimap' },
 			secs = { Pos('minimap'), { name = 'Map', rows = { R('Size', 'minimap.size', 140, 400) } },
 				{ name = 'Coordinates', rows = { T('Coordinates on the map', 'minimap.coords'), R('Font size', 'minimap.coordsFont', 10, 32) } },
@@ -175,6 +192,12 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.8.0', lines = {
+		'Tooltip: flat, with the class, reaction or item quality color as a stripe on top and a thin health bar; players show their Mythic+ rating, item level and target. Fixed above the Details windows or next to the mouse',
+		'Loot rolls and pop-ups (loot won, upgrades, money, achievements, new mounts, pets, toys) in one flat column left of your character',
+		'Marker bar in a group: target and ground markers, ready check and pull countdown, under the minimap or next to the party frames',
+		'Ready check window: what is on you and what is missing, with a button that uses the missing flask, food, rune or oil',
+	} },
 	{ version = '1.7.0', lines = {
 		'Keystone: it goes into the Font of Power the moment you open it, and your new keystone is posted to the party after a run',
 		'Error messages: the red text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden',
