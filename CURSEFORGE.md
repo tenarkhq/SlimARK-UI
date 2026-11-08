@@ -24,13 +24,13 @@ The layout follows your spec and fits itself to your screen. The boxes show the 
 
 **DPS and tank**
 
-![DPS and tank layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f538765e6100ff77a6ff0ad55529bc855bcd13a5/assets/layout-dps-tank.png)
+![DPS and tank layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/af727d46fde42c5702d6df28111e43642ba7d522/assets/layout-dps-tank.png)
 
 **Healer**
 
 The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
 
-![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f538765e6100ff77a6ff0ad55529bc855bcd13a5/assets/layout-healer.png)
+![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/af727d46fde42c5702d6df28111e43642ba7d522/assets/layout-healer.png)
 
 ## Top bar
 
