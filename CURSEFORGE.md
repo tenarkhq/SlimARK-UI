@@ -1,6 +1,6 @@
 # SlimARK-UI
 
-**A slim, clean and fast interface for World of Warcraft Retail (Midnight).**
+**A slim, clean and fast interface for World of Warcraft Retail (Midnight) and WoW Forever.**
 
 SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking and group frames with one consistent, sharp look: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF, so it stays light, and it keeps the crisp ElvUI style without ElvUI's pile of extras.
 

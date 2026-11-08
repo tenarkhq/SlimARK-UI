@@ -243,7 +243,8 @@ local function Check()
 end
 
 ns.On('PLAYER_LOGIN', function()
-	if not C.modules.mythicplus then return end
+	-- WoW Forever has no Mythic+: without the API the panel is never built.
+	if not C.modules.mythicplus or not C_ChallengeMode then return end
 	Build()
 	KeepTrackerHidden()
 end)

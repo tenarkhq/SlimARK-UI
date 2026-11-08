@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0
+
+- WoW Forever support: the same zip now loads in WoW Forever too (its own TOC files with interface 16001). Retail is unchanged
+- In WoW Forever the Cooldown Manager is off by default: switch it on in the game options for the cooldown bars and the trinket icons
+- The Mythic+ panel stays off where the game has no Mythic+
+
 ## 1.2.9
 
 - Fixed: during a Mythic+ key the quest tracker could come back in combat and stand on top of the Mythic+ panel. It now turns invisible at once and is hidden when the combat ends

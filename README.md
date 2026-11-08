@@ -1,6 +1,6 @@
 # SlimARK-UI
 
-A slim World of Warcraft UI for Retail (Midnight, 12.x), built from scratch on oUF. It follows the look of ElvUI and LuckyoneUI without the pile of extras.
+A slim World of Warcraft UI for Retail (Midnight, 12.x) and WoW Forever, built from scratch on oUF. It follows the look of ElvUI and LuckyoneUI without the pile of extras.
 
 It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-UI/Config.lua`, in real pixels.
 
@@ -46,7 +46,7 @@ It never overwrites your existing profiles or layouts. It creates new ones named
 ## Installation
 
 1. Download the zip from the [Releases](https://github.com/tenarkhq/SlimARK-UI/releases) page.
-2. Extract it into `World of Warcraft/_retail_/Interface/AddOns`. Both folders are needed: `SlimARK-UI` and `!SlimARK_Media`.
+2. Extract it into `World of Warcraft/_retail_/Interface/AddOns` (for WoW Forever: the `Interface/AddOns` folder of the Forever client). Both folders are needed: `SlimARK-UI` and `!SlimARK_Media`. The same zip works in both games.
 3. In game, type `/slimark apply`. After each update a window asks for it once; click Apply now.
 
 ## Commands

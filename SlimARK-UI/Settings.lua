@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.3.0', lines = {
+		'WoW Forever support: the same zip loads there too, retail is unchanged',
+	} },
 	{ version = '1.2.9', lines = {
 		'Fixed: the quest tracker over the Mythic+ panel in combat',
 		'Nameplates keep the name of who interrupted, also in dungeons where the game allows it',
