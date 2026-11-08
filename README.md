@@ -39,9 +39,10 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Top bar on the top row: micro menu, durability, FPS, latency, queue time, tracked currencies, clock, gold, item level, keystone with one-click dungeon teleports, Great Vault, auto quest switch and the addon icons
 - Auto quest: accepts and turns in quests, stops at a reward choice, Shift pauses it
 - Test mode (`/slimark test`): made-up party, raid 20, raid 40 or Mythic+ players fill the frames, so you see the layout without a group
+- Flat action buttons: gold edge for procs, red, blue or grey icons when a spell is out of range, short of its resource or not usable, short hotkeys, large cooldown numbers, and the upper bars fade out of combat
 - Square minimap with large coordinates at its bottom
 - Quest tracker skin
-- Skins for Details!, DBM, BigWigs, Chattynator and BetterBags (classic bags and BetterBags Next)
+- Skins for Details!, DBM, BigWigs, Chattynator (flat tabs) and BetterBags (classic bags and BetterBags Next)
 - An Edit Mode layout that puts every Blizzard element in place
 
 It never overwrites your existing profiles or layouts. It creates new ones named `SlimARK-UI` and `SlimARK-UI Heal` next to them. For BetterBags it only selects the SlimARK theme, which you can change back in BetterBags' theme menu.

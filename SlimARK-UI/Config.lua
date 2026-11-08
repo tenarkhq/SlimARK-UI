@@ -202,7 +202,9 @@ ns.C = {
 		barHeight = 26, fontSize = 18, skin = 'ElvUI Frame Style',
 	},
 
-	chat = { x = 12, bottom = 1588, w = 614, h = 300, fontSize = 15 },
+	-- flatTabs: the flat SlimARK look on Chattynator's tabs and edit box; tabStripe: the tab's color as a
+	-- thin stripe on top, otherwise a gold line under the selected tab.
+	chat = { x = 12, bottom = 1588, w = 614, h = 300, fontSize = 15, flatTabs = true, tabStripe = true, tabFont = 13 },
 
 	bossmods = {
 		-- Normal bars sit opposite the party frames, on the right of the character.
@@ -230,7 +232,11 @@ ns.C = {
 	tracker = { x = 2548, y = 280, height = 580, textSize = 12 },
 	fps = { y = 6 },
 
-	actionbars = { font = 15, hotkeyFont = 13 },
+	-- flat: flat button states and the gold proc edge. tint: icon color when it cannot be used.
+	-- shortKeys: s-T becomes a small gold s and T. fade: the bars above the bottom rows fade out of
+	-- combat to fadeAlpha percent. assist: a turquoise edge in place of Blizzard's assisted highlight.
+	actionbars = { font = 15, hotkeyFont = 13, cooldownFont = 21, flat = true, tint = true, shortKeys = true,
+		macroNames = false, fade = true, fadeAlpha = 0, assist = true },
 
 	-- Blizzard elements in the Edit Mode layout.
 	-- { system, subindex, which point of the frame, x, y }, x and y are real pixels from the top left.

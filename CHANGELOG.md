@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.6.0
+
+- **Action bars:** flat buttons in the SlimARK look
+  - A light layer on mouse-over, a dark one while pressed, a thin gold edge on an active aura, stance or auto attack
+  - Procs get a gold edge in place of the spinning glow; Blizzard's assisted highlight becomes a turquoise edge. The cast fill and the round targeting and interrupt animations on the buttons are gone
+  - Icon colors: red out of range, blue without enough mana, energy or focus, grey when the spell cannot be used
+  - Short hotkeys: the modifier is a small gold letter in front of the key, `sT` for Shift-T. Macro names are hidden
+  - Cooldowns count down in large SlimARK numbers; the global cooldown gets a lighter cover than a real cooldown
+  - Out of combat the bars above the bottom three rows fade away. They come back in combat, with a target, under the mouse, while you drag a spell or in Edit Mode
+  - Every part has its own switch on the Action bars page, with the cooldown font size and the faded opacity
+- **Chattynator:** flat tabs with a black edge in the SlimARK font, the tab's color as a thin stripe on top, the selected tab in gold and a slow gold line at the bottom for a new message. The edit box gets the black edge and the SlimARK font too. Switches on the Chat page: flat tabs, color stripe or a gold line under the selected tab, tab font size
+
 ## 1.5.2
 
 - Fixed: an error on nameplates when a cast was interrupted and the game hid the spell name

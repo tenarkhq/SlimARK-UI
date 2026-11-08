@@ -174,14 +174,23 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Square minimap with your coordinates at its bottom, large, on a dark strip so they read on any map; they hide where the game gives no position. The clock moved to the top bar
 - Cleaner, smaller quest tracker with a thin header line
 - Move Blizzard windows by their title bar and resize them with Ctrl + mouse wheel; the position is remembered
-- Square action buttons with thin black borders; how the buttons work is not touched
 - The version number is printed at login
+
+## Action bars
+
+- Square buttons with a thin black border and flat states: a light layer on mouse-over, a dark one while pressed, a thin gold edge on an active aura, stance or auto attack
+- **Procs** get a gold edge in place of the spinning glow; Blizzard's assisted highlight becomes a turquoise edge
+- **Icon colors:** red out of range, blue without enough mana, energy or focus, grey when the spell cannot be used
+- **Short hotkeys:** the modifier is a small gold letter in front of the key, `sT` for Shift-T; macro names are hidden
+- **Cooldowns** count down in large SlimARK numbers under a dark cover; the global cooldown gets a lighter cover
+- **Fade:** out of combat the bars above the bottom three rows fade away and come back in combat, with a target, under the mouse or while you drag a spell
+- Every part has its own switch on the Action bars page
 
 ## Skins for your other addons
 
 - **Details!** two windows, overall damage and current fight, in the SlimARK font with clean value columns
 - **Deadly Boss Mods** and **BigWigs** bars in the SlimARK look, placed to the right of your character, opposite the party frames
-- **Chattynator** dark chat skin in the SlimARK font
+- **Chattynator** dark chat in the SlimARK font, with flat tabs: a thin stripe in the tab's color on top, the selected tab in gold, a slow gold line at the bottom when a new message comes in
 - **BetterBags** flat dark SlimARK theme for both the classic bags and BetterBags Next: black edges, cropped item icons, quality colored borders, no glow or bounce
 
 ## Your settings stay safe

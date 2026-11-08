@@ -130,7 +130,11 @@ S.groups = {
 					T('Addon icons', 'databar.show.addons') } } } },
 		{ id = 'actionbars', name = 'Action bars', module = 'modules.actionbars', apply = true, desc = 'Button size and padding are written into the SlimARK-UI Edit Mode layouts.',
 			secs = { { name = 'Buttons', rows = { R('Button size', 'layout.bars.size', 28, 72), R('Padding', 'layout.bars.padding', 0, 10) } },
-				{ name = 'Text', rows = { R('Font size', 'actionbars.font', 8, 28), R('Hotkey font', 'actionbars.hotkeyFont', 8, 28) } } } },
+				{ name = 'Look', rows = { T('Flat button states and gold proc edge', 'actionbars.flat'), T('Red, blue or grey icon when it cannot be used', 'actionbars.tint'),
+					T('Turquoise edge for the assisted highlight', 'actionbars.assist') } },
+				{ name = 'Text', rows = { R('Font size', 'actionbars.font', 8, 28), R('Hotkey font', 'actionbars.hotkeyFont', 8, 28), R('Cooldown font', 'actionbars.cooldownFont', 10, 36),
+					T('Short hotkeys (sT)', 'actionbars.shortKeys'), T('Macro names', 'actionbars.macroNames') } },
+				{ name = 'Fade', rows = { T('Fade the upper bars out of combat', 'actionbars.fade'), R('Faded opacity (%)', 'actionbars.fadeAlpha', 0, 100) } } } },
 		{ id = 'minimap', name = 'Minimap', module = 'modules.minimap', keys = { 'minimap' },
 			secs = { Pos('minimap'), { name = 'Map', rows = { R('Size', 'minimap.size', 140, 400) } },
 				{ name = 'Coordinates', rows = { T('Coordinates on the map', 'minimap.coords'), R('Font size', 'minimap.coordsFont', 10, 32) } },
@@ -151,7 +155,8 @@ S.groups = {
 				{ name = 'Text', rows = { R('Gap', 'bossmods.gap', 0, 20), R('Font size', 'bossmods.fontSize', 8, 28) } } } },
 		{ id = 'betterbags', name = 'BetterBags', module = 'modules.betterbags', apply = true, desc = 'Flat dark SlimARK theme for the classic bags and BetterBags Next. Saving selects it in BetterBags.', secs = {} },
 		{ id = 'chat', name = 'Chat', apply = true, desc = 'Chattynator window.',
-			secs = { { name = 'Window', rows = { R('X', 'chat.x', 0, 2560), R('Bottom edge', 'chat.bottom', 0, 1600), R('Width', 'chat.w', 200, 1200), R('Height', 'chat.h', 100, 800), R('Font size', 'chat.fontSize', 8, 28) } } } },
+			secs = { { name = 'Window', rows = { R('X', 'chat.x', 0, 2560), R('Bottom edge', 'chat.bottom', 0, 1600), R('Width', 'chat.w', 200, 1200), R('Height', 'chat.h', 100, 800), R('Font size', 'chat.fontSize', 8, 28) } },
+				{ name = 'Tabs', rows = { T('Flat SlimARK tabs and edit box', 'chat.flatTabs'), T('Tab color as a stripe on top', 'chat.tabStripe'), R('Tab font size', 'chat.tabFont', 8, 24) } } } },
 	} },
 	{ name = 'Quality of life', pages = {
 		{ id = 'autoquest', name = 'Auto quest', desc = 'Accepts and turns in quests, finished ones first. It stops when you have to choose a reward or pay gold, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone. Hold Shift at an NPC to pause it. The top bar has an on/off switch.',
@@ -166,6 +171,13 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.6.0', lines = {
+		'Action bars: flat buttons, a gold edge for procs, a turquoise edge for the assisted highlight',
+		'Action bars: red, blue or grey icons when a spell is out of range, short of its resource or not usable',
+		'Action bars: short hotkeys (sT for Shift-T), hidden macro names, large cooldown numbers, a lighter cover for the global cooldown',
+		'Action bars: the upper bars fade out of combat and come back in combat, with a target or under the mouse. Every part can be switched on the Action bars page',
+		'Chattynator: flat tabs in the SlimARK font, the tab color as a stripe on top, the selected tab in gold, a gold line for new messages',
+	} },
 	{ version = '1.5.2', lines = {
 		'Fixed: an error on nameplates when a cast was interrupted and the game hid the spell name',
 		'Fixed: an error from the trinket and potion icons when the game hid a buff update in combat',
