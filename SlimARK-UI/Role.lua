@@ -54,6 +54,19 @@ local function Check()
 	ns.SyncLayout()
 end
 
+-- The test mode shows the other layout: the SlimARK frames move as on a spec change, Blizzard's
+-- Edit Mode layout stays. nil goes back to the layout of the spec. Only out of combat.
+function ns.PreviewLayout(healer)
+	if InCombatLockdown() then return end
+	if healer == nil then healer = IsHealerSpec() end
+	ns.previewHealer = healer ~= IsHealerSpec() or nil
+	if healer == ns.healer then return end
+	ns.healer = healer
+	for _, item in ipairs(ns.Placed) do ns.Place(item) end
+	for _, entry in ipairs(headers) do ShowHeader(entry) end
+	for _, fn in ipairs(listeners) do fn() end
+end
+
 ns.On('PLAYER_LOGIN', ns.ReadRole)
 ns.On('PLAYER_SPECIALIZATION_CHANGED', function(_, unit)
 	if unit == 'player' then Check() end

@@ -452,7 +452,42 @@ local function ButtonRow(parent)
 	return row
 end
 
-local MAKERS = { range = RangeRow, toggle = ToggleRow, color = ColorRow, button = ButtonRow }
+-- A row of buttons, one of them pressed (gold): the test mode's choices. It acts at once, nothing to save.
+local function ChoiceRow(parent)
+	local row = CreateFrame('Frame', nil, parent)
+	row:SetHeight(ROW_H)
+	row.buttons = {}
+	function row:Refresh()
+		local current = self.data.get and self.data.get()
+		local x = 0
+		for i, option in ipairs(self.data.options) do
+			local b = self.buttons[i]
+			if not b then
+				b = MakeButton(self, '', 10, 26, 'plain')
+				b:SetScript('OnClick', function(button) if self.data.set then self.data.set(button.value) end end)
+				self.buttons[i] = b
+			end
+			b.value = option[1]
+			b.text:SetText(option[2])
+			b:SetWidth(math.floor(b.text:GetUnboundedStringWidth() + 32))
+			b:ClearAllPoints()
+			b:SetPoint('LEFT', x, 0)
+			local on = option[1] == current
+			local base = on and GOLD or TRACK
+			b.bg:SetColorTexture(base[1], base[2], base[3], 1)
+			local color = on and { 0.1, 0.08, 0.03 } or TEXT
+			b.text:SetTextColor(color[1], color[2], color[3])
+			b:SetScript('OnLeave', function(button) button.bg:SetColorTexture(base[1], base[2], base[3], 1) end)
+			b:SetScript('OnEnter', function(button) button.bg:SetColorTexture(math.min(1, base[1] + 0.06), math.min(1, base[2] + 0.06), math.min(1, base[3] + 0.06), 1) end)
+			b:Show()
+			x = x + b:GetWidth() + 1
+		end
+		for i = #self.data.options + 1, #self.buttons do self.buttons[i]:Hide() end
+	end
+	return row
+end
+
+local MAKERS = { range = RangeRow, toggle = ToggleRow, color = ColorRow, button = ButtonRow, choice = ChoiceRow }
 
 local function SectionHeader(parent)
 	local f = CreateFrame('Frame', nil, parent)
@@ -557,7 +592,7 @@ local function RenderAbout(width)
 	return y
 end
 
-local KINDS = { 'range', 'toggle', 'color', 'button', 'section', 'para', 'aboutkey', 'aboutval', 'abouthead', 'aboutbar', 'aboutline' }
+local KINDS = { 'range', 'toggle', 'color', 'button', 'choice', 'section', 'para', 'aboutkey', 'aboutval', 'abouthead', 'aboutbar', 'aboutline' }
 
 RenderMain = function()
 	PageHeader()
@@ -581,7 +616,7 @@ RenderMain = function()
 	header.group:SetPoint('BOTTOMLEFT', header.title, 'BOTTOMRIGHT', 12, 3)
 	header.group:SetText(page.group)
 	header.reset:SetPoint('TOPRIGHT', -PAD + 10, y + 2)
-	header.reset:Show()
+	header.reset:SetShown(not page.noReset)
 	y = y - 36
 
 	if page.desc then
@@ -618,21 +653,26 @@ RenderMain = function()
 			h:SetWidth(width)
 			h.text:SetText(sec.name:upper())
 			y = y - 32
-			for i, data in ipairs(rows) do
-				local col = (i - 1) % 2
-				local line = math.floor((i - 1) / 2)
+			-- Two columns; a row of choice buttons takes a whole line.
+			local slot = 0
+			for _, data in ipairs(rows) do
+				local full = data.t == 'choice'
+				if full and slot % 2 == 1 then slot = slot + 1 end
+				local col = slot % 2
+				local line = math.floor(slot / 2)
 				local row = Acquire(data.t, mainChild, MAKERS[data.t])
 				row:SetPoint('TOPLEFT', PAD + col * (colW + 26), y - line * (ROW_H + 6))
-				row:SetWidth(colW)
+				row:SetWidth(full and width or colW)
 				row.data = data
 				if data.t == 'range' then
 					row.slider:SetMinMaxValues(data.min, data.max)
 					row.slider:SetValueStep(data.step)
 				end
-				if data.t ~= 'button' then row.label:SetText(data.label) end
+				if data.t ~= 'button' and data.t ~= 'choice' then row.label:SetText(data.label) end
 				row:Refresh()
+				slot = slot + (full and 2 or 1)
 			end
-			y = y - math.ceil(#rows / 2) * (ROW_H + 6) - 14
+			y = y - math.ceil(slot / 2) * (ROW_H + 6) - 14
 		end
 	end
 	mainChild:SetHeight(-y + PAD)
@@ -820,3 +860,8 @@ ns.On('PLAYER_LOGIN', function()
 	local category = Settings.RegisterCanvasLayoutCategory(canvas, 'SlimARK-UI')
 	Settings.RegisterAddOnCategory(category)
 end)
+
+-- Redraws the open page, for values changed from outside the panel (the test mode banner).
+function ns.SettingsRefresh()
+	if panel and panel:IsShown() and RenderMain then RenderMain() end
+end

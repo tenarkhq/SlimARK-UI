@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.5.0
+
+- **Test mode:** see your layout without a group. Open `/slimark` → General → Test mode, or type `/slimark test`. Made-up players fill the frames:
+  - **Party:** four group members next to your character, a tank, a healer and two damage dealers
+  - **Raid 20** and **Raid 40:** a full raid of mixed classes and roles
+  - **Mythic+:** the party and the Mythic+ panel with a running key in place of the quest tracker
+  - Target, target of target, focus, pet and boss 1-5 are filled too, with cast bars
+  - Everything a frame can show: class color, role icon, health with one decimal, shield stripes, debuffs, a defensive, the dispel highlight and a dead member
+- Test mode can show the healer or the DPS and tank layout, whichever spec you play. Only the SlimARK frames move; Blizzard's own elements stay where your spec has them
+- It stays on in Edit Mode, so you can drag the filled frames into place. A gold banner under the top bar shows the mode; click it to end. Combat or a reload ends it too
+- Commands: `/slimark test party`, `raid`, `raid40`, `mplus`, `healer`, `dps`, `off`
+
 ## 1.4.1
 
 - Fixed: the micro menu icons of the top bar showed only a colored patch instead of the symbol

@@ -242,6 +242,50 @@ local function Check()
 	if C_ChallengeMode.IsChallengeModeActive() then Start() else Stop() end
 end
 
+-- The test mode shows the panel with a made-up run. A real key always wins.
+local previewTicker
+function ns.MythicPlusPreview(on)
+	if not panel or active then return end
+	if previewTicker then previewTicker:Cancel() previewTicker = nil end
+	if not on then
+		panel:Hide()
+		SetTrackerHidden(false)
+		return
+	end
+	timeLimit = 31 * 60
+	panel.Title:SetText('+12 Voidscar Arena')
+	panel.Limit:SetText('/ ' .. Clock(timeLimit))
+	panel.Deaths:SetFormattedText('%d deaths  -%s', 2, Clock(10))
+	forcesBar:SetValue(63.47)
+	forcesBar.Text:SetFormattedText('%.2f%%  (%d/%d)', 63.47, 292, 460)
+	local names = { { 'Kaltrix the Hollow', 291 }, { 'Warden Ossek', 668 }, { 'Mother of Echoes' }, { 'The Unbound' } }
+	for i = 1, MAX_BOSSES do
+		local row, b = bosses[i], names[i]
+		row.name:SetText(b and b[1] or '')
+		row.time:SetText(b and b[2] and Clock(b[2]) or '')
+		local done = b and b[2]
+		row.name:SetTextColor(done and 0.5 or 1, done and 0.85 or 1, done and 0.5 or 1)
+		row.time:SetTextColor(0.5, 0.85, 0.5)
+	end
+	panel:SetHeight(128 + #names * LINE)
+	local elapsed = 14 * 60 + 32
+	local function Tick()
+		elapsed = elapsed + 1
+		panel.Time:SetText(Clock(elapsed))
+		panel.Time:SetTextColor(1, 1, 1)
+		timerBar:SetMinMaxValues(0, timeLimit)
+		timerBar:SetValue(elapsed)
+		panel.Plus3:SetText('+3 ' .. Clock(timeLimit * 0.6 - elapsed))
+		panel.Plus2:SetText('+2 ' .. Clock(timeLimit * 0.8 - elapsed))
+		panel.Plus3:SetTextColor(0.5, 0.85, 0.5)
+		panel.Plus2:SetTextColor(0.5, 0.85, 0.5)
+	end
+	Tick()
+	previewTicker = C_Timer.NewTicker(1, Tick)
+	panel:Show()
+	SetTrackerHidden(true)
+end
+
 ns.On('PLAYER_LOGIN', function()
 	-- WoW Forever has no Mythic+: without the API the panel is never built.
 	if not C.modules.mythicplus or not C_ChallengeMode then return end

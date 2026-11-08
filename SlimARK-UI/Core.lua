@@ -226,6 +226,9 @@ local function ShieldBar(health, color)
 	return bar
 end
 
+-- The test mode draws its own shields with the same look.
+ns.ShieldBar = ShieldBar
+
 function ns.AddShield(health)
 	if not C.features.shields then return end
 	local color = C.colors.shield
@@ -344,11 +347,20 @@ ns.On('PLAYER_LOGIN', function()
 	ns.Print(ns.version .. ' loaded. /slimark opens the settings, /slimark apply sets up the layout.')
 end)
 
--- /slimark opens the settings panel, /slimark apply writes every position and skin.
+-- /slimark opens the settings panel, /slimark apply writes every position and skin,
+-- /slimark test [party|raid|raid40|mplus|healer|dps|off] switches the test mode.
 SLASH_SLIMARK1 = '/slimark'
 SlashCmdList.SLIMARK = function(msg)
-	if strtrim(msg or ''):lower() == 'apply' then
+	local cmd, arg = strtrim(msg or ''):lower():match('^(%S*)%s*(%S*)')
+	local TEST = { party = 'party', raid = 'raid20', raid20 = 'raid20', raid40 = 'raid40', mplus = 'mplus', ['m+'] = 'mplus', off = 'off' }
+	if cmd == 'apply' then
 		ns.ApplyAll()
+	elseif cmd == 'test' and ns.SetTestMode then
+		if arg == 'healer' or arg == 'dps' then
+			ns.SetTestLayout(arg == 'healer' and 'heal' or 'dps')
+		else
+			ns.SetTestMode(TEST[arg] or ((ns.TestMode.mode == 'off') and 'party' or 'off'))
+		end
 	elseif ns.OpenSettings then
 		ns.OpenSettings()
 	end

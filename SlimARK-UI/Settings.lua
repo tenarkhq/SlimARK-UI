@@ -45,6 +45,14 @@ S.groups = {
 				T('Vendor', 'modules.vendor'), T('Character sheet', 'modules.character'), T('Window mover', 'modules.movers'),
 				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'), T('Top bar', 'modules.databar'),
 			} } } },
+		{ id = 'testmode', name = 'Test mode', noReset = true,
+			desc = 'Fills the frames with made-up players so you can see the layout without a group. Combat or a reload ends it. Edit Mode works while it is on, so you can drag the filled frames. Layout opens on your current spec; the other one moves only the SlimARK frames, Blizzard\'s own elements stay where your spec has them.',
+			secs = { { name = 'Show', rows = { { t = 'choice', label = 'Show test mode party raid mythic',
+					options = { { 'off', 'Off' }, { 'party', 'Party' }, { 'raid20', 'Raid 20' }, { 'raid40', 'Raid 40' }, { 'mplus', 'Mythic+' } },
+					get = function() return ns.TestMode and ns.TestMode.mode end, set = function(v) ns.SetTestMode(v) end } } },
+				{ name = 'Layout', rows = { { t = 'choice', label = 'Layout healer dps tank',
+					options = { { 'dps', 'DPS and tank' }, { 'heal', 'Healer' } },
+					get = function() return ns.TestLayout and ns.TestLayout() end, set = function(v) ns.SetTestLayout(v) end } } } } },
 		{ id = 'colors', name = 'Colors', desc = 'Colors shared by several elements.',
 			secs = { { name = 'Colors', rows = {
 				Col('Bar background', 'colors.track'), Col('Target border', 'colors.target'), Col('Gold accent and holy power', 'colors.classPower'),
@@ -158,6 +166,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.5.0', lines = {
+		'Test mode (General: Test mode, or /slimark test): made-up players fill the party, raid 20, raid 40 or Mythic+ frames, so you see the layout without a group',
+		'Test mode shows the healer or the DPS and tank layout, whichever spec you play, and stays on in Edit Mode so you can drag the filled frames',
+	} },
 	{ version = '1.4.1', lines = {
 		'Fixed: the micro menu icons of the top bar showed only a colored patch instead of the symbol',
 	} },

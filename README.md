@@ -38,6 +38,7 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Character sheet: item level, gems, enchants and what is missing
 - Top bar on the top row: micro menu, durability, FPS, latency, queue time, tracked currencies, clock, gold, item level, keystone with one-click dungeon teleports, Great Vault, auto quest switch and the addon icons
 - Auto quest: accepts and turns in quests, stops at a reward choice, Shift pauses it
+- Test mode (`/slimark test`): made-up party, raid 20, raid 40 or Mythic+ players fill the frames, so you see the layout without a group
 - Square minimap with large coordinates at its bottom
 - Quest tracker skin
 - Skins for Details!, DBM, BigWigs, Chattynator and BetterBags (classic bags and BetterBags Next)
@@ -57,6 +58,7 @@ It never overwrites your existing profiles or layouts. It creates new ones named
 | --- | --- |
 | `/slimark` | Opens the settings panel |
 | `/slimark apply` | Sets every position and skin, then reloads the UI |
+| `/slimark test` | Test mode on or off: `party`, `raid`, `raid40`, `mplus`, `healer`, `dps`, `off` |
 | `/rl` | Reloads the UI |
 
 SlimARK-UI's own frames can be dragged in Edit Mode, and the DPS and healer layouts remember their positions separately. Blizzard windows move by their title bar and resize with Ctrl + mouse wheel.

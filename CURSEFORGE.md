@@ -16,6 +16,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 | --- | --- |
 | `/slimark` | Opens the settings panel |
 | `/slimark apply` | Sets every position and skin, then reloads the UI |
+| `/slimark test` | Test mode on or off: `party`, `raid`, `raid40`, `mplus`, `healer`, `dps`, `off` |
 | `/rl` | Reloads the UI |
 
 ## Layouts
@@ -31,6 +32,18 @@ The layout follows your spec and fits itself to your screen. The boxes show the 
 The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
 
 ![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/af727d46fde42c5702d6df28111e43642ba7d522/assets/layout-healer.png)
+
+## Test mode
+
+See your whole layout without a group: no need to gather a raid to check where everything sits. Open `/slimark` → General → Test mode, or type `/slimark test`.
+
+- **Party, Raid 20, Raid 40 or Mythic+:** made-up players fill the group frames, with mixed classes and roles
+- **Mythic+** also shows the Mythic+ panel with a running key, in place of the quest tracker
+- Target, target of target, focus, pet and boss 1-5 are filled too, with cast bars
+- Everything a frame can show is on screen: class colors, role icons, health with one decimal, shield stripes, debuffs, defensives, the dispel highlight and a dead member
+- **Healer or DPS and tank layout:** preview either one, whichever spec you play
+- Stays on in Edit Mode, so you can drag the filled frames into place
+- A gold banner under the top bar shows the mode; click it to end. Combat or a reload ends it too
 
 ## Top bar
 
@@ -78,7 +91,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
-- Every element has its own page in a list on the left: unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder and quality of life features
+- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Every page can be reset to the SlimARK defaults on its own
 - A search box finds any setting by name
