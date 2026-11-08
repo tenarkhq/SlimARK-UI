@@ -59,7 +59,15 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Boss frames show current health in the center, so you can call phase changes at a glance
 - Shields (damage absorbs) in light stripes right after the health, on every frame including party, raid and boss frames. Damage takes the striped part first; a shield larger than the missing health is drawn back over the health with a bright line at the edge
 
+**Shields:** a damaged target, a full health target with a large shield, a party frame and an enemy plate
+
+![Shields](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-shields.png)
+
 ## Party, raid and healer frames
+
+![Party frame](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-partyframe.png)
+
+![Party and raid frames in every state](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-groupframes.png)
 
 - Party frames as large rectangles in a column right next to your character, so you never look far away from the fight
 - The party column shows the other four members only, since you have your own player frame. The healer grid includes you
@@ -71,6 +79,8 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## Nameplates
 
+![Nameplates](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-nameplates.png)
+
 - Your target is marked with a thin frame and two arrows, other plates step back
 - The mob's name and its health with one decimal sit inside the plate, not above it
 - Casters are marked before they start casting: mana users, mage type mobs and lieutenants. Every mob the addon has seen casting is remembered by name for later runs
@@ -80,7 +90,13 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Debuffs you applied are shown above the plate
 - Enemy shields in light stripes, so you see what has to break first
 
+**Your target:** a thin frame and two arrows, in a bright and a dark place
+
+![Target nameplate](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-target.png)
+
 ## Buffs and debuffs
+
+![Buffs and debuffs](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-buffs.png)
 
 - Large icons next to the minimap, buffs and debuffs in separate rows
 - The time left is shown under each icon in a large gold number
@@ -89,12 +105,18 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## Cooldowns and consumables
 
+![Cooldown bars: active, cooldown, ready](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-cooldowns.png)
+
 - Slim countdown bars with your spec's own important cooldowns, for all 13 classes
 - While a spell's effect is up, like the wings, its bar counts the effect down first with a gold frame, then shows the cooldown
 - Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself
 - A bar updates only when its own spell changes, so busy fights cost almost nothing
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing
+
+**Active trinket and potion effects** above the cooldown bars
+
+![Active trinket and potion effects](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-effects.png)
 
 ## Action bars
 
@@ -117,6 +139,8 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 # Groups and Mythic+
 
 ## Mythic+
+
+![Mythic+ panel](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-mplus.png)
 
 - Compact panel in place of the quest tracker while a key runs
 - Key level and dungeon name, deaths and the time they cost
@@ -160,6 +184,8 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 A flat, 26 pixel bar on the top row of the screen, over the whole width. Everything that used to sit at the top edge moves down by its height, so nothing hides under it.
 
+![Top bar](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-topbar.png)
+
 **Left side**
 - **Micro menu:** the twelve game menu buttons as small flat icons in Blizzard's own pictures, your portrait for the character sheet. A gold dot shows where the game would glow (unspent talents, new collections, ...). A click opens the same window as the original button
 - **Durability:** your most worn item in percent, green, yellow or red. The tooltip lists every item, a click opens the character sheet
@@ -177,6 +203,10 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 - **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault
 - **Auto quest switch:** ON or OFF with one click, remembered between sessions
 - **Addon icons:** the minimap buttons of your other addons, in a row at the right end, right above the minimap
+
+**Keystone teleports:** one click on your key opens the list
+
+![Keystone teleport list](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-teleports.png)
 
 ## Tooltip
 
@@ -250,6 +280,8 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
+![Settings panel](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-settings.png)
+
 - Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, error messages and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Where a feature has two ways to work, like the tooltip place or the marker bar place, you pick one on its page
@@ -261,6 +293,10 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 ## Test mode
 
 See your whole layout without a group: no need to gather a raid to check where everything sits. Open `/slimark` → General → Test mode, or type `/slimark test`.
+
+![Test mode page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-testmode-page.png)
+
+![Test mode with a 20 player raid](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-testmode.png)
 
 - **Party, Raid 20, Raid 40 or Mythic+:** made-up players fill the group frames, with mixed classes and roles
 - **Mythic+** also shows the Mythic+ panel with a running key, in place of the quest tracker

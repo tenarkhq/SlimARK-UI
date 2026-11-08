@@ -25,6 +25,11 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 | ![Tooltip](assets/feature-tooltip.png) | ![Action bars](assets/feature-actionbars.png) |
 | ![Loot rolls and pop-ups](assets/feature-loot.png) | ![Ready check](assets/feature-readycheck.png) |
 | ![Marker bar](assets/feature-markers.png) | ![Chattynator skin](assets/feature-chat.png) |
+| ![Top bar](assets/feature-topbar.png) | ![Keystone teleports](assets/feature-teleports.png) |
+| ![Party and raid frames](assets/feature-groupframes.png) | ![Shields](assets/feature-shields.png) |
+| ![Nameplates](assets/feature-nameplates.png) | ![Target nameplate](assets/feature-target.png) |
+| ![Mythic+ panel](assets/feature-mplus.png) | ![Cooldown bars](assets/feature-cooldowns.png) |
+| ![Settings panel](assets/feature-settings.png) | ![Test mode](assets/feature-testmode.png) |
 
 The pictures show the SlimARK look as drawn from the addon's design.
 
