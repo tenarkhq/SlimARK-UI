@@ -266,12 +266,29 @@ local function WantsBars()
 	return false
 end
 
-local function UpdateFade()
+local recheck = false
+local UpdateFade
+
+local function Recheck()
+	recheck = false
+	UpdateFade()
+end
+
+function UpdateFade()
 	if not cfg.fade then return end
 	local all = WantsBars()
+	local hovered = false
 	for _, frame in ipairs(fadeBars) do
-		local alpha = (all or frame:IsMouseOver()) and 1 or cfg.fadeAlpha / 100
+		local over = not all and frame:IsMouseOver()
+		if over then hovered = true end
+		local alpha = (all or over) and 1 or cfg.fadeAlpha / 100
 		if frame:GetAlpha() ~= alpha then frame:SetAlpha(alpha) end
+	end
+	-- Leaving a bar through the gap between two buttons gives no event, so only while the
+	-- mouse is over a faded bar is it looked at again a moment later.
+	if hovered and not recheck then
+		recheck = true
+		C_Timer.After(0.25, Recheck)
 	end
 end
 ns.UpdateActionBarFade = UpdateFade
@@ -280,13 +297,26 @@ local function StartFade()
 	if not cfg.fade then return end
 	FindFadeBars()
 	UpdateFade()
-	C_Timer.NewTicker(0.15, UpdateFade)
+	-- No timer runs: the mouse entering a button, combat, the target, the cursor, the flyout and
+	-- Edit Mode wake the fade.
+	for _, bar in ipairs(BARS) do
+		for i = 1, bar[2] do
+			local button = _G[bar[1] .. i]
+			if button then button:HookScript('OnEnter', UpdateFade) end
+		end
+	end
 	for _, event in ipairs({ 'PLAYER_REGEN_DISABLED', 'PLAYER_REGEN_ENABLED', 'PLAYER_TARGET_CHANGED', 'CURSOR_CHANGED' }) do
 		ns.On(event, UpdateFade)
 	end
 	-- Bars switched on or off in the options change which ones fade.
 	ns.On('ACTIONBAR_SHOWGRID', UpdateFade)
+	ns.On('ACTIONBAR_HIDEGRID', UpdateFade)
+	if SpellFlyout then
+		SpellFlyout:HookScript('OnShow', UpdateFade)
+		SpellFlyout:HookScript('OnHide', UpdateFade)
+	end
 	if EditModeManagerFrame then
+		EditModeManagerFrame:HookScript('OnShow', UpdateFade)
 		EditModeManagerFrame:HookScript('OnHide', function() FindFadeBars() UpdateFade() end)
 	end
 end

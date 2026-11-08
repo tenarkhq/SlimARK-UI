@@ -91,7 +91,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
-- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder and quality of life features
+- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder, keystone, error messages and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Every page can be reset to the SlimARK defaults on its own
 - A search box finds any setting by name
@@ -159,6 +159,8 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Enemy forces to two decimals, with the raw count
 - One line per boss with its kill time
 - The quest tracker steps aside for the whole key, even if the game tries to bring it back in combat, and returns when the key ends
+- Your keystone goes into the Font of Power the moment you open it
+- After a run your new keystone is posted to the party as a link
 
 ## Group Finder
 
@@ -175,6 +177,7 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Cleaner, smaller quest tracker with a thin header line
 - Move Blizzard windows by their title bar and resize them with Ctrl + mouse wheel; the position is remembered
 - The version number is printed at login
+- The red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden; full bags and every other message stay
 
 ## Action bars
 
@@ -201,7 +204,7 @@ SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It crea
 
 SlimARK-UI is written to stay out of your frame time:
 
-- Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, and the Mythic+ clock while a key runs
+- Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, and the Mythic+ clock while a key runs. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
 - Panels that are not shown, such as the character sheet overlay, do no work at all
 

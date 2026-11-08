@@ -163,6 +163,10 @@ S.groups = {
 			secs = { { name = 'Auto quest', rows = { T('Auto quest', 'features.autoQuest'), T('Accept quests', 'autoquest.accept'),
 				T('Turn in quests', 'autoquest.turnIn'), T('Pick the only talk option', 'autoquest.gossip') } } } },
 		{ id = 'groupfinder', name = 'Group Finder', secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup') } } } },
+		{ id = 'keystone', name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again.',
+			secs = { { name = 'Keystone', rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey') } } } },
+		{ id = 'errors', name = 'Error messages', desc = 'Hides the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready. Blizzard already hides the out of energy and cooldown ones. Full bags and every other message stay. Needs a reload.',
+			secs = { { name = 'Error messages', rows = { T('Hide the combat error spam', 'features.errorFilter') } } } },
 		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
 			{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } } } },
 	} },
@@ -171,6 +175,11 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.7.0', lines = {
+		'Keystone: it goes into the Font of Power the moment you open it, and your new keystone is posted to the party after a run',
+		'Error messages: the red text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden',
+		'Action bars: the fade of the upper bars runs no timer any more',
+	} },
 	{ version = '1.6.0', lines = {
 		'Action bars: flat buttons, a gold edge for procs, a turquoise edge for the assisted highlight',
 		'Action bars: red, blue or grey icons when a spell is out of range, short of its resource or not usable',

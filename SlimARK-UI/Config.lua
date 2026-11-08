@@ -79,7 +79,7 @@ ns.C = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
 		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,
 		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
-		autoQuest = true,
+		autoQuest = true, autoKeystone = true, announceKey = true, errorFilter = true,
 	},
 
 	units = {

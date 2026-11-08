@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.7.0
+
+- **Keystone:** your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party as a link, as soon as the game allows addon chat again. Both on the Keystone page
+- **Error messages:** the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden. Blizzard already hides the out of energy and cooldown ones; full bags and every other message stay. Switch on the Error messages page
+- **Action bars:** the fade of the upper bars runs no timer any more, the mouse over a button wakes it
+
 ## 1.6.0
 
 - **Action bars:** flat buttons in the SlimARK look

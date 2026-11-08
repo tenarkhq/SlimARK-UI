@@ -31,6 +31,8 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Buffs and debuffs with the time left under each icon
 - Shields (damage absorbs) in light stripes on every unit frame and nameplate, enemy shields too
 - Compact Mythic+ panel: timer with +3 and +2 marks, enemy forces to two decimals, boss kill times
+- Keystone: goes into the Font of Power by itself, your new keystone is posted to the party after a run
+- Hides the red combat error spam (range, facing, line of sight, target, moving, mana) and its voice
 - Group Finder: role checks accepted with your spec's role, one click on a premade listing signs you up
 - Skips cinematics you have already seen
 - Consumable bar: flasks, potions, food and weapon oils
