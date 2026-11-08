@@ -8,7 +8,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 
 ## Quick start
 
-1. Install the addon. The download contains two folders, `SlimARK-UI` and `!SlimARK_Media`. Both are needed: the media folder loads first, so Details!, BigWigs and Chattynator can use the SlimARK font and texture from the start.
+1. Install the addon. The download contains two folders, `SlimARK-UI` and `!SlimARK_Media`. Both are needed: the media folder loads first, so Details!, BigWigs and Chattynator can use the SlimARK font and texture from the start. The same download works in Retail and in WoW Forever.
 2. Log in and type `/slimark apply`.
 3. Done. Every position and skin is set, and the UI reloads. After each update a window asks for it once; click Apply now.
 
@@ -62,6 +62,8 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 ## Party, raid and healer frames
 
 - Party frames as large rectangles in a column right next to your character, so you never look far away from the fight
+- The party column shows the other four members only, since you have your own player frame. The healer grid includes you
+- Wide frames with room for the name, the health, the defensive and the debuff icons side by side
 - Role icon on every frame: tank, healer or damage
 - Defensive cooldowns on every frame with the time left, both personal and external ones
 - Debuff icons on every frame
@@ -73,7 +75,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - The mob's name and its health with one decimal sit inside the plate, not above it
 - Casters are marked before they start casting: mana users, mage type mobs and lieutenants. Every mob the addon has seen casting is remembered by name for later runs
 - Light blue cast bars for normal casts, magenta for the important ones you should interrupt, so they stand apart from red, orange and yellow plates
-- After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color
+- After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color. In dungeons the game hides the interrupter from addons; your own interrupts are always named, others wherever the game lets the name through
 - See which group members target the mob
 - Debuffs you applied are shown above the plate
 - Enemy shields in light stripes, so you see what has to break first
@@ -101,7 +103,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - Timer with the +3 and +2 marks and the time left for each
 - Enemy forces to two decimals, with the raw count
 - One line per boss with its kill time
-- The quest tracker comes back when the key ends
+- The quest tracker steps aside for the whole key, even if the game tries to bring it back in combat, and returns when the key ends
 
 ## Group Finder
 
@@ -143,6 +145,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 - The layout is designed for 2560×1600 at 65% UI scale. On other screens, change the sizes in `/slimark` or drag the frames in Edit Mode.
 - Made for Midnight's addon rules: it works with the protected values the game uses in combat.
+- **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel stays off. Details!, the boss mods and the other skinned addons need their own Forever versions.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 
 ## Credits
