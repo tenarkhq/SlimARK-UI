@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.2.8', lines = {
+		'Wider party frames with larger icons',
+	} },
 	{ version = '1.2.7', lines = {
 		'The party frames show only the other four members, the healer grid still shows you',
 	} },

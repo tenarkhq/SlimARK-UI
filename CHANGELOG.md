@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.8
+
+- Party frames are wider and a little taller (240x72 instead of 160x64), with larger debuff and defensive icons, so nothing is crowded. The right edge stays in place, the column grows to the left
+
 ## 1.2.7
 
 - The party frames next to your character show only the other four members. You have your own player frame; the healer grid still shows you

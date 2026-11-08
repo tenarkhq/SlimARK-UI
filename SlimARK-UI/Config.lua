@@ -62,7 +62,7 @@ ns.C = {
 		focus = { x = 1500, y = 1050, w = 260, h = 38, font = 18, heal = { x = 1600, y = 1050 } },
 		boss = { x = 1920, y = 430, w = 270, h = 50, gap = 8, font = 16 },
 		-- Party (DPS and tank): a column of large frames right next to the character.
-		party = { x = 790, y = 690, w = 160, h = 64, gap = 4, debuff = 22, defensive = 24, font = 16 },
+		party = { x = 710, y = 690, w = 240, h = 72, gap = 4, debuff = 26, defensive = 28, font = 16 },
 		raid = { x = 12, y = 760, w = 112, h = 48, gap = 3, debuff = 18, defensive = 20, font = 15 },
 		-- The grid of the healer group above the action bars. The y is the bottom of the grid, it grows upward.
 		grid = { x = 974, y = 1420, w = 120, h = 56, gap = 3, debuff = 22, defensive = 26, font = 16 },
