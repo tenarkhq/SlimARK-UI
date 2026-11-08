@@ -478,7 +478,7 @@ local function CastFail(self, event, unit, _, spellID, ...)
 		* spellID - the ID of the spell (number)
 		--]]
 		if(element.PostCastFail) then
-			element:PostCastFail(unit, spellID)
+			element:PostCastFail(unit, spellID, event) -- SlimARK: the event, the bar text can be secret
 		end
 	end
 

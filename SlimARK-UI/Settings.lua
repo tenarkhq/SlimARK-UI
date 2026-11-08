@@ -166,6 +166,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.5.2', lines = {
+		'Fixed: an error on nameplates when a cast was interrupted and the game hid the spell name',
+		'Fixed: an error from the trinket and potion icons when the game hid a buff update in combat',
+	} },
 	{ version = '1.5.1', lines = {
 		'Fixed: a click on a dungeon in the keystone teleport list closed the list without teleporting',
 		'Fixed: test mode showed no party and raid frames while you were not in a group',

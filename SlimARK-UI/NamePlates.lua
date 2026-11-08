@@ -175,8 +175,9 @@ local function PlateStyle(self)
 		ShowInterrupter(element, interruptedBy)
 	end
 	-- When the game leaves out who interrupted, our own or a party interrupt seen right then still names them.
-	cb.PostCastFail = function(element)
-		if element.Text:GetText() == (INTERRUPTED or 'Interrupted') then ShowInterrupter(element, nil) end
+	-- The event decides: the bar text can be a hidden value after a secret spell name, it can not be compared.
+	cb.PostCastFail = function(element, _, _, event)
+		if event == 'UNIT_SPELLCAST_INTERRUPTED' then ShowInterrupter(element, nil) end
 	end
 	local postStart = cb.PostCastStart
 	cb.PostCastStart = function(element, unit, ...)

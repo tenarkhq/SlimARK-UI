@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.5.2
+
+- Fixed: an error on nameplates when a cast was interrupted and the game hid the spell name
+- Fixed: an error from the trinket and potion icons when the game hid a buff update in combat
+
 ## 1.5.1
 
 - Fixed: a click on a dungeon in the keystone teleport list closed the list without teleporting

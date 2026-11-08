@@ -234,20 +234,25 @@ end
 
 local function OnAura(info)
 	local now = GetTime()
-	if not info or info.isFullUpdate then
+	-- In combat the game can hide the whole update, its flags and lists too. Then nothing in it
+	-- can be tested, and the shown effects are checked the full way instead.
+	local full = info and info.isFullUpdate
+	if not info or issecretvalue(full) or full
+		or issecretvalue(info.removedAuraInstanceIDs) or issecretvalue(info.updatedAuraInstanceIDs)
+		or issecretvalue(info.addedAuras) then
 		FullCheck()
 		return
 	end
 	if info.removedAuraInstanceIDs then
 		for _, instance in ipairs(info.removedAuraInstanceIDs) do
-			local e = Owner(instance)
+			local e = Readable(instance) and Owner(instance)
 			if e then Clear(e) end
 		end
 	end
 	if info.updatedAuraInstanceIDs then
 		-- A refreshed effect gets its new duration.
 		for _, instance in ipairs(info.updatedAuraInstanceIDs) do
-			local e = Owner(instance)
+			local e = Readable(instance) and Owner(instance)
 			if e then Show(e, instance, e.f.Icon:GetTexture()) end
 		end
 	end
