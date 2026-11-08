@@ -128,7 +128,9 @@ local function ArrangeSystems(layout)
 		-- The marker bar under the minimap pushes the tracker down by its height.
 		Move(tracker, 'TOPRIGHT', C.tracker.x, C.tracker.y + ns.TopInset() + (ns.MarkerInset and ns.MarkerInset() or 0), 'RIGHT')
 		local S = Enum.EditModeObjectiveTrackerSetting
-		Set(tracker, S.Height, (C.tracker.height - 400) / 10)
+		-- Moved down by the marker bar, it is that much shorter, so its bottom stays where it was.
+		local height = C.tracker.height - (ns.MarkerInset and ns.MarkerInset() or 0) * ns.Scale()
+		Set(tracker, S.Height, math.max(0, math.floor((height - 400) / 10 + 0.5)))
 		Set(tracker, S.TextSize, C.tracker.textSize - 12)
 		Set(tracker, S.Opacity, 0)
 	end

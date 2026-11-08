@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.8.1
+
+- **Tooltip:** the fixed place moved up, its bottom right corner now sits right above the bags and consumables row, so it covers neither the Details title bar nor the bag buttons
+- **Quest tracker:** with the marker bar under the minimap the tracker gets shorter by the bar's height, so its bottom stays clear of the tooltip. Click Apply now after the update
+
 ## 1.8.0
 
 - **Tooltip:** flat, with a black edge and the SlimARK font. The class, reaction or item quality color is a thin stripe on top, the health bar a thin line under it. Players show their guild in green, their Mythic+ rating in its color, their item level with spec and their target. The item level is asked for out of combat only and kept for 10 minutes. Place: fixed above the Details windows or next to the mouse, on the Tooltip page

@@ -192,6 +192,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.8.1', lines = {
+		'Tooltip: the fixed place sits right above the bags and consumables row, clear of the Details title bar',
+		'Quest tracker: shorter by the marker bar\'s height when the bar is under the minimap',
+	} },
 	{ version = '1.8.0', lines = {
 		'Tooltip: flat, with the class, reaction or item quality color as a stripe on top and a thin health bar; players show their Mythic+ rating, item level and target. Fixed above the Details windows or next to the mouse',
 		'Loot rolls and pop-ups (loot won, upgrades, money, achievements, new mounts, pets, toys) in one flat column left of your character',

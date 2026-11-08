@@ -230,9 +230,10 @@ local function Anchor(tip, parent)
 		tip:SetOwner(parent, 'ANCHOR_CURSOR_RIGHT', 24, 8)
 		return
 	end
-	-- Fixed: its bottom right corner above the Details windows.
+	-- Fixed: its bottom right corner over the bags and consumables row, above the Details windows,
+	-- so it covers neither the Details title bar nor the bag buttons.
 	local x = ns.FitX(C.details.right, 'RIGHT')
-	local y = ns.FitY(C.details.bottom - C.details.h - 12)
+	local y = ns.FitY(C.consumables.y - 8)
 	local scale = ns.Scale() / tip:GetScale()
 	tip:ClearAllPoints()
 	tip:SetPoint('BOTTOMRIGHT', UIParent, 'TOPLEFT', x * scale, -y * scale)
