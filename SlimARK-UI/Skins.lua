@@ -88,9 +88,9 @@ local function ApplyDetails()
 		window:ChangeSkin(cfg.skin)
 		window:SetWindowScale(1)
 
-		local right = cfg.right - (2 - i) * (cfg.w + cfg.gap)
+		local right = ns.FitX(cfg.right - (2 - i) * (cfg.w + cfg.gap), 'RIGHT')
 		window.baseframe:ClearAllPoints()
-		window.baseframe:SetPoint('BOTTOMRIGHT', UIParent, 'TOPLEFT', right * s, -cfg.bottom * s)
+		window.baseframe:SetPoint('BOTTOMRIGHT', UIParent, 'TOPLEFT', right * s, -ns.FitY(cfg.bottom) * s)
 		window:SetSize(cfg.w * s, cfg.h * s)
 		window:SaveMainWindowPosition()
 		window:SetDisplay(nil, 1, 1) -- both panels show damage
@@ -126,8 +126,8 @@ local function ApplyDBM()
 	local options = {
 		Scale = 1, HugeScale = 1, Alpha = 1, HugeAlpha = 1,
 		Width = n.w * s, Height = n.h * s, HugeWidth = h.w * s, HugeHeight = h.h * s,
-		TimerPoint = 'TOPLEFT', TimerX = n.x * s, TimerY = -n.y * s,
-		HugeTimerPoint = 'TOPLEFT', HugeTimerX = h.x * s, HugeTimerY = -h.y * s,
+		TimerPoint = 'TOPLEFT', TimerX = ns.FitX(n.x) * s, TimerY = -ns.FitY(n.y) * s,
+		HugeTimerPoint = 'TOPLEFT', HugeTimerX = ns.FitX(h.x) * s, HugeTimerY = -ns.FitY(h.y) * s,
 		BarYOffset = cfg.gap * s, HugeBarYOffset = cfg.gap * s,
 		ExpandUpwards = false, ExpandUpwardsLarge = true,
 	}
@@ -214,8 +214,8 @@ local function ApplyBigWigs()
 	db.normalHeight = math.max(10, math.floor(n.h * s + 0.5))
 	db.expWidth = math.max(120, math.floor(h.w * s + 0.5))
 	db.expHeight = math.max(10, math.floor(h.h * s + 0.5))
-	db.normalPosition = { 'TOPLEFT', 'TOPLEFT', math.floor(n.x * s + 0.5), -math.floor(n.y * s + 0.5), 'UIParent' }
-	db.expPosition = { 'TOPLEFT', 'TOPLEFT', math.floor(h.x * s + 0.5), -math.floor(h.y * s + 0.5), 'UIParent' }
+	db.normalPosition = { 'TOPLEFT', 'TOPLEFT', math.floor(ns.FitX(n.x) * s + 0.5), -math.floor(ns.FitY(n.y) * s + 0.5), 'UIParent' }
+	db.expPosition = { 'TOPLEFT', 'TOPLEFT', math.floor(ns.FitX(h.x) * s + 0.5), -math.floor(ns.FitY(h.y) * s + 0.5), 'UIParent' }
 	db.growup = false
 	db.emphasizeGrowup = true
 	StyleBigWigs()
@@ -239,10 +239,9 @@ local function ApplyChattynator()
 	local profile = _G.CHATTYNATOR_CONFIG.Profiles[PROFILE]
 	local cfg = C.chat
 	local s = ns.Scale()
-	local _, height = GetPhysicalScreenSize()
 	local window = profile.windows and profile.windows[1]
 	if window then
-		window.position = { 'BOTTOMLEFT', 'UIParent', 'BOTTOMLEFT', cfg.x * s, (height - cfg.bottom) * s }
+		window.position = { 'BOTTOMLEFT', 'UIParent', 'BOTTOMLEFT', ns.FitX(cfg.x, 'LEFT') * s, (ns.ScreenHeight() - ns.FitY(cfg.bottom)) * s }
 		window.size = { cfg.w * s, cfg.h * s }
 	end
 	profile.current_skin = 'dark'

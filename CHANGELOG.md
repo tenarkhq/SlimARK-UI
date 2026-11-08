@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.1
+
+- The layout fits itself to your screen. It is drawn for 2560x1600 and now scales with the screen height on 1080p, 1440p, ultrawide and 4K, with nothing to choose
+- Chat, minimap, buffs, quest tracker, boss frames, consumables and Details! stay at their screen edge; everything around the character stays together in the middle, on ultrawide too
+- Thin borders stay one sharp pixel on every screen
+- Frames you dragged in Edit Mode keep their place, and nothing changes on a 2560x1600 screen
+- Run `/slimark apply` once after updating, so the Blizzard elements, Details!, the boss mods and the chat move too
+
 ## 1.3.0
 
 - WoW Forever support: the same zip now loads in WoW Forever too (its own TOC files with interface 16001). Retail is unchanged

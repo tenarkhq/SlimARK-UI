@@ -2,7 +2,7 @@
 
 A slim World of Warcraft UI for Retail (Midnight, 12.x) and WoW Forever, built from scratch on oUF. It follows the look of ElvUI and LuckyoneUI without the pile of extras.
 
-It is designed for 2560×1600 at 65% UI scale. Every position lives in `SlimARK-UI/Config.lua`, in real pixels.
+It is drawn for 2560×1600 and fits itself to any screen: on 1080p, 1440p, ultrawide and 4K it scales with the screen height, screen-edge elements stay at their edge and everything around the character stays in the middle. Every position lives in `SlimARK-UI/Config.lua`, in pixels of the 2560×1600 layout.
 
 ## Layouts
 

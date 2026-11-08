@@ -642,7 +642,8 @@ end
 local function Build()
 	panel = CreateFrame('Frame', 'SlimARK_Settings', UIParent)
 	panel:SetSize(W, H)
-	panel:SetScale(ns.Scale())
+	-- The panel follows the screen size but never goes below 80%, so its text stays readable on 1080p.
+	panel:SetScale(ns.Scale() / ns.Fit() * math.max(ns.Fit(), 0.8))
 	panel:SetPoint('CENTER')
 	panel:SetFrameStrata('DIALOG')
 	panel:SetToplevel(true)
@@ -786,7 +787,7 @@ function ns.OpenSettings(pageID)
 		panel:Hide()
 		return
 	end
-	panel:SetScale(ns.Scale())
+	panel:SetScale(ns.Scale() / ns.Fit() * math.max(ns.Fit(), 0.8))
 	panel:Show()
 	RenderNav()
 	RenderMain()

@@ -23,10 +23,58 @@ function ns.On(event, fn)
 	table.insert(handlers[event], fn)
 end
 
--- The multiplier that makes 1 unit of the frame exactly 1 physical pixel.
+-- The layout is drawn for 2560x1600. On another screen it is scaled with the
+-- screen (the smaller of the two ratios), the edge groups stay at their edge and
+-- the rest stays in the middle. Read from the real screen size, nothing to choose.
+local BASE_W, BASE_H = 2560, 1600
+
+function ns.Fit()
+	local width, height = GetPhysicalScreenSize()
+	return math.min(width / BASE_W, height / BASE_H)
+end
+
+-- The multiplier that makes 1 unit of the frame exactly ns.Fit() physical pixels
+-- (one pixel on a 2560x1600 screen).
 function ns.Scale()
 	local _, height = GetPhysicalScreenSize()
-	return (768 / height) / UIParent:GetEffectiveScale()
+	return (768 / height) / UIParent:GetEffectiveScale() * ns.Fit()
+end
+
+-- A thin border width in frame units: never thinner than one physical pixel.
+function ns.Px()
+	local fit = ns.Fit()
+	return fit < 1 and 1 / fit or 1
+end
+
+-- The screen size in layout units, and the room it has beyond 2560x1600.
+local function Spare()
+	local width, height = GetPhysicalScreenSize()
+	local fit = ns.Fit()
+	return width / fit - BASE_W, height / fit - BASE_H
+end
+
+-- A layout x on this screen. side: 'LEFT' and 'RIGHT' stay at that edge, anything else stays centered.
+function ns.FitX(x, side)
+	local spare = Spare()
+	if side == 'LEFT' then return x end
+	if side == 'RIGHT' then return x + spare end
+	return x + spare / 2
+end
+
+-- A layout y on this screen (only screens narrower than 16:10 have room here).
+-- The top third stays at the top, the bottom third at the bottom, the middle in the middle.
+function ns.FitY(y, h)
+	local _, spare = Spare()
+	local middle = y + (h or 0) / 2
+	if middle < BASE_H / 3 then return y end
+	if middle > BASE_H * 2 / 3 then return y + spare end
+	return y + spare / 2
+end
+
+-- The screen height in layout units.
+function ns.ScreenHeight()
+	local _, height = GetPhysicalScreenSize()
+	return height / ns.Fit()
 end
 
 ns.Placed = {}
@@ -59,9 +107,20 @@ function ns.Place(item, frame)
 	if item.after and frame == item.frame then
 		frame:SetPoint('TOPLEFT', item.after, 'BOTTOMLEFT', 0, -item.gap)
 	else
-		local base = ns.healer and item.heal or item
-		local x = saved and saved.x or base.x
-		local y = saved and saved.y or base.y
+		local x, y
+		if saved and saved.x then
+			-- Dragged positions are kept in physical pixels of this screen.
+			local fit = ns.Fit()
+			x, y = saved.x / fit, saved.y / fit
+		else
+			local base = ns.healer and item.heal or item
+			local w = item.w or item.frame:GetWidth()
+			local h = item.h or item.frame:GetHeight()
+			-- The vertical group is decided by the top edge, a BOTTOMLEFT y is the bottom.
+			local top = item.point == 'BOTTOMLEFT' and base.y - h or base.y
+			x = ns.FitX(base.x, item.side)
+			y = base.y + ns.FitY(top, h) - top
+		end
 		frame:SetPoint(item.point or 'TOPLEFT', UIParent, 'TOPLEFT', x / size, -y / size)
 	end
 end
@@ -70,6 +129,7 @@ end
 -- opts.after, opts.owner: goes under the previous frame and follows its size.
 -- opts.heal: position in the healer layout. opts.point: which point of the frame the x, y refers to.
 -- opts.forHealer: exists in only one of the roles, not draggable in the other.
+-- opts.side: 'LEFT' or 'RIGHT' keeps it at that screen edge on wider screens, otherwise it stays centered.
 function ns.Register(frame, x, y, opts)
 	local item = opts or {}
 	item.frame, item.x, item.y = frame, x, y
@@ -101,8 +161,9 @@ end)
 function ns.Outline(frame)
 	local t = frame:CreateTexture(nil, 'BACKGROUND', nil, -8)
 	t:SetColorTexture(0, 0, 0, 1)
-	t:SetPoint('TOPLEFT', -1, 1)
-	t:SetPoint('BOTTOMRIGHT', 1, -1)
+	local px = ns.Px()
+	t:SetPoint('TOPLEFT', -px, px)
+	t:SetPoint('BOTTOMRIGHT', px, -px)
 	return t
 end
 
@@ -120,6 +181,7 @@ function ns.Edge(parent, thickness, color, outset, anchor)
 	f:SetPoint('TOPLEFT', anchor, 'TOPLEFT', -outset, outset)
 	f:SetPoint('BOTTOMRIGHT', anchor, 'BOTTOMRIGHT', outset, -outset)
 	f:SetFrameLevel(parent:GetFrameLevel() + 10)
+	thickness = thickness * ns.Px()
 	local function side(p1, p2, w, h)
 		local t = f:CreateTexture(nil, 'OVERLAY')
 		t:SetColorTexture(color[1], color[2], color[3], 1)

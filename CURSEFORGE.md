@@ -20,7 +20,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 
 ## Layouts
 
-The layout follows your spec. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods.
+The layout follows your spec and fits itself to your screen. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods.
 
 **DPS and tank**
 
@@ -143,7 +143,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 ## Good to know
 
-- The layout is designed for 2560×1600 at 65% UI scale. On other screens, change the sizes in `/slimark` or drag the frames in Edit Mode.
+- The layout fits itself to your screen: it is drawn for 2560×1600 and scales automatically on 1080p, 1440p, ultrawide and 4K. Screen edges stay at the edges, everything around your character stays in the middle. Sizes can still be changed in `/slimark` and frames dragged in Edit Mode.
 - Made for Midnight's addon rules: it works with the protected values the game uses in combat.
 - **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel stays off. Details!, the boss mods and the other skinned addons need their own Forever versions.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.

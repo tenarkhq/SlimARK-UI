@@ -28,9 +28,12 @@ local function Set(info, setting, value)
 	table.insert(info.settings, { setting = setting, value = value })
 end
 
--- x, y: real pixels from the top left. Blizzard divides the offset by the frame's scale itself.
-local function Move(info, point, x, y)
+-- x, y: layout pixels from the top left, fitted to this screen. side: 'LEFT' or 'RIGHT'
+-- keeps the element at that edge, otherwise it stays centered.
+-- Blizzard divides the offset by the frame's scale itself.
+local function Move(info, point, x, y, side)
 	local unit = ns.Scale()
+	x, y = ns.FitX(x, side), ns.FitY(y)
 	info.isInDefaultPosition = false
 	info.anchorInfo = { point = point, relativeTo = 'UIParent', relativePoint = 'TOPLEFT', offsetX = x * unit, offsetY = -y * unit }
 	info.anchorInfo2 = nil
@@ -76,7 +79,7 @@ local function ArrangeBars(layout)
 			if i <= cfg.centerRows then
 				Move(info, 'BOTTOM', b.center, b.bottom - (i - 1) * rowHeight)
 			else
-				Move(info, 'BOTTOMLEFT', cfg.sideX, cfg.sideBottom - (i - cfg.centerRows - 1) * rowHeight)
+				Move(info, 'BOTTOMLEFT', cfg.sideX, cfg.sideBottom - (i - cfg.centerRows - 1) * rowHeight, 'LEFT')
 			end
 		end
 	end
@@ -98,13 +101,13 @@ end
 
 local function PlaceSystems(layout, systems)
 	for _, entry in ipairs(systems) do
-		local systemName, indexName, point, x, y = unpack(entry, 1, 5)
+		local systemName, indexName, point, x, y, side = unpack(entry, 1, 6)
 		local info = Find(layout, systemName, indexName)
 		if info then
 			if systemName == 'Bags' then
 				Set(info, Enum.EditModeBagsSetting.Size, (cfg.bagsSize - 75) / 5)
 			end
-			Move(info, point, x, y)
+			Move(info, point, x, y, side)
 		end
 	end
 end

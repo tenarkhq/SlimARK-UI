@@ -166,7 +166,7 @@ ns.On('PLAYER_LOGIN', function()
 	local count = TotalSlots()
 	bar = CreateFrame('Frame', 'SlimARK_Consumables', UIParent)
 	bar:SetSize(count * (cfg.size + cfg.gap), cfg.size)
-	ns.Register(bar, cfg.x, cfg.y, { key = 'consumables' })
+	ns.Register(bar, cfg.x, cfg.y, { key = 'consumables', side = 'RIGHT' })
 	for i = 1, count do
 		buttons[i] = CreateButton(i)
 	end

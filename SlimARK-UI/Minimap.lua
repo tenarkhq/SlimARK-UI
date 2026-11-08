@@ -171,7 +171,7 @@ ns.On('PLAYER_LOGIN', function()
 
 	holder = CreateFrame('Frame', 'SlimARK_Minimap', UIParent)
 	holder:SetSize(cfg.size, cfg.size)
-	ns.Register(holder, cfg.x, cfg.y, { key = 'minimap' })
+	ns.Register(holder, cfg.x, cfg.y, { key = 'minimap', side = 'RIGHT' })
 
 	Minimap:SetParent(holder)
 	Minimap:ClearAllPoints()

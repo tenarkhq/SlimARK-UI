@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.3.1', lines = {
+		'The layout fits itself to your screen: 1080p, 1440p, ultrawide and 4K',
+	} },
 	{ version = '1.3.0', lines = {
 		'WoW Forever support: the same zip loads there too, retail is unchanged',
 	} },

@@ -82,7 +82,7 @@ local function Build()
 		bosses[i] = { name = name, time = time }
 	end
 
-	ns.Register(panel, C.tracker.x - W, C.tracker.y, { key = 'mythicplus', w = W, h = panel:GetHeight() })
+	ns.Register(panel, C.tracker.x - W, C.tracker.y, { key = 'mythicplus', w = W, h = panel:GetHeight(), side = 'RIGHT' })
 end
 
 local function Elapsed()

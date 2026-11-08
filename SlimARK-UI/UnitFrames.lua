@@ -48,8 +48,9 @@ local function AuraBelowStyle(cfg)
 		icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 		local edge = button:CreateTexture(nil, 'BACKGROUND', nil, -8)
 		edge:SetColorTexture(0, 0, 0, 1)
-		edge:SetPoint('TOPLEFT', icon, -1, 1)
-		edge:SetPoint('BOTTOMRIGHT', icon, 1, -1)
+		local px = ns.Px()
+		edge:SetPoint('TOPLEFT', icon, -px, px)
+		edge:SetPoint('BOTTOMRIGHT', icon, px, -px)
 		if button.Border then button.Border:SetAllPoints(icon) end
 		if button.Count then
 			button.Count:SetFont(ns.FONT, cfg.countFont, 'THICKOUTLINE')
@@ -312,7 +313,7 @@ local function Style(self, unit)
 		local a = C.auras.buffs
 		local buffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = a.width })
 		buffs:SetSize(a.width, a.height)
-		buffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', a.right, -a.y)
+		buffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(a.right, 'RIGHT'), -ns.FitY(a.y))
 		buffs.width = a.size
 		buffs.height = a.size + a.timeH
 		buffs.elementSpacing = a.gap
@@ -327,7 +328,7 @@ local function Style(self, unit)
 		local d = C.auras.debuffs
 		local debuffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = d.width })
 		debuffs:SetSize(d.width, d.height)
-		debuffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', d.right, -d.y)
+		debuffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(d.right, 'RIGHT'), -ns.FitY(d.y))
 		debuffs.width = d.size
 		debuffs.height = d.size + d.timeH
 		debuffs.elementSpacing = d.gap
@@ -432,7 +433,7 @@ oUF:Factory(function(self)
 		for i = 1, 5 do
 			local frame = self:Spawn('boss' .. i, 'SlimARK_Boss' .. i)
 			if i == 1 then
-				first = ns.Register(frame, b.x, b.y, { key = 'boss', w = b.w, h = 5 * (b.h + b.gap) - b.gap })
+				first = ns.Register(frame, b.x, b.y, { key = 'boss', w = b.w, h = 5 * (b.h + b.gap) - b.gap, side = 'RIGHT' })
 			else
 				ns.Register(frame, b.x, b.y, { owner = first, after = previous, gap = b.gap })
 			end
@@ -468,7 +469,7 @@ oUF:Factory(function(self)
 			'columnAnchorPoint', 'TOP', 'columnSpacing', r.gap,
 			'oUF-initialConfigFunction', init(r))
 		ns.AddGroupHeader(raid, false, RAID_SHOWN)
-		ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false })
+		ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false, side = 'LEFT' })
 	end
 
 	if M.grid then
