@@ -115,14 +115,24 @@ local MICRO = {
 	{ 'MainMenuMicroButton', 'UI-HUD-MicroMenu-GameMenu-Up' },
 }
 
--- The atlas pictures carry a frame around the symbol; the middle is cut out.
+-- The atlas pictures are 64x82 buttons with the symbol in the middle. The picture is loaded from
+-- its file with the coordinates of the file, and a square around the symbol is cut out of it.
+-- (Texture coordinates set after SetAtlas would count inside the atlas piece instead.)
 local function MicroIcon(tex, atlas)
-	tex:SetAtlas(atlas)
 	local info = C_Texture.GetAtlasInfo(atlas)
-	if not info then return end
+	local file = info and (info.file or info.filename)
+	if not file then
+		tex:SetAtlas(atlas)
+		return
+	end
 	local l, r, t, b = info.leftTexCoord, info.rightTexCoord, info.topTexCoord, info.bottomTexCoord
 	local w, h = r - l, b - t
-	tex:SetTexCoord(l + w * 0.12, r - w * 0.12, t + h * 0.18, b - h * 0.18)
+	local side = 0.1
+	-- The same pixel width cut from the height gives a square.
+	local keep = (1 - 2 * side) * (info.width or 64) / (info.height or 82)
+	local top = (1 - keep) / 2
+	tex:SetTexture(file)
+	tex:SetTexCoord(l + w * side, r - w * side, t + h * top, b - h * top)
 end
 
 local function HasAlert(real)

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.4.1
+
+- Fixed: the micro menu icons of the top bar showed only a colored patch instead of the symbol
+
 ## 1.4.0
 
 - **Top bar:** a flat bar on the top row of the screen, over the whole width. Left: the micro menu as small flat icons, durability, FPS, latency, the queue time while you are queued (Dungeon Finder, Raid Finder, battlegrounds, premade applications) and your tracked currencies. Middle: the clock, a click opens the calendar. Right: gold with this session's gain or loss, item level, your keystone, the Great Vault, the auto quest switch and the icons of your other addons

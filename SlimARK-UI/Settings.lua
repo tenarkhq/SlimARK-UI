@@ -158,6 +158,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.4.1', lines = {
+		'Fixed: the micro menu icons of the top bar showed only a colored patch instead of the symbol',
+	} },
 	{ version = '1.4.0', lines = {
 		'Top bar on the top row: micro menu, durability, FPS, latency, queue time, tracked currencies, clock, gold, item level, keystone, Great Vault, auto quest switch and the addon icons',
 		'Click the keystone: the dungeons of the season you have a teleport to, one click teleports',
