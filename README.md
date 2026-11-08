@@ -18,6 +18,16 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ![Healer layout](assets/layout-healer.png)
 
+## Pictures
+
+| | |
+| --- | --- |
+| ![Tooltip](assets/feature-tooltip.png) | ![Action bars](assets/feature-actionbars.png) |
+| ![Loot rolls and pop-ups](assets/feature-loot.png) | ![Ready check](assets/feature-readycheck.png) |
+| ![Marker bar](assets/feature-markers.png) | ![Chattynator skin](assets/feature-chat.png) |
+
+The pictures show the SlimARK look as drawn from the addon's design.
+
 ## What's included
 
 - Settings panel (`/slimark`, the SlimARK icon on the top bar, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything

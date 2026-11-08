@@ -2,15 +2,26 @@
 
 **A slim, clean and fast interface for World of Warcraft Retail (Midnight) and WoW Forever.**
 
-SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking and group frames with one consistent, sharp look: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF, so it stays light, and it keeps the crisp ElvUI style without ElvUI's pile of extras.
+SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking, group frames, tooltip and loot pop-ups with one consistent, sharp look: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF and runs on events only, so it stays light: the crisp ElvUI style without ElvUI's pile of extras and twenty helper addons next to it.
 
-One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A flat top bar keeps everything else in one line: micro menu, durability, FPS, gold, your keystone with one-click dungeon teleports, the Great Vault and a quest autopilot switch. A settings panel lets you change every element afterwards.
+One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
+
+## Highlights
+
+- **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
+- **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
+- **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
+- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns and dispel highlights on every group frame
+- **Mythic+ ready:** compact timer panel, keystone slotted for you, new key posted to the party
+- **Group tools:** marker bar, ready check window that uses your missing flask or food, loot rolls in one flat column
+- **Test mode:** see party, raid, Mythic+ or the other spec's layout without a group
+- **Your old setup stays:** new profiles and Edit Mode layouts are created next to yours, nothing is overwritten
 
 ## Quick start
 
 1. Install the addon. The download contains two folders, `SlimARK-UI` and `!SlimARK_Media`. Both are needed: the media folder loads first, so Details!, BigWigs and Chattynator can use the SlimARK font and texture from the start. The same download works in Retail and in WoW Forever.
 2. Log in and type `/slimark apply`.
-3. Done. Every position and skin is set, and the UI reloads. After each update a window asks for it once; click Apply now.
+3. Done. Every position and skin is set, and the UI reloads. After each update a window asks for it once; click **Apply now**.
 
 | Command | What it does |
 | --- | --- |
@@ -21,89 +32,23 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 
 ## Layouts
 
-The layout follows your spec and fits itself to your screen. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods. The top bar runs along the very top row; the minimap, the buffs and the quest tracker start right under it.
+The layout follows your spec and fits itself to your screen. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods.
+
+The top bar runs along the very top row; the minimap, the buffs and the quest tracker start right under it. In a group the marker bar sits under the minimap and the quest tracker moves down by its height. Loot rolls and pop-ups have their own column left of your character, and the tooltip waits above the bags and consumables row, next to the Details! windows.
 
 **DPS and tank**
 
-![DPS and tank layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/af727d46fde42c5702d6df28111e43642ba7d522/assets/layout-dps-tank.png)
+![DPS and tank layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/layout-dps-tank.png)
 
 **Healer**
 
 The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
 
-![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/af727d46fde42c5702d6df28111e43642ba7d522/assets/layout-healer.png)
+![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/layout-healer.png)
 
-## Test mode
+*The feature pictures below show the SlimARK look as drawn from the addon's design.*
 
-See your whole layout without a group: no need to gather a raid to check where everything sits. Open `/slimark` → General → Test mode, or type `/slimark test`.
-
-- **Party, Raid 20, Raid 40 or Mythic+:** made-up players fill the group frames, with mixed classes and roles
-- **Mythic+** also shows the Mythic+ panel with a running key, in place of the quest tracker
-- Target, target of target, focus, pet and boss 1-5 are filled too, with cast bars
-- Everything a frame can show is on screen: class colors, role icons, health with one decimal, shield stripes, debuffs, defensives, the dispel highlight and a dead member
-- **Healer or DPS and tank layout:** preview either one, whichever spec you play
-- Stays on in Edit Mode, so you can drag the filled frames into place
-- A gold banner under the top bar shows the mode; click it to end. Combat or a reload ends it too
-
-## Top bar
-
-A flat, 26 pixel bar on the top row of the screen, over the whole width. Everything that used to sit at the top edge moves down by its height, so nothing hides under it.
-
-**Left side**
-- **Micro menu:** the twelve game menu buttons as small flat icons in Blizzard's own pictures, your portrait for the character sheet. A gold dot shows where the game would glow (unspent talents, new collections, ...). A click opens the same window as the original button
-- **Durability:** your most worn item in percent, green, yellow or red. The tooltip lists every item, a click opens the character sheet
-- **FPS** and **latency** (world ms, home and world in the tooltip)
-- **Queue time:** shown only while you are queued, for the Dungeon Finder, Raid Finder, battlegrounds and premade applications: how long you have waited and the average wait. The tooltip shows the roles still missing, a click opens the queue menu
-- **Tracked currencies:** every currency you marked "Show on Backpack", with its icon and amount
-
-**Middle**
-- **Clock:** a click opens the calendar, a right click the stopwatch and alarm. It turns gold when a calendar invite is waiting. The tooltip shows local and realm time
-
-**Right side**
-- **Gold:** your gold and what you earned or spent this session. The tooltip lists the gold of your characters on the realm and the total; a click opens your bags
-- **Item level** of your equipped gear
-- **Keystone:** your Mythic+ key, for example "Voidscar Arena +12". **A click opens the teleport list:** the dungeons of the current season that you have learned the teleport for (by timing a +10 there), your key's dungeon first, each with its cooldown. One click teleports you, no digging in the spellbook, the action bars or the dungeon journal. Dungeons you have no teleport for are not listed
-- **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault
-- **Auto quest switch:** ON or OFF with one click, remembered between sessions
-- **Addon icons:** the minimap buttons of your other addons, in a row at the right end, right above the minimap
-
-## Auto quest
-
-- Accepts the quests an NPC offers and turns in the finished ones, finished ones first
-- When you have to choose a reward, it stops and you choose
-- A quest that wants gold for the turn-in is left to you
-- With a single talk option it picks it for you, so event and dungeon NPCs talk on without clicking
-- It never picks an option that costs something or asks for a confirmation, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone
-- Grey (low level) quests are not taken
-- Hold **Shift** while talking to an NPC to pause it there
-- Works in Mythic+ too; switch it off and on from the top bar
-
-## Fits every screen
-
-- Reads your real screen size at login, there is nothing to choose
-- Frames and text scale with the screen height, so they take the same share of the screen on 1080p, 1440p, ultrawide and 4K
-- Chat, minimap, buffs, quest tracker, boss frames, consumables and Details! stay at their screen edge
-- Everything around your character stays together in the middle, on ultrawide too
-- Thin borders stay one sharp pixel on every screen
-- Frames you dragged in Edit Mode keep their place
-
-## Settings panel
-
-Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
-
-- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, error messages and quality of life features
-- Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
-- Every page can be reset to the SlimARK defaults on its own
-- A search box finds any setting by name
-- Changed values are marked in gold
-- The version number and the changelog are shown in the panel
-
-## Layouts for every spec
-
-- DPS and tank specs share one layout, built around the center of the screen
-- Healers get their own layout, with grid-style group frames right above the action bars where your eyes already are
-- The layout switches by itself when you change spec, and waits for the end of combat if needed
-- New Edit Mode layouts named `SlimARK-UI` and `SlimARK-UI Heal` are created next to yours
+# In combat
 
 ## Unit frames
 
@@ -151,6 +96,26 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing
 
+## Action bars
+
+![Action bars](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-actionbars.png)
+
+- Square buttons with a thin black border and flat states: a light layer on mouse-over, a dark one while pressed, a thin gold edge on an active aura, stance or auto attack
+- **Procs** get a gold edge in place of the spinning glow; Blizzard's assisted highlight becomes a turquoise edge
+- **Icon colors:** red out of range, blue without enough mana, energy or focus, grey when the spell cannot be used
+- **Short hotkeys:** the modifier is a small gold letter in front of the key, `sT` for Shift-T; macro names are hidden
+- **Cooldowns** count down in large SlimARK numbers under a dark cover; the global cooldown gets a lighter cover
+- **Fade:** out of combat the bars above the bottom three rows fade away and come back in combat, with a target, under the mouse or while you drag a spell
+- Every part has its own switch on the Action bars page
+
+## Less noise
+
+- The red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden
+- Blizzard already hides the out of energy and cooldown ones; full bags and every other message stay
+- One switch on the Error messages page
+
+# Groups and Mythic+
+
 ## Mythic+
 
 - Compact panel in place of the quest tracker while a key runs
@@ -159,22 +124,87 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Enemy forces to two decimals, with the raw count
 - One line per boss with its kill time
 - The quest tracker steps aside for the whole key, even if the game tries to bring it back in combat, and returns when the key ends
-- Your keystone goes into the Font of Power the moment you open it
-- After a run your new keystone is posted to the party as a link
+- **Keystone:** your keystone goes into the Font of Power the moment you open it
+- After a run your new keystone is posted to the party as a link, as soon as the game allows addon chat again
 
-## Tooltip, loot and group tools
+## Marker bar
 
-- Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar under it
-- Players show their guild in green, their Mythic+ rating in its color, their item level with spec and their target; the item level is asked for out of combat only
-- Fixed above the Details windows or next to the mouse, your choice
-- Loot rolls and the loot won, upgrade, money, achievement and new mount, pet or toy pop-ups in one flat column left of your character; drag it in Edit Mode
-- Marker bar in a group: target markers, ground markers, clear all, and for the leader a ready check and a pull countdown. Under the minimap or next to the party frames; the marker buttons work in combat
-- Ready check window: what is on you and what is missing (flask, food, augment rune, weapon oil, class buffs, durability), with a button that uses the missing item from your bags
+![Marker bar](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-markers.png)
+
+- Shown in a group only, hidden when you are alone
+- **Eight target markers:** a click puts the marker on your target, another click takes it off. The marker on your current target gets a gold edge
+- **Eight ground markers** in their own colors: left click places one, right click picks it up
+- **Clear** picks up every ground marker
+- **Ready** starts a ready check, **Pull** starts a 10 second pull countdown (right click stops it). These two are shown to the group leader and raid assistants only
+- The marker buttons are Blizzard's own secure marker actions, so they work in combat too
+- Two places, your choice: **under the minimap**, where the quest tracker and the Mythic+ panel move down by its height and never overlap it, or **next to the party frames**
+
+## Ready check
+
+![Ready check window](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-readycheck.png)
+
+- A flat window in place of Blizzard's, with the question, who started it and the time left
+- Shows what is on you and what is missing: **flask, food, augment rune, weapon oil**, the **class buffs** of the classes in your group, and your lowest **durability** (red under 50%)
+- A missing flask, food, rune or oil gets a button that uses it from your bags, so one click fixes it before you answer
+- **Ready** and **Not ready** buttons answer the check
+- In combat Blizzard's own window stays, so nothing protected is touched
 
 ## Group Finder
 
 - Role checks are accepted automatically with your current spec's role
 - One click on a premade group listing signs you up with your spec's role, with no extra confirmation window
+
+# Interface
+
+## Top bar
+
+A flat, 26 pixel bar on the top row of the screen, over the whole width. Everything that used to sit at the top edge moves down by its height, so nothing hides under it.
+
+**Left side**
+- **Micro menu:** the twelve game menu buttons as small flat icons in Blizzard's own pictures, your portrait for the character sheet. A gold dot shows where the game would glow (unspent talents, new collections, ...). A click opens the same window as the original button
+- **Durability:** your most worn item in percent, green, yellow or red. The tooltip lists every item, a click opens the character sheet
+- **FPS** and **latency** (world ms, home and world in the tooltip)
+- **Queue time:** shown only while you are queued, for the Dungeon Finder, Raid Finder, battlegrounds and premade applications: how long you have waited and the average wait. The tooltip shows the roles still missing, a click opens the queue menu
+- **Tracked currencies:** every currency you marked "Show on Backpack", with its icon and amount
+
+**Middle**
+- **Clock:** a click opens the calendar, a right click the stopwatch and alarm. It turns gold when a calendar invite is waiting. The tooltip shows local and realm time
+
+**Right side**
+- **Gold:** your gold and what you earned or spent this session. The tooltip lists the gold of your characters on the realm and the total; a click opens your bags
+- **Item level** of your equipped gear
+- **Keystone:** your Mythic+ key, for example "Voidscar Arena +12". **A click opens the teleport list:** the dungeons of the current season that you have learned the teleport for (by timing a +10 there), your key's dungeon first, each with its cooldown. One click teleports you, no digging in the spellbook, the action bars or the dungeon journal. Dungeons you have no teleport for are not listed
+- **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault
+- **Auto quest switch:** ON or OFF with one click, remembered between sessions
+- **Addon icons:** the minimap buttons of your other addons, in a row at the right end, right above the minimap
+
+## Tooltip
+
+![Tooltip](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-tooltip.png)
+
+- Flat dark plate with a thin black edge and the SlimARK font
+- The class, reaction or item quality color is a thin stripe on top; the health bar is a thin line under the tooltip in the same color
+- **Players:** name in class color, guild in green, then their **Mythic+ rating** in its color, their **item level with spec** and their **target** (">> you <<" when it is you)
+- The item level is asked from the game out of combat only, once per player, and kept for 10 minutes
+- **Place, your choice:** fixed right above the bags and consumables row next to the Details! windows, or next to the mouse
+
+## Loot rolls and pop-ups
+
+![Loot rolls and pop-ups](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-loot.png)
+
+- One flat column left of your character for everything loot related; drag it in Edit Mode
+- **Rolls** are flat rows: the item in its quality color, its slot, item level and BoP, the **Need**, **Greed** or **Transmog** and **Pass** buttons in one row, and a thin gold bar for the time left
+- **Pop-ups** stack above the rolls in the same style: loot won, loot upgrades, money, achievements with their points, and new mounts, pets, toys and cosmetics
+- Each row has a thin side stripe in the item's quality color
+
+## Chat and addon skins
+
+![Chattynator skin](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-chat.png)
+
+- **Chattynator:** dark chat in the SlimARK font, with flat tabs: a thin stripe in the tab's color on top, the selected tab in gold, a slow gold line at the bottom when a new message comes in
+- **Details!:** two windows, overall damage and current fight, in the SlimARK font with clean value columns
+- **Deadly Boss Mods** and **BigWigs:** bars in the SlimARK look, placed to the right of your character, opposite the party frames
+- **BetterBags:** flat dark SlimARK theme for both the classic bags and BetterBags Next: black edges, cropped item icons, quality colored borders, no glow or bounce
 
 ## Quality of life
 
@@ -186,24 +216,59 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 - Cleaner, smaller quest tracker with a thin header line
 - Move Blizzard windows by their title bar and resize them with Ctrl + mouse wheel; the position is remembered
 - The version number is printed at login
-- The red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready are hidden; full bags and every other message stay
 
-## Action bars
+## Auto quest
 
-- Square buttons with a thin black border and flat states: a light layer on mouse-over, a dark one while pressed, a thin gold edge on an active aura, stance or auto attack
-- **Procs** get a gold edge in place of the spinning glow; Blizzard's assisted highlight becomes a turquoise edge
-- **Icon colors:** red out of range, blue without enough mana, energy or focus, grey when the spell cannot be used
-- **Short hotkeys:** the modifier is a small gold letter in front of the key, `sT` for Shift-T; macro names are hidden
-- **Cooldowns** count down in large SlimARK numbers under a dark cover; the global cooldown gets a lighter cover
-- **Fade:** out of combat the bars above the bottom three rows fade away and come back in combat, with a target, under the mouse or while you drag a spell
-- Every part has its own switch on the Action bars page
+- Accepts the quests an NPC offers and turns in the finished ones, finished ones first
+- When you have to choose a reward, it stops and you choose
+- A quest that wants gold for the turn-in is left to you
+- With a single talk option it picks it for you, so event and dungeon NPCs talk on without clicking
+- It never picks an option that costs something or asks for a confirmation, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone
+- Grey (low level) quests are not taken
+- Hold **Shift** while talking to an NPC to pause it there
+- Works in Mythic+ too; switch it off and on from the top bar
 
-## Skins for your other addons
+# Setup and settings
 
-- **Details!** two windows, overall damage and current fight, in the SlimARK font with clean value columns
-- **Deadly Boss Mods** and **BigWigs** bars in the SlimARK look, placed to the right of your character, opposite the party frames
-- **Chattynator** dark chat in the SlimARK font, with flat tabs: a thin stripe in the tab's color on top, the selected tab in gold, a slow gold line at the bottom when a new message comes in
-- **BetterBags** flat dark SlimARK theme for both the classic bags and BetterBags Next: black edges, cropped item icons, quality colored borders, no glow or bounce
+## Layouts for every spec
+
+- DPS and tank specs share one layout, built around the center of the screen
+- Healers get their own layout, with grid-style group frames right above the action bars where your eyes already are
+- The layout switches by itself when you change spec, and waits for the end of combat if needed
+- New Edit Mode layouts named `SlimARK-UI` and `SlimARK-UI Heal` are created next to yours
+
+## Fits every screen
+
+- Reads your real screen size at login, there is nothing to choose
+- Frames and text scale with the screen height, so they take the same share of the screen on 1080p, 1440p, ultrawide and 4K
+- Chat, minimap, buffs, quest tracker, boss frames, consumables and Details! stay at their screen edge
+- Everything around your character stays together in the middle, on ultrawide too
+- Thin borders stay one sharp pixel on every screen
+- Frames you dragged in Edit Mode keep their place
+
+## Settings panel
+
+Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
+
+- Every element has its own page in a list on the left: test mode, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, error messages and quality of life features
+- Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
+- Where a feature has two ways to work, like the tooltip place or the marker bar place, you pick one on its page
+- Every page can be reset to the SlimARK defaults on its own
+- A search box finds any setting by name
+- Changed values are marked in gold
+- The version number and the changelog are shown in the panel
+
+## Test mode
+
+See your whole layout without a group: no need to gather a raid to check where everything sits. Open `/slimark` → General → Test mode, or type `/slimark test`.
+
+- **Party, Raid 20, Raid 40 or Mythic+:** made-up players fill the group frames, with mixed classes and roles
+- **Mythic+** also shows the Mythic+ panel with a running key, in place of the quest tracker
+- Target, target of target, focus, pet and boss 1-5 are filled too, with cast bars
+- Everything a frame can show is on screen: class colors, role icons, health with one decimal, shield stripes, debuffs, defensives, the dispel highlight and a dead member
+- **Healer or DPS and tank layout:** preview either one, whichever spec you play
+- Stays on in Edit Mode, so you can drag the filled frames into place
+- A gold banner under the top bar shows the mode; click it to end. Combat or a reload ends it too
 
 ## Your settings stay safe
 
@@ -215,7 +280,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 - Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, the Mythic+ clock while a key runs, and the ready check countdown while the window is open. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
-- Panels that are not shown, such as the character sheet overlay, do no work at all
+- Parts you switch off do nothing at all, and panels that are not shown, such as the character sheet overlay, do no work
 
 ## Good to know
 
@@ -244,6 +309,7 @@ Things I'd especially like feedback on:
 - Shields on party and raid frames
 - Proc trinkets in the active effects row
 - Interrupter names on nameplates in dungeons
+- The new tooltip, loot column, marker bar and ready check window
 - How it runs in **WoW Forever**
 - The top bar and the auto quest: anything it should do differently
 
