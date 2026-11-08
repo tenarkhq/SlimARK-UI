@@ -119,13 +119,21 @@ local function ColorRunes(element)
 	end
 end
 
--- The pips always fill the width of the frame, however many there are.
+-- The pips always fill the width of the frame, however many there are. Widths and gaps are
+-- whole screen pixels: with fractional widths the game rounds some one-pixel gaps away, and
+-- six runes looked like five. The pixels left over go one each to the first pips.
 local function SizePips(pips, count)
-	local gap = 1
-	local w = (pips.width - gap * (count - 1)) / count
+	local fit = ns.Fit()
+	local total = math.floor(pips.width * fit + 0.5)
+	local gap = math.max(1, math.floor(fit + 0.5))
+	local base = math.floor((total - gap * (count - 1)) / count)
+	local extra = total - gap * (count - 1) - base * count
+	local x = 0
 	for i = 1, count do
-		pips[i]:SetWidth(w)
-		pips[i]:SetPoint('BOTTOMLEFT', (i - 1) * (w + gap), 0)
+		local w = base + (i <= extra and 1 or 0)
+		pips[i]:SetWidth(w / fit)
+		pips[i]:SetPoint('BOTTOMLEFT', x / fit, 0)
+		x = x + w + gap
 	end
 end
 

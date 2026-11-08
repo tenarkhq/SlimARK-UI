@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.3
+
+- Fixed: a gap between two runes could vanish, so six runes looked like five with one double wide. Class power pips now sit on whole screen pixels, so every gap shows, on every screen size
+
 ## 1.3.2
 
 - Class power takes the color of its resource, after the ElvUI defaults, instead of gold for every class

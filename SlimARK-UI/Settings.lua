@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.3.3', lines = {
+		'Fixed: the gaps between the runes and other class power pips no longer vanish, six runes show as six',
+	} },
 	{ version = '1.3.2', lines = {
 		'Class power in the colors of its resource, like in ElvUI: Frost runes cyan, Unholy green, combo points from red to green, holy power stays gold',
 	} },
