@@ -20,7 +20,33 @@ ns.C = {
 
 	colors = {
 		track = { 0.137, 0.145, 0.169 },
+		-- Gold accent of the UI, also the paladin's holy power (his choice over ElvUI's yellow).
 		classPower = { 1, 0.7, 0.12 },
+		-- Class power colors after the ElvUI defaults, by the resource the game uses.
+		-- A list colors the pips one by one, from the first to the last.
+		power = {
+			COMBO_POINTS = {
+				{ 0.75, 0.31, 0.31 }, { 0.78, 0.56, 0.31 }, { 0.81, 0.81, 0.31 }, { 0.56, 0.78, 0.31 },
+				{ 0.43, 0.76, 0.31 }, { 0.31, 0.75, 0.31 }, { 0.36, 0.81, 0.54 },
+			},
+			CHARGED = { 0.16, 0.64, 1 },
+			CHI = {
+				{ 0.71, 0.76, 0.32 }, { 0.58, 0.73, 0.36 }, { 0.49, 0.71, 0.39 },
+				{ 0.39, 0.69, 0.42 }, { 0.27, 0.66, 0.46 }, { 0.14, 0.63, 0.5 },
+			},
+			ESSENCE = {
+				{ 0.1, 0.92, 1 }, { 0.17, 0.94, 0.84 }, { 0.24, 0.96, 0.69 },
+				{ 0.31, 0.98, 0.53 }, { 0.34, 0.99, 0.45 }, { 0.38, 1, 0.38 },
+			},
+			ARCANE_CHARGES = { 0, 0.4, 1 },
+			ICICLES = { 0, 0.8, 1 },
+			SOUL_SHARDS = { 0.5, 0.25, 0.8 },
+			MAELSTROM = { 0.35, 0.15, 1 },
+			SOUL_FRAGMENTS = { 0.3, 0.15, 1 },
+			TIP_OF_THE_SPEAR = { 0, 0.85, 0.85 },
+			-- Runes by spec ID: Blood, Frost, Unholy.
+			RUNES = { [250] = { 1, 0.25, 0.25 }, [251] = { 0.25, 1, 1 }, [252] = { 0.25, 1, 0.25 } },
+		},
 		cast = { 0.79, 0.64, 0.29 },
 		notInterruptible = { 0.45, 0.45, 0.48 },
 		enemyCast = { 0.35, 0.75, 1 },

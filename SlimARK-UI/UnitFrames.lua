@@ -95,9 +95,25 @@ local function CreatePower(self, bottomOffset)
 	self.Power = power
 end
 
--- oUF would give the game's pale color, here it is a yellowish orange for every class.
+-- Class power in the ElvUI colors of its resource: holy power gold, combo points, chi and
+-- essence pip by pip, charged combo points blue. A resource without a color keeps the game's.
 local function ColorPips(element)
-	local c = C.colors.classPower
+	local power = C.colors.power
+	local colors = element.powerType == 'HOLY_POWER' and C.colors.classPower or power[element.powerType]
+	if not colors then return end
+	local list = type(colors[1]) == 'table'
+	for i = 1, #element do
+		local c = list and colors[math.min(i, #colors)] or colors
+		if element.charged and element.charged[i] then c = power.CHARGED end
+		element[i]:SetStatusBarColor(c[1], c[2], c[3])
+	end
+end
+
+-- The runes follow the spec: Blood red, Frost cyan, Unholy green. oUF calls this after a spec change.
+local function ColorRunes(element)
+	local id = ns.SpecInfo()
+	local c = id and C.colors.power.RUNES[id]
+	if not c then return end
 	for i = 1, #element do
 		element[i]:SetStatusBarColor(c[1], c[2], c[3])
 	end
@@ -124,7 +140,6 @@ local function CreatePips(self, count, width, height)
 		ns.Gloss(pip)
 		pips[i] = pip
 	end
-	pips.PostUpdateColor = ColorPips
 	return pips
 end
 
@@ -144,14 +159,28 @@ local function CreateClassPower(self, width, height)
 	if UnitClassBase('player') == 'DEATHKNIGHT' then
 		local runes = CreatePips(self, RUNES, width, height)
 		SizePips(runes, RUNES)
+		runes.PostUpdateColor = ColorRunes
 		self.Runes = runes
 		ShowClassPowerStrip(self, true)
 		return
 	end
 
 	local pips = CreatePips(self, MAX_PIPS, width, height)
-	pips.PostUpdate = function(element, _, max, _, hasMaxChanged)
+	pips.PostUpdateColor = ColorPips
+	pips.PostUpdate = function(element, _, max, _, hasMaxChanged, powerType, ...)
 		if hasMaxChanged and max and max > 0 then SizePips(element, max) end
+		-- Repaint only when the resource or the charged points change.
+		local key
+		if select('#', ...) > 0 and not (issecretvalue and issecretvalue((...))) then key = table.concat({ ... }, ',') end
+		if powerType == element.powerType and key == element.chargedKey then return end
+		element.powerType, element.chargedKey = powerType, key
+		local charged
+		if key then
+			charged = {}
+			for i = 1, select('#', ...) do charged[(select(i, ...))] = true end
+		end
+		element.charged = charged
+		ColorPips(element)
 	end
 	pips.PostVisibility = function(element, isVisible)
 		ShowClassPowerStrip(element.__owner, isVisible)

@@ -64,7 +64,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - Player, target, target of target, pet, focus and boss frames
 - Bold, readable font with a soft gloss on the health bars
 - Health with one decimal, for example 74.6%
-- Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more
+- Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more, each in the color of its resource (runes by spec, holy power gold)
 - Boss frames show current health in the center, so you can call phase changes at a glance
 - Shields (damage absorbs) in light stripes right after the health, on every frame including party, raid and boss frames. Damage takes the striped part first; a shield larger than the missing health is drawn back over the health with a bright line at the edge
 

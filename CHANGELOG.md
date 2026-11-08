@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.3.2
+
+- Class power takes the color of its resource, after the ElvUI defaults, instead of gold for every class
+- Runes follow the spec: Blood red, Frost cyan, Unholy green
+- Combo points, chi and essence change color pip by pip; charged combo points are blue
+- Arcane charges blue, icicles light blue, soul shards purple, Maelstrom Weapon violet
+- Holy power stays gold
+
 ## 1.3.1
 
 - The layout fits itself to your screen. It is drawn for 2560x1600 and now scales with the screen height on 1080p, 1440p, ultrawide and 4K, with nothing to choose

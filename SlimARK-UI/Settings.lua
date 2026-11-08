@@ -47,7 +47,7 @@ S.groups = {
 			} } } },
 		{ id = 'colors', name = 'Colors', desc = 'Colors shared by several elements.',
 			secs = { { name = 'Colors', rows = {
-				Col('Bar background', 'colors.track'), Col('Target border', 'colors.target'), Col('Class power', 'colors.classPower'),
+				Col('Bar background', 'colors.track'), Col('Target border', 'colors.target'), Col('Gold accent and holy power', 'colors.classPower'),
 				Col('Mana', 'colors.mana'),
 			} }, { name = 'Shields', rows = { T('Shields on health bars', 'features.shields'), Col('Shield', 'colors.shield') } },
 			{ name = 'Other', rows = { T('Version at login', 'features.loginMessage') } } } },
@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.3.2', lines = {
+		'Class power in the colors of its resource, like in ElvUI: Frost runes cyan, Unholy green, combo points from red to green, holy power stays gold',
+	} },
 	{ version = '1.3.1', lines = {
 		'The layout fits itself to your screen: 1080p, 1440p, ultrawide and 4K',
 	} },
