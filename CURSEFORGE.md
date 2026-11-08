@@ -151,3 +151,23 @@ SlimARK-UI is written to stay out of your frame time:
 ## Credits
 
 Built with [oUF](https://github.com/oUF-wow/oUF), LibSharedMedia-3.0, LibStub and CallbackHandler-1.0. Font: [Barlow](https://github.com/jpt/barlow), SIL Open Font License 1.1.
+
+## Testers wanted! 🛠️
+
+SlimARK-UI is brand new, and every bug report helps make it better. If you try it in Retail or in WoW Forever, I'd love to hear how it works for you.
+
+**Found a bug?** Please post it in the comments or open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues), and include:
+- The **BugSack** error text, if there is one (BugGrabber + BugSack catch errors that the game hides)
+- A **screenshot** of what looks wrong
+- Your **class and spec**, your **screen resolution and UI scale**, and whether it happened in Retail or WoW Forever
+- Where it happened: open world, dungeon, Mythic+, raid
+
+**Feature requests** are welcome too. Tell me what you miss, what's in the way, or what another addon does better.
+
+Things I'd especially like feedback on:
+- Shields on party and raid frames
+- Proc trinkets in the active effects row
+- Interrupter names on nameplates in dungeons
+- How it runs in **WoW Forever**
+
+Thanks for trying it out!
