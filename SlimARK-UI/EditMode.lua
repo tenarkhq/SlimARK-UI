@@ -101,7 +101,8 @@ end
 
 local function PlaceSystems(layout, systems)
 	for _, entry in ipairs(systems) do
-		local systemName, indexName, point, x, y, side = unpack(entry, 1, 6)
+		local systemName, indexName, point, x, y, side, top = unpack(entry, 1, 7)
+		if top then y = y + ns.TopInset() end
 		local info = Find(layout, systemName, indexName)
 		if info then
 			if systemName == 'Bags' then
@@ -124,6 +125,7 @@ local function ArrangeSystems(layout)
 
 	local tracker = Find(layout, 'ObjectiveTracker')
 	if tracker then
+		Move(tracker, 'TOPRIGHT', C.tracker.x, C.tracker.y + ns.TopInset(), 'RIGHT')
 		local S = Enum.EditModeObjectiveTrackerSetting
 		Set(tracker, S.Height, (C.tracker.height - 400) / 10)
 		Set(tracker, S.TextSize, C.tracker.textSize - 12)

@@ -71,6 +71,11 @@ function ns.FitY(y, h)
 	return y + spare / 2
 end
 
+-- How far the elements at the top of the screen move down: the height of the top bar when it is on.
+function ns.TopInset()
+	return C.modules.databar and C.databar.h or 0
+end
+
 -- The screen height in layout units.
 function ns.ScreenHeight()
 	local _, height = GetPhysicalScreenSize()
@@ -317,6 +322,13 @@ ns.On('ADDON_LOADED', function(_, name)
 		if (ns.CharDB.layoutRev or 0) < 3 then
 			if ns.CharDB.pos then ns.CharDB.pos.party = nil end
 			ns.CharDB.layoutRev = 3
+		end
+		-- 1.4.0 put the top bar on the top row: an old dragged minimap or M+ panel would sit under it.
+		if ns.CharDB.layoutRev < 4 then
+			for _, store in ipairs({ ns.CharDB.pos or {}, ns.CharDB.posHeal or {} }) do
+				store.minimap, store.mythicplus = nil, nil
+			end
+			ns.CharDB.layoutRev = 4
 		end
 		-- Shared by every character: seen cutscenes, remembered caster mobs.
 		SlimARKDB = SlimARKDB or {}

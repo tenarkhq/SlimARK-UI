@@ -350,7 +350,7 @@ local function Style(self, unit)
 		local a = C.auras.buffs
 		local buffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = a.width })
 		buffs:SetSize(a.width, a.height)
-		buffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(a.right, 'RIGHT'), -ns.FitY(a.y))
+		buffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(a.right, 'RIGHT'), -ns.FitY(a.y + ns.TopInset()))
 		buffs.width = a.size
 		buffs.height = a.size + a.timeH
 		buffs.elementSpacing = a.gap
@@ -365,7 +365,7 @@ local function Style(self, unit)
 		local d = C.auras.debuffs
 		local debuffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = d.width })
 		debuffs:SetSize(d.width, d.height)
-		debuffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(d.right, 'RIGHT'), -ns.FitY(d.y))
+		debuffs:SetPoint('TOPRIGHT', UIParent, 'TOPLEFT', ns.FitX(d.right, 'RIGHT'), -ns.FitY(d.y + ns.TopInset()))
 		debuffs.width = d.size
 		debuffs.height = d.size + d.timeH
 		debuffs.elementSpacing = d.gap

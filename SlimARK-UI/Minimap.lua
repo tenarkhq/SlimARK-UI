@@ -4,6 +4,8 @@ local cfg = ns.C.minimap
 local holder, row
 local adopted = {}
 local placing = false
+-- With the top bar the addon icons sit in its right end, above the map, in one row.
+local inBar = false
 
 -- Only the icon stays; the frame, the number on it and the text written onto it later disappear.
 local function Strip(button)
@@ -22,14 +24,25 @@ local function LayoutButtons()
 		Strip(button)
 		if button:IsShown() then table.insert(shown, button) end
 	end
-	local step = cfg.buttonSize + cfg.buttonGap
-	local perColumn = math.max(1, math.floor((cfg.size + cfg.buttonGap) / step))
 	placing = true
-	for i, button in ipairs(shown) do
-		local line = (i - 1) % perColumn
-		local col = math.floor((i - 1) / perColumn)
-		button:ClearAllPoints()
-		button:SetPoint('TOPRIGHT', row, 'TOPRIGHT', -col * step, -line * step)
+	if inBar then
+		local size, gap = ns.C.databar.iconSize, 3
+		for i, button in ipairs(shown) do
+			button:SetSize(size, size)
+			button:ClearAllPoints()
+			button:SetPoint('RIGHT', row, 'RIGHT', -(i - 1) * (size + gap), 0)
+		end
+		row:SetWidth(math.max(1, #shown * (size + gap) - gap))
+		if ns.OnLogosResized then ns.OnLogosResized() end
+	else
+		local step = cfg.buttonSize + cfg.buttonGap
+		local perColumn = math.max(1, math.floor((cfg.size + cfg.buttonGap) / step))
+		for i, button in ipairs(shown) do
+			local line = (i - 1) % perColumn
+			local col = math.floor((i - 1) / perColumn)
+			button:ClearAllPoints()
+			button:SetPoint('TOPRIGHT', row, 'TOPRIGHT', -col * step, -line * step)
+		end
 	end
 	placing = false
 end
@@ -38,7 +51,8 @@ local function Adopt(button)
 	if button.slimAdopted then return end
 	button.slimAdopted = true
 	button:SetParent(row)
-	button:SetSize(cfg.buttonSize, cfg.buttonSize)
+	local size = inBar and ns.C.databar.iconSize or cfg.buttonSize
+	button:SetSize(size, size)
 	button:SetScript('OnDragStart', nil)
 	button:SetScript('OnDragStop', nil)
 	button:ClearHighlightTexture()
@@ -118,6 +132,12 @@ end
 local function StyleClock()
 	local clock = TimeManagerClockButton
 	if not clock then return end
+	-- The clock is in the middle of the top bar; its spot belongs to the coordinates.
+	if ns.ClockInBar() then
+		clock:SetAlpha(0)
+		clock:EnableMouse(false)
+		return
+	end
 	Inside(clock, 'BOTTOM', 0, 2)
 	local background = clock:GetRegions()
 	if background and background:IsObjectType('Texture') then background:SetAlpha(0) end
@@ -164,6 +184,56 @@ local function Arrange()
 	StyleClock()
 end
 
+function ns.ClockInBar()
+	return ns.C.modules.databar and ns.C.databar.show.clock
+end
+
+-- The player's map position at the bottom of the map, large and on a dark strip so it reads on
+-- any map art. Inside instances the game gives no position, then it hides.
+local function Coordinates()
+	local strip = CreateFrame('Frame', nil, Minimap)
+	strip:SetFrameLevel(Minimap:GetFrameLevel() + 6)
+	strip:SetHeight(cfg.coordsFont + 8)
+	strip:SetPoint('BOTTOM', 0, 3)
+	local bg = strip:CreateTexture(nil, 'BACKGROUND')
+	bg:SetAllPoints()
+	bg:SetColorTexture(0, 0, 0, 0.6)
+	local text = ns.Text(strip, cfg.coordsFont, 'CENTER')
+	text:SetFont(ns.FONT, cfg.coordsFont, 'THICKOUTLINE')
+	text:SetPoint('CENTER', 0, 0)
+	text:SetTextColor(1, 1, 1)
+	local last
+	local function Update()
+		local map = C_Map.GetBestMapForUnit('player')
+		local pos = map and C_Map.GetPlayerMapPosition(map, 'player')
+		local x, y = pos and pos.x, pos and pos.y
+		if not x or issecretvalue(x) or (x == 0 and y == 0) then
+			strip:Hide()
+			last = nil
+			return
+		end
+		local value = ('%.1f, %.1f'):format(x * 100, y * 100)
+		if value ~= last then
+			last = value
+			text:SetText(value)
+			strip:SetWidth(text:GetUnboundedStringWidth() + 16)
+		end
+		strip:Show()
+	end
+	-- A light timer, only while the map is on screen.
+	local ticker
+	local function Start()
+		if not ticker then ticker = C_Timer.NewTicker(0.2, Update) end
+		Update()
+	end
+	local function Stop()
+		if ticker then ticker:Cancel() ticker = nil end
+	end
+	Minimap:HookScript('OnShow', Start)
+	Minimap:HookScript('OnHide', Stop)
+	if Minimap:IsVisible() then Start() end
+end
+
 ns.On('PLAYER_LOGIN', function()
 	if not ns.C.modules.minimap then return end
 	-- Addons use this to know that the map is square.
@@ -171,7 +241,7 @@ ns.On('PLAYER_LOGIN', function()
 
 	holder = CreateFrame('Frame', 'SlimARK_Minimap', UIParent)
 	holder:SetSize(cfg.size, cfg.size)
-	ns.Register(holder, cfg.x, cfg.y, { key = 'minimap', side = 'RIGHT' })
+	ns.Register(holder, cfg.x, cfg.y + ns.TopInset(), { key = 'minimap', side = 'RIGHT' })
 
 	Minimap:SetParent(holder)
 	Minimap:ClearAllPoints()
@@ -189,9 +259,15 @@ ns.On('PLAYER_LOGIN', function()
 		end
 	end
 
-	row = CreateFrame('Frame', nil, holder)
-	row:SetSize(cfg.buttonSize, cfg.size)
-	row:SetPoint('TOPRIGHT', holder, 'TOPLEFT', -4, 0)
+	if ns.barLogos then
+		inBar = true
+		row = ns.barLogos
+	else
+		row = CreateFrame('Frame', nil, holder)
+		row:SetSize(cfg.buttonSize, cfg.size)
+		row:SetPoint('TOPRIGHT', holder, 'TOPLEFT', -4, 0)
+	end
+	if cfg.coords then Coordinates() end
 
 	Arrange()
 	hooksecurefunc(MinimapCluster, 'SetHeaderUnderneath', Arrange)

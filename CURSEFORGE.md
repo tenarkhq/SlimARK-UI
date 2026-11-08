@@ -4,7 +4,7 @@
 
 SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking and group frames with one consistent, sharp look: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF, so it stays light, and it keeps the crisp ElvUI style without ElvUI's pile of extras.
 
-One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
+One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A flat top bar keeps everything else in one line: micro menu, durability, FPS, gold, your keystone with one-click dungeon teleports, the Great Vault and a quest autopilot switch. A settings panel lets you change every element afterwards.
 
 ## Quick start
 
@@ -20,7 +20,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 
 ## Layouts
 
-The layout follows your spec and fits itself to your screen. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods.
+The layout follows your spec and fits itself to your screen. The boxes show the real positions and sizes on a 2560×1600 screen: blue is SlimARK-UI, green is Blizzard, orange is Details!, Chattynator and the boss mods. The top bar runs along the very top row; the minimap, the buffs and the quest tracker start right under it.
 
 **DPS and tank**
 
@@ -31,6 +31,39 @@ The layout follows your spec and fits itself to your screen. The boxes show the 
 The group grid sits right above the action bars. A party takes one row, a raid grows upward with five frames in each row.
 
 ![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f538765e6100ff77a6ff0ad55529bc855bcd13a5/assets/layout-healer.png)
+
+## Top bar
+
+A flat, 26 pixel bar on the top row of the screen, over the whole width. Everything that used to sit at the top edge moves down by its height, so nothing hides under it.
+
+**Left side**
+- **Micro menu:** the twelve game menu buttons as small flat icons in Blizzard's own pictures, your portrait for the character sheet. A gold dot shows where the game would glow (unspent talents, new collections, ...). A click opens the same window as the original button
+- **Durability:** your most worn item in percent, green, yellow or red. The tooltip lists every item, a click opens the character sheet
+- **FPS** and **latency** (world ms, home and world in the tooltip)
+- **Queue time:** shown only while you are queued, for the Dungeon Finder, Raid Finder, battlegrounds and premade applications: how long you have waited and the average wait. The tooltip shows the roles still missing, a click opens the queue menu
+- **Tracked currencies:** every currency you marked "Show on Backpack", with its icon and amount
+
+**Middle**
+- **Clock:** a click opens the calendar, a right click the stopwatch and alarm. It turns gold when a calendar invite is waiting. The tooltip shows local and realm time
+
+**Right side**
+- **Gold:** your gold and what you earned or spent this session. The tooltip lists the gold of your characters on the realm and the total; a click opens your bags
+- **Item level** of your equipped gear
+- **Keystone:** your Mythic+ key, for example "Voidscar Arena +12". **A click opens the teleport list:** the dungeons of the current season that you have learned the teleport for (by timing a +10 there), your key's dungeon first, each with its cooldown. One click teleports you, no digging in the spellbook, the action bars or the dungeon journal. Dungeons you have no teleport for are not listed
+- **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault
+- **Auto quest switch:** ON or OFF with one click, remembered between sessions
+- **Addon icons:** the minimap buttons of your other addons, in a row at the right end, right above the minimap
+
+## Auto quest
+
+- Accepts the quests an NPC offers and turns in the finished ones, finished ones first
+- When you have to choose a reward, it stops and you choose
+- A quest that wants gold for the turn-in is left to you
+- With a single talk option it picks it for you, so event and dungeon NPCs talk on without clicking
+- It never picks an option that costs something or asks for a confirmation, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone
+- Grey (low level) quests are not taken
+- Hold **Shift** while talking to an NPC to pause it there
+- Works in Mythic+ too; switch it off and on from the top bar
 
 ## Fits every screen
 
@@ -43,9 +76,9 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## Settings panel
 
-Type `/slimark`, click the SlimARK button at the minimap, or open Options → AddOns → SlimARK-UI.
+Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
-- Every element has its own page in a list on the left: unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, minimap, action bars, boss mods, Details!, chat, Group Finder and quality of life features
+- Every element has its own page in a list on the left: unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, auto quest, Group Finder and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Every page can be reset to the SlimARK defaults on its own
 - A search box finds any setting by name
@@ -125,7 +158,7 @@ Type `/slimark`, click the SlimARK button at the minimap, or open Options → Ad
 - Vendor shows two pages at once, can hide what you already own, and marks items you lack the currency or reputation for
 - Automatic repair at every repair vendor
 - The character sheet shows item level, gems, enchants and what is missing on each item
-- Square minimap; addon buttons are larger, in a column along its edge on a dark background
+- Square minimap with your coordinates at its bottom, large, on a dark strip so they read on any map; they hide where the game gives no position. The clock moved to the top bar
 - Cleaner, smaller quest tracker with a thin header line
 - Move Blizzard windows by their title bar and resize them with Ctrl + mouse wheel; the position is remembered
 - Square action buttons with thin black borders; how the buttons work is not touched
@@ -146,7 +179,7 @@ SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It crea
 
 SlimARK-UI is written to stay out of your frame time:
 
-- Event driven: frames update only when their data changes, never on a timer, apart from the Mythic+ clock while a key runs
+- Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, and the Mythic+ clock while a key runs
 - Bursts of spell, talent and bag events are handled once instead of many times
 - Panels that are not shown, such as the character sheet overlay, do no work at all
 
@@ -154,7 +187,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 - The layout fits itself to your screen: it is drawn for 2560×1600 and scales automatically on 1080p, 1440p, ultrawide and 4K. Screen edges stay at the edges, everything around your character stays in the middle. Sizes can still be changed in `/slimark` and frames dragged in Edit Mode.
 - Made for Midnight's addon rules: it works with the protected values the game uses in combat.
-- **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel stays off. Details!, the boss mods and the other skinned addons need their own Forever versions.
+- **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel and the keystone of the top bar stay off. Details!, the boss mods and the other skinned addons need their own Forever versions.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 
 ## Credits
@@ -178,5 +211,6 @@ Things I'd especially like feedback on:
 - Proc trinkets in the active effects row
 - Interrupter names on nameplates in dungeons
 - How it runs in **WoW Forever**
+- The top bar and the auto quest: anything it should do differently
 
 Thanks for trying it out!

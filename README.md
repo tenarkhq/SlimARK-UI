@@ -20,7 +20,7 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ## What's included
 
-- Settings panel (`/slimark`, the SlimARK button at the minimap, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
+- Settings panel (`/slimark`, the SlimARK icon on the top bar, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
 - Unit frames, party and raid frames, boss frames
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel
@@ -36,7 +36,9 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 - Consumable bar: flasks, potions, food and weapon oils
 - Vendor with two pages, automatic repair
 - Character sheet: item level, gems, enchants and what is missing
-- Square minimap with addon buttons along its left edge
+- Top bar on the top row: micro menu, durability, FPS, latency, queue time, tracked currencies, clock, gold, item level, keystone with one-click dungeon teleports, Great Vault, auto quest switch and the addon icons
+- Auto quest: accepts and turns in quests, stops at a reward choice, Shift pauses it
+- Square minimap with large coordinates at its bottom
 - Quest tracker skin
 - Skins for Details!, DBM, BigWigs, Chattynator and BetterBags (classic bags and BetterBags Next)
 - An Edit Mode layout that puts every Blizzard element in place

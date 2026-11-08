@@ -185,7 +185,7 @@ ns.On('PLAYER_LOGIN', function()
 	if not fps then return end
 	local function Place()
 		fps:ClearAllPoints()
-		fps:SetPoint('TOP', UIParent, 'TOP', 0, -ns.C.fps.y * ns.Scale())
+		fps:SetPoint('TOP', UIParent, 'TOP', 0, -(ns.C.fps.y + ns.TopInset()) * ns.Scale())
 	end
 	Place()
 	hooksecurefunc(fps, 'UpdatePosition', Place)

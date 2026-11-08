@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.4.0
+
+- **Top bar:** a flat bar on the top row of the screen, over the whole width. Left: the micro menu as small flat icons, durability, FPS, latency, the queue time while you are queued (Dungeon Finder, Raid Finder, battlegrounds, premade applications) and your tracked currencies. Middle: the clock, a click opens the calendar. Right: gold with this session's gain or loss, item level, your keystone, the Great Vault, the auto quest switch and the icons of your other addons
+- **Dungeon teleports:** click the keystone on the top bar for the dungeons of the season you have learned the teleport for; one click teleports. Dungeons without a teleport are not listed
+- **Auto quest:** accepts and turns in quests, finished ones first, and picks the only talk option of an NPC. It stops when you have to choose a reward or pay gold, never picks an option that costs something, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone. Hold Shift to pause it; the top bar switches it off and on
+- **Minimap:** the clock moved to the top bar, your coordinates took its place, larger and on a dark strip
+- The minimap, buffs, debuffs, quest tracker, Mythic+ panel and the other top elements moved down by the bar's height. The quest tracker now starts right under the minimap
+- New settings pages: Top bar (every item can be switched off) and Auto quest
+- Run `/slimark apply` once after updating, so the Blizzard elements move under the bar too
+
 ## 1.3.4
 
 - Fixed: on the two-page vendor the Next button stayed where the narrow window had it and covered the page number. It now sits at the right edge, opposite Prev

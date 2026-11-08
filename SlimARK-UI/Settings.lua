@@ -43,7 +43,7 @@ S.groups = {
 				T('Cooldown bars', 'modules.cooldowns'), T('Consumables', 'modules.consumables'), T('Mythic+ panel', 'modules.mythicplus'),
 				T('Action bar skin', 'modules.actionbars'), T('Minimap', 'modules.minimap'), T('Quest tracker', 'modules.tracker'),
 				T('Vendor', 'modules.vendor'), T('Character sheet', 'modules.character'), T('Window mover', 'modules.movers'),
-				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'),
+				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'), T('Top bar', 'modules.databar'),
 			} } } },
 		{ id = 'colors', name = 'Colors', desc = 'Colors shared by several elements.',
 			secs = { { name = 'Colors', rows = {
@@ -113,11 +113,19 @@ S.groups = {
 			secs = {} },
 	} },
 	{ name = 'Interface', pages = {
+		{ id = 'databar', name = 'Top bar', module = 'modules.databar', desc = 'A flat bar on the top row of the screen. With it on, the minimap, the buffs, the quest tracker and the other top elements move down by its height. Click the keystone for the dungeon teleports you have learned.',
+			secs = { { name = 'Bar', rows = { R('Height', 'databar.h', 18, 40), R('Font size', 'databar.font', 10, 24), R('Icon size', 'databar.iconSize', 14, 36) } },
+				{ name = 'Left side', rows = { T('Micro menu', 'databar.show.micro'), T('Durability', 'databar.show.durability'), T('FPS', 'databar.show.fps'),
+					T('Latency', 'databar.show.latency'), T('Queue time', 'databar.show.queue'), T('Tracked currencies', 'databar.show.currency') } },
+				{ name = 'Middle and right side', rows = { T('Clock', 'databar.show.clock'), T('Gold', 'databar.show.gold'), T('Item level', 'databar.show.itemLevel'),
+					T('Keystone and teleports', 'databar.show.keystone'), T('Great Vault', 'databar.show.vault'), T('Auto quest switch', 'databar.show.autoQuest'),
+					T('Addon icons', 'databar.show.addons') } } } },
 		{ id = 'actionbars', name = 'Action bars', module = 'modules.actionbars', apply = true, desc = 'Button size and padding are written into the SlimARK-UI Edit Mode layouts.',
 			secs = { { name = 'Buttons', rows = { R('Button size', 'layout.bars.size', 28, 72), R('Padding', 'layout.bars.padding', 0, 10) } },
 				{ name = 'Text', rows = { R('Font size', 'actionbars.font', 8, 28), R('Hotkey font', 'actionbars.hotkeyFont', 8, 28) } } } },
 		{ id = 'minimap', name = 'Minimap', module = 'modules.minimap', keys = { 'minimap' },
 			secs = { Pos('minimap'), { name = 'Map', rows = { R('Size', 'minimap.size', 140, 400) } },
+				{ name = 'Coordinates', rows = { T('Coordinates on the map', 'minimap.coords'), R('Font size', 'minimap.coordsFont', 10, 32) } },
 				{ name = 'Addon buttons', rows = { R('Button size', 'minimap.buttonSize', 16, 48), R('Gap', 'minimap.buttonGap', 0, 12) } } } },
 		{ id = 'tracker', name = 'Quest tracker', module = 'modules.tracker', apply = true, desc = 'Position and size are written into the SlimARK-UI Edit Mode layouts. X is the right edge.',
 			secs = { Pos('tracker'), { name = 'Tracker', rows = { R('Height', 'tracker.height', 400, 1200, 10), R('Text size', 'tracker.textSize', 12, 20) } } } },
@@ -138,6 +146,9 @@ S.groups = {
 			secs = { { name = 'Window', rows = { R('X', 'chat.x', 0, 2560), R('Bottom edge', 'chat.bottom', 0, 1600), R('Width', 'chat.w', 200, 1200), R('Height', 'chat.h', 100, 800), R('Font size', 'chat.fontSize', 8, 28) } } } },
 	} },
 	{ name = 'Quality of life', pages = {
+		{ id = 'autoquest', name = 'Auto quest', desc = 'Accepts and turns in quests, finished ones first. It stops when you have to choose a reward or pay gold, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone. Hold Shift at an NPC to pause it. The top bar has an on/off switch.',
+			secs = { { name = 'Auto quest', rows = { T('Auto quest', 'features.autoQuest'), T('Accept quests', 'autoquest.accept'),
+				T('Turn in quests', 'autoquest.turnIn'), T('Pick the only talk option', 'autoquest.gossip') } } } },
 		{ id = 'groupfinder', name = 'Group Finder', secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup') } } } },
 		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
 			{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } } } },
@@ -147,6 +158,12 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.4.0', lines = {
+		'Top bar on the top row: micro menu, durability, FPS, latency, queue time, tracked currencies, clock, gold, item level, keystone, Great Vault, auto quest switch and the addon icons',
+		'Click the keystone: the dungeons of the season you have a teleport to, one click teleports',
+		'Auto quest: accepts and turns in quests, stops at a reward choice, Shift pauses it',
+		'The minimap clock moved to the top bar, the coordinates took its place, larger',
+	} },
 	{ version = '1.3.4', lines = {
 		'Fixed: on the two-page vendor the Next button covered the page number',
 	} },

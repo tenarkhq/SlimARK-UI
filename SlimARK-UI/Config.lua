@@ -71,6 +71,7 @@ ns.C = {
 		unitframes = true, party = true, raid = true, grid = true, nameplates = true, auras = true,
 		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
 		tracker = true, vendor = true, character = true, movers = true, betterbags = true, effects = true,
+		databar = true,
 	},
 
 	-- Single features, switched in /slimark.
@@ -78,6 +79,7 @@ ns.C = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
 		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,
 		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
+		autoQuest = true,
 	},
 
 	units = {
@@ -209,10 +211,23 @@ ns.C = {
 		gap = 3, fontSize = 16,
 	},
 
-	minimap = { x = 2290, y = 8, size = 260, buttonSize = 28, buttonGap = 3 },
+	-- The top bar sits on the top pixel row over the whole width. With it on, everything placed
+	-- at the top of the screen (minimap, buffs, quest tracker, ...) moves down by its height.
+	databar = {
+		h = 26, font = 15, iconSize = 22,
+		show = { micro = true, durability = true, fps = true, latency = true, queue = true, currency = true,
+			clock = true, gold = true, itemLevel = true, keystone = true, vault = true, autoQuest = true, addons = true },
+	},
+
+	-- Talks to quest NPCs: accepts, turns in, picks the only gossip option. Holding Shift pauses it.
+	autoquest = { accept = true, turnIn = true, gossip = true },
+
+	-- coords: the player's map position at the bottom of the map, where the clock was.
+	minimap = { x = 2290, y = 8, size = 260, buttonSize = 28, buttonGap = 3, coords = true, coordsFont = 20 },
 
 	-- x, y: the top right corner of the quest tracker. The M+ panel takes its place during a key.
-	tracker = { x = 2548, y = 330, height = 580, textSize = 12 },
+	-- The coordinates sit inside the map now, so the tracker starts right under it.
+	tracker = { x = 2548, y = 280, height = 580, textSize = 12 },
 	fps = { y = 6 },
 
 	actionbars = { font = 15, hotkeyFont = 13 },
@@ -237,25 +252,25 @@ ns.C = {
 		},
 		sideX = 12, sideBottom = 1282,
 		bagsSize = 75,
-		-- System, index, point, x, y, side: 'LEFT' or 'RIGHT' stays at that screen edge, the rest stays centered.
+		-- System, index, point, x, y, side, top: side 'LEFT' or 'RIGHT' stays at that screen edge, the rest
+		-- stays centered. top: moves down with the top bar. The quest tracker follows C.tracker.
 		systems = {
 			{ 'ActionBar', 'StanceBar', 'BOTTOMRIGHT', 960, 1578 },
 			{ 'ActionBar', 'PetActionBar', 'BOTTOMLEFT', 1600, 1578 },
 			{ 'ActionBar', 'PossessActionBar', 'BOTTOM', 1280, 1420 },
-			{ 'Minimap', nil, 'TOPRIGHT', 2550, 8, 'RIGHT' },
-			{ 'MicroMenu', nil, 'TOPLEFT', 12, 10, 'LEFT' },
+			{ 'Minimap', nil, 'TOPRIGHT', 2550, 8, 'RIGHT', true },
+			{ 'MicroMenu', nil, 'TOPLEFT', 12, 10, 'LEFT', true },
 			{ 'Bags', nil, 'BOTTOMRIGHT', 2548, 1324, 'RIGHT' },
 			{ 'HudTooltip', nil, 'BOTTOMRIGHT', 2548, 1276, 'RIGHT' },
-			{ 'ObjectiveTracker', nil, 'TOPRIGHT', 2548, 330, 'RIGHT' },
 			{ 'ChatFrame', nil, 'BOTTOMLEFT', 12, 1588, 'LEFT' },
 			{ 'TalkingHeadFrame', nil, 'TOP', 1280, 100 },
-			{ 'TimerBars', nil, 'TOP', 1280, 40 },
+			{ 'TimerBars', nil, 'TOP', 1280, 40, nil, true },
 			{ 'EncounterBar', nil, 'TOP', 1280, 200 },
 			{ 'ExtraAbilities', nil, 'BOTTOM', 960, 1150 },
 			{ 'VehicleLeaveButton', nil, 'BOTTOM', 780, 1150 },
 			{ 'LootFrame', nil, 'TOPLEFT', 640, 300 },
-			{ 'DurabilityFrame', nil, 'TOPRIGHT', 2280, 230, 'RIGHT' },
-			{ 'VehicleSeatIndicator', nil, 'TOPRIGHT', 1900, 230, 'RIGHT' },
+			{ 'DurabilityFrame', nil, 'TOPRIGHT', 2280, 230, 'RIGHT', true },
+			{ 'VehicleSeatIndicator', nil, 'TOPRIGHT', 1900, 230, 'RIGHT', true },
 			{ 'ArchaeologyBar', nil, 'BOTTOM', 1280, 1040 },
 			{ 'PersonalResourceDisplay', nil, 'BOTTOM', 1280, 1000 },
 			{ 'LossOfControl', nil, 'CENTER', 1280, 560 },
@@ -264,7 +279,7 @@ ns.C = {
 			{ 'CooldownViewer', 'Utility', 'BOTTOM', 1280, 1378 },
 			{ 'CooldownViewer', 'BuffIcon', 'BOTTOM', 1280, 1420 },
 			{ 'CooldownViewer', 'BuffBar', 'BOTTOM', 1280, 1092 },
-			{ 'AuraFrame', 'ExternalDefensivesFrame', 'TOPRIGHT', 2170, 230, 'RIGHT' },
+			{ 'AuraFrame', 'ExternalDefensivesFrame', 'TOPRIGHT', 2170, 230, 'RIGHT', true },
 			{ 'CastBar', nil, 'BOTTOM', 1280, 1000 },
 		},
 		-- The healer layout is the same, only these elements are placed elsewhere.
