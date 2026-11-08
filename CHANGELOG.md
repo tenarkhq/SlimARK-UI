@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.3.4
+
+- Fixed: on the two-page vendor the Next button stayed where the narrow window had it and covered the page number. It now sits at the right edge, opposite Prev
+
 ## 1.3.3
 
 - Fixed: a gap between two runes could vanish, so six runes looked like five with one double wide. Class power pips now sit on whole screen pixels, so every gap shows, on every screen size

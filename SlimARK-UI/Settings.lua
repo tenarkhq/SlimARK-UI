@@ -147,6 +147,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.3.4', lines = {
+		'Fixed: on the two-page vendor the Next button covered the page number',
+	} },
 	{ version = '1.3.3', lines = {
 		'Fixed: the gaps between the runes and other class power pips no longer vanish, six runes show as six',
 	} },

@@ -193,6 +193,14 @@ local function SetWide(wide)
 	for i = 13, PER_PAGE do
 		_G['MerchantItem' .. i]:SetShown(wide)
 	end
+	-- The page number stays in the middle of the wider frame; Next goes to the right edge,
+	-- mirroring Prev, instead of staying where the narrow frame had it, over the number.
+	MerchantNextPageButton:ClearAllPoints()
+	if wide then
+		MerchantNextPageButton:SetPoint('CENTER', MerchantFrame, 'BOTTOMRIGHT', -26, 96)
+	else
+		MerchantNextPageButton:SetPoint('CENTER', MerchantFrame, 'BOTTOMLEFT', 310, 96)
+	end
 end
 
 local function PlaceRightBlock()
