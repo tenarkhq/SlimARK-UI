@@ -118,18 +118,24 @@ local function RequestInspect(unit, guid)
 	NotifyInspect(unit)
 end
 
+-- Our own answer, or one another addon asked for (Raider.IO inspects in the background) while
+-- the same player is under the mouse.
 local function OnInspect(_, guid)
-	if not guid or guid ~= waitingGUID then return end
-	waitingGUID = nil
+	if not guid then return end
 	local unit = UnitGUID('mouseover') == guid and 'mouseover' or nil
+	if guid ~= waitingGUID and not unit then return end
+	if guid == waitingGUID then waitingGUID = nil end
 	if not unit then return end
+	-- The tooltip already has the line when the answer was still remembered.
+	local known = inspected[guid]
+	local hasLine = known and GetTime() - known.time < CACHE_TIME
 	local ilvl = C_PaperDollInfo and C_PaperDollInfo.GetInspectItemLevel and C_PaperDollInfo.GetInspectItemLevel(unit)
 	if not Readable(ilvl) or ilvl <= 0 then return end
 	local specID = GetInspectSpecialization(unit)
 	local spec = specID and specID > 0 and select(2, GetSpecializationInfoByID(specID)) or nil
 	local entry = { ilvl = ilvl, spec = spec, time = GetTime() }
 	inspected[guid] = entry
-	if GameTooltip:IsShown() then
+	if not hasLine and GameTooltip:IsShown() then
 		local _, shown = GameTooltip:GetUnit()
 		if Readable(shown) and UnitGUID(shown) == guid then
 			AddItemLevel(GameTooltip, entry)
@@ -139,9 +145,13 @@ local function OnInspect(_, guid)
 end
 
 local function PlayerLines(tip, unit)
-	local summary = C_PlayerInfo and C_PlayerInfo.GetPlayerMythicPlusRatingSummary and C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit)
-	local score = summary and summary.currentSeasonScore
-	if Readable(score) and score > 0 then
+	-- Raider.IO shows the rating with its own details; ours would say it twice.
+	local score
+	if not C_AddOns.IsAddOnLoaded('RaiderIO') and C_PlayerInfo and C_PlayerInfo.GetPlayerMythicPlusRatingSummary then
+		local summary = C_PlayerInfo.GetPlayerMythicPlusRatingSummary(unit)
+		score = summary and summary.currentSeasonScore
+	end
+	if Readable(score) and type(score) == 'number' and score > 0 then
 		local color = C_ChallengeMode.GetDungeonScoreRarityColor and C_ChallengeMode.GetDungeonScoreRarityColor(score)
 		local r, g, b = 1, 1, 1
 		if color then r, g, b = color:GetRGB() end

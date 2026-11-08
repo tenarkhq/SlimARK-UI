@@ -3,14 +3,16 @@ local _, ns = ...
 -- BetterBags skin: a SlimARK theme for both of its windows, the classic bags
 -- (Sonata) and BetterBags Next (SonataNext). Flat dark panels with a black
 -- one-pixel edge, the SlimARK font, gold accent, cropped item icons with a black
--- border, no glow, shimmer or bounce. /slimark apply selects it; it can be changed
--- back in BetterBags' own theme menu at any time.
+-- border, no glow, shimmer or bounce. Like the 2.0 Blizzard windows: a gold line on top,
+-- a header band with the title on the left, item edges in their quality color.
+-- /slimark apply selects it; it can be changed back in BetterBags' own theme menu at any time.
 local THEME = 'SlimARK'
 local GOLD = { 0.95, 0.72, 0.29, 1 }
 local BLACK = { 0, 0, 0, 1 }
 local BODY = { 0.06, 0.063, 0.075, 0.94 }
 local CARD = { 0.1, 0.105, 0.122, 1 }
 local TRACK = { 0.137, 0.145, 0.169, 1 }
+local HEAD = { 0.063, 0.067, 0.082, 1 }
 local HOVER = { 1, 1, 1, 0.15 }
 -- The SlimARK font covers Latin alphabets; other locales keep the client's font.
 local LATIN = { 'enUS', 'enGB', 'deDE', 'frFR', 'esES', 'esMX', 'itIT', 'ptBR' }
@@ -35,28 +37,41 @@ local BACKDROP = {
 	BorderColor = BLACK,
 	Opacity = false,
 }
-local TITLE = {
-	Font = { Path = ns.FONT, Size = 15, Flags = 'OUTLINE', Color = GOLD },
-	Points = { { Point = 'TOP', X = 0, Y = -8 } },
-	Height = 22,
-}
+-- The title on the left of the header band; the bag's menu button sits before it.
+local function Title(x)
+	return {
+		Font = { Path = ns.FONT, Size = 15, Flags = 'OUTLINE', Color = GOLD },
+		Points = { { Point = 'TOPLEFT', X = x, Y = -8 } },
+		Height = 22,
+		Justify = 'LEFT',
+	}
+end
 local CLOSE = {
 	Template = 'UIPanelCloseButtonNoScripts',
 	Size = 24,
 	Points = { { Point = 'TOPRIGHT', X = -2, Y = -2 } },
 }
+-- The header band under a 2 pixel gold line, a black line under the band.
+local function Line(name, color, y, h, layer)
+	return { Name = name, Color = color, Layer = layer, Points = { { Point = 'TOPLEFT', X = 1, Y = y }, { Point = 'TOPRIGHT', X = -1, Y = y } }, Size = { Height = h } }
+end
+local HEADER = {
+	Line('SlimARKHead', HEAD, -1, 30, 'BORDER'),
+	Line('SlimARKGold', GOLD, -1, 2, 'ARTWORK'),
+	Line('SlimARKHeadLine', BLACK, -31, 1, 'ARTWORK'),
+}
 
-local function Titled(noClose)
-	return { Backdrop = BACKDROP, Title = TITLE, CloseButton = not noClose and CLOSE or nil }
+local function Titled(noClose, x)
+	return { Backdrop = BACKDROP, Title = Title(x or 10), Textures = HEADER, CloseButton = not noClose and CLOSE or nil }
 end
 
 local function ClassicTheme()
-	local bag = Titled()
+	local bag = Titled(false, 34)
 	bag.Layout = {
 		Search = {
 			Points = {
-				{ Point = 'TOPLEFT', X = 10, Y = -36 },
-				{ Point = 'BOTTOMRIGHT', RelativePoint = 'TOPRIGHT', X = -10, Y = -56 },
+				{ Point = 'TOPLEFT', X = 10, Y = -38 },
+				{ Point = 'BOTTOMRIGHT', RelativePoint = 'TOPRIGHT', X = -10, Y = -58 },
 			},
 		},
 		MenuButton = { Points = { { Point = 'TOPLEFT', X = 4, Y = -4 } } },
@@ -117,6 +132,8 @@ local function NextTheme()
 		fonts[role] = { File = ns.FONT, Locales = LATIN }
 	end
 	fonts.Title.Size = 20
+	-- A gold title, as on the 2.0 windows.
+	fonts.Title.Color = 'Gold'
 	fonts.SettingsTitle.Size = 20
 	return {
 		Name = THEME,
@@ -151,6 +168,8 @@ local function NextTheme()
 			Feather = false,
 			Wash = false,
 			Edge = { Color = { 0, 0, 0, 1 }, Alpha = 1, Size = 1, Full = true },
+			-- No frame art, only the 2.0 gold line across the top.
+			Frame = { Pieces = {}, Bands = { { Color = 'Gold', Height = 2, Left = 1, Right = 1, Top = 1 } } },
 		},
 		Header = { Ribbon = false, Cloud = false, Spark = false, TitleGlow = false, Buttons = { Scale = 0.85 } },
 		Sparkles = false,

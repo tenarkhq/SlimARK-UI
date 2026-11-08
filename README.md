@@ -22,6 +22,9 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 | | |
 | --- | --- |
+| ![Setup window](assets/feature-setup.png) | ![Combat text](assets/feature-combattext.png) |
+| ![Character sheet](assets/window-character.png) | ![Group Finder](assets/window-groupfinder.png) |
+| ![Great Vault](assets/window-vault.png) | ![World map](assets/window-map.png) |
 | ![Tooltip](assets/feature-tooltip.png) | ![Action bars](assets/feature-actionbars.png) |
 | ![Loot rolls and pop-ups](assets/feature-loot.png) | ![Ready check](assets/feature-readycheck.png) |
 | ![Marker bar](assets/feature-markers.png) | ![Chattynator skin](assets/feature-chat.png) |
@@ -36,6 +39,9 @@ The pictures show the SlimARK look as drawn from the addon's design.
 ## What's included
 
 - Settings panel (`/slimark`, the SlimARK icon on the top bar, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
+- Blizzard windows in the SlimARK look (2.0), chosen in the setup window: Original or SlimARK, one switch per window, each dressed on its first open; BetterFriendlist's window too, BetterBags keeps its own skin
+- Combat text (2.0): SlimARK numbers, crits twice the size with a pop and shake; your target's damage while not in a group
+- Delete confirmation (2.0): a Confirm button instead of typing DELETE
 - Unit frames, party and raid frames, boss frames
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
 - Party frames next to your character; party, raid and healer frames show role icons, defensive cooldowns with time left, debuffs, and a colored border when you can dispel

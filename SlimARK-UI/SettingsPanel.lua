@@ -470,6 +470,8 @@ local function ChoiceRow(parent)
 					-- A choice with a path is saved like the other values; the test mode's acts at once.
 					if self.data.set then self.data.set(button.value) elseif self.data.path then S.Set(self.data.path, button.value) end
 					Changed(self)
+					-- A choice other rows depend on (the Blizzard windows look) greys or wakes them.
+					if self.data.rerender then RenderMain() end
 				end)
 				self.buttons[i] = b
 			end
@@ -642,6 +644,8 @@ RenderMain = function()
 		row:SetPoint('LEFT', 12, 0)
 		row:SetPoint('RIGHT', -12, 0)
 		row.data = { path = page.module, isModule = true }
+		row:SetAlpha(1)
+		row.switch:Enable()
 		row.label:SetText('Enable ' .. page.name:lower())
 		row:Refresh()
 		y = y - 38 - 16
@@ -676,6 +680,10 @@ RenderMain = function()
 				end
 				if data.t ~= 'button' and data.t ~= 'choice' then row.label:SetText(data.label) end
 				row:Refresh()
+				-- A row that does nothing in the current state is grey and cannot be clicked.
+				local off = data.dim and data.dim() or false
+				row:SetAlpha(off and 0.4 or 1)
+				if row.switch then row.switch:SetEnabled(not off) end
 				slot = slot + (full and 2 or 1)
 			end
 			y = y - math.ceil(slot / 2) * (ROW_H + 6) - 14

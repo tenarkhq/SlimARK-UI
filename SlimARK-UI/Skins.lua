@@ -356,25 +356,16 @@ function ns.ApplyAll()
 	ReloadUI()
 end
 
--- A new version asks for /slimark apply once, in a window in the middle of the screen.
-StaticPopupDialogs.SLIMARK_APPLY = {
-	text = 'SlimARK-UI %s\n\nRun /slimark apply to set up the positions and skins of this version. The UI reloads afterwards. Your own profiles and layouts stay untouched.',
-	button1 = 'Apply now',
-	button2 = 'Later',
-	OnAccept = function() ns.ApplyAll() end,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	preferredIndex = 3,
-}
-
+-- A new version asks for /slimark apply once, in the setup window (Setup.lua). Until the look
+-- of Blizzard's windows is chosen, the window asks for it on every login.
 local function AskForApply()
-	if ns.CharDB.appliedVersion == ns.version then return end
+	local chosen = C.blizz.look == 'original' or C.blizz.look == 'slimark'
+	if chosen and ns.CharDB.appliedVersion == ns.version then return end
 	if InCombatLockdown() then
 		ns.applyAskPending = true
 		return
 	end
-	StaticPopup_Show('SLIMARK_APPLY', ns.version)
+	ns.ShowSetup()
 end
 
 ns.On('PLAYER_REGEN_ENABLED', function()

@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.0.0
+
+- **Setup window:** after the update a window asks how Blizzard's windows should look: **Original** leaves them alone, **SlimARK** dresses them in the look of the rest of the UI. Nothing is picked for you; Apply now works once you choose, Later asks again at the next login. Change it any time under Interface: Blizzard windows
+- **SlimARK windows:** flat and dark, a thin black edge, a 2 pixel gold line on top, a header band with the title on the left, square close buttons, flat tabs and buttons, item icons with their quality color as a thin edge
+  - Character sheet, inspect, spellbook and talents, Group Finder and PvP, Great Vault, Adventure Guide, collections and appearances, achievements, friends list (BetterFriendlist's window too), guild and calendar, mail, world map and quest log, quests and NPC talk, the talking head, merchant and bank, Auction House and trade, professions, the game menu, pop-ups and the bags
+  - Each window is dressed the first time you open it, so nothing runs for windows you never open, and nothing at all with Original
+  - One switch per window on the Blizzard windows page. With BetterBags the bags keep the BetterBags skin
+- **Combat text:** floating numbers in the SlimARK font, on by default. Crits are twice the size, orange on your target, brighter red and green on you, land with a pop and a short shake and stay up longer. Damage you take shows left of your character, heals you get further left, damage on your target above the middle while you are not in a group. In a group the game only tells addons the damage your target takes from everyone, so there your own hits stay the game's numbers, in the SlimARK font. Crit look, size and every part on the Combat text page
+- **Deleting items:** destroying a good item asks for a click on Confirm, with the item shown, instead of typing DELETE. Switch on the Deleting items page
+- **BetterBags:** the SlimARK theme has the gold line on top and the title on the left, like the new windows. Click Apply now after the update
+- **Tooltip:** with Raider.IO installed the Mythic+ rating shows once, in Raider.IO's own lines, and the item level also takes the answers of the inspects Raider.IO makes in the background, so fewer requests go out
+
 ## 1.8.1
 
 - **Tooltip:** the fixed place moved up, its bottom right corner now sits right above the bags and consumables row, so it covers neither the Details title bar nor the bag buttons

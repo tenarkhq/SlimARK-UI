@@ -13,6 +13,9 @@ local function Col(label, path) return { t = 'color', label = label, path = path
 local function Btn(label, fn) return { t = 'button', label = label, fn = fn } end
 -- A saved choice between a few options, shown as a row of buttons.
 local function Choice(label, path, options) return { t = 'choice', label = label, path = path, options = options } end
+-- A switch of one Blizzard window: grey while the look is not SlimARK.
+local function NotSlim() return ns.Settings.Value('blizz.look') ~= 'slimark' end
+local function W(label, key) local row = T(label, 'blizz.' .. key) row.dim = NotSlim return row end
 local function Pos(path, heal)
 	local rows = { R('X', path .. '.x', 0, 2560), R('Y', path .. '.y', 0, 1600) }
 	if heal then
@@ -47,6 +50,7 @@ S.groups = {
 				T('Vendor', 'modules.vendor'), T('Character sheet', 'modules.character'), T('Window mover', 'modules.movers'),
 				T('BetterBags skin', 'modules.betterbags'), T('Trinkets and potions', 'modules.effects'), T('Top bar', 'modules.databar'),
 				T('Tooltip', 'modules.tooltip'), T('Loot and pop-ups', 'modules.loot'), T('Marker bar', 'modules.markers'), T('Ready check', 'modules.readycheck'),
+				T('Combat text', 'modules.combattext'),
 			} } } },
 		{ id = 'testmode', name = 'Test mode', noReset = true,
 			desc = 'Fills the frames with made-up players so you can see the layout without a group. Combat or a reload ends it. Edit Mode works while it is on, so you can drag the filled frames. Layout opens on your current spec; the other one moves only the SlimARK frames, Blizzard\'s own elements stay where your spec has them.',
@@ -93,6 +97,12 @@ S.groups = {
 			desc = 'Target markers, ground markers, ready check and pull countdown, only in a group. Ready check and pull show for the leader and assistants. Under the minimap the quest tracker moves down by the bar\'s height.',
 			secs = { { name = 'Place', rows = { Choice('Place', 'markers.place', { { 'map', 'Under the minimap' }, { 'party', 'Next to the party frames' } }) } },
 				{ name = 'Buttons', rows = { R('Button size', 'markers.size', 20, 44), R('Gap', 'markers.gap', 0, 10) } } } },
+		{ id = 'combattext', name = 'Combat text', module = 'modules.combattext',
+			desc = 'Floating numbers in the SlimARK font: damage you take left of your character, heals on you further left, and damage on your target above the middle while you are not in a group. Crits are twice the size, orange on your target, and land with a pop and shake. In a group the game only tells addons the damage your target takes from everyone, so there your own hits stay the game\'s numbers, in the SlimARK font.',
+			secs = { { name = 'Crits', rows = { Choice('Crit look', 'combattext.crit', { { 'impact', 'Impact: lands with a pop and shake' }, { 'bigger', 'Bigger only' } }) } },
+				{ name = 'Numbers', rows = { R('Size (%)', 'combattext.size', 50, 200, 10), T('Damage on your target when solo', 'combattext.target'),
+					T('Damage you take', 'combattext.incoming'), T('Heals you get', 'combattext.heals') } },
+				{ name = 'Preview', rows = { Btn('Show a sample', function() if ns.CombatTextSample then ns.CombatTextSample() end end) } } } },
 		{ id = 'readycheck', name = 'Ready check', module = 'modules.readycheck', keys = { 'readycheck' },
 			desc = 'A flat ready check window that shows what is on you and what is missing: flask, food, augment rune, weapon oil, the group\'s class buffs and durability. In combat Blizzard\'s window stays.',
 			secs = { Pos('readycheck'), { name = 'Missing items', rows = { T('A button that uses the missing item', 'readycheck.useButtons') } } } },
@@ -146,7 +156,7 @@ S.groups = {
 					T('Short hotkeys (sT)', 'actionbars.shortKeys'), T('Macro names', 'actionbars.macroNames') } },
 				{ name = 'Fade', rows = { T('Fade the upper bars out of combat', 'actionbars.fade'), R('Faded opacity (%)', 'actionbars.fadeAlpha', 0, 100) } } } },
 		{ id = 'tooltip', name = 'Tooltip', module = 'modules.tooltip',
-			desc = 'Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar. Players show their Mythic+ rating, item level and target; the item level is asked for out of combat only.',
+			desc = 'Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar. Players show their Mythic+ rating (with Raider.IO installed, Raider.IO\'s lines show it), item level and target; the item level is asked for out of combat only.',
 			secs = { { name = 'Place', rows = { Choice('Place', 'tooltip.anchor', { { 'fixed', 'Fixed, above the Details windows' }, { 'cursor', 'Next to the mouse' } }) } } } },
 		{ id = 'loot', name = 'Loot and pop-ups', module = 'modules.loot', keys = { 'loot' },
 			desc = 'Loot rolls and the loot won, achievement, money and new mount, pet or toy pop-ups in one column left of your character. Drag it in Edit Mode.',
@@ -160,6 +170,18 @@ S.groups = {
 			secs = { Pos('tracker'), { name = 'Tracker', rows = { R('Height', 'tracker.height', 400, 1200, 10), R('Text size', 'tracker.textSize', 12, 20) } } } },
 		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair') } } } },
 		{ id = 'character', name = 'Character sheet', module = 'modules.character', desc = 'Item level, gems, enchants and what is missing on each item.', secs = {} },
+		{ id = 'blizzwindows', name = 'Blizzard windows',
+			desc = 'The look of Blizzard\'s own windows. Original leaves them alone. SlimARK makes them flat and dark with a thin black edge and the SlimARK font; each window is dressed the first time you open it. The switches pick the windows SlimARK dresses. With BetterFriendlist its window is dressed in place of the friends list; with BetterBags the bags keep the BetterBags skin.',
+			secs = { { name = 'Look', rows = { { t = 'choice', label = 'Look', path = 'blizz.look', rerender = true, options = { { 'original', 'Original' }, { 'slimark', 'SlimARK' } } } } },
+				{ name = 'Windows', rows = {
+					W('Character sheet', 'character'), W('Inspect', 'inspect'), W('Spellbook and talents', 'spellbook'),
+					W('Group Finder and PvP', 'groupfinder'), W('Great Vault', 'vault'), W('Adventure Guide', 'journal'),
+					W('Collections', 'collections'), W('Achievements', 'achievements'), W('Friends list', 'friends'),
+					W('Guild and calendar', 'guild'), W('Mail', 'mail'), W('World map', 'map'),
+					W('Quests and NPC talk', 'gossip'), W('Talking head', 'talkinghead'), W('Merchant and bank', 'merchant'),
+					W('Auction House and trade', 'auction'), W('Professions', 'professions'), W('Game menu and pop-ups', 'menu'),
+					W('Bags (without BetterBags)', 'bags'),
+				} } } },
 		{ id = 'windows', name = 'Windows', module = 'modules.movers', desc = 'Move Blizzard windows by their title bar, resize them with Ctrl + mouse wheel.',
 			secs = { { name = 'Frame rate', rows = { R('FPS counter Y', 'fps.y', 0, 200) } } } },
 	} },
@@ -182,6 +204,8 @@ S.groups = {
 		{ id = 'groupfinder', name = 'Group Finder', secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup') } } } },
 		{ id = 'keystone', name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again.',
 			secs = { { name = 'Keystone', rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey') } } } },
+		{ id = 'delete', name = 'Deleting items', desc = 'Destroying a good item asks for a click on Confirm, with the item shown, instead of typing DELETE.',
+			secs = { { name = 'Deleting items', rows = { T('Confirm button instead of typing DELETE', 'features.easyDelete') } } } },
 		{ id = 'errors', name = 'Error messages', desc = 'Hides the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready. Blizzard already hides the out of energy and cooldown ones. Full bags and every other message stay. Needs a reload.',
 			secs = { { name = 'Error messages', rows = { T('Hide the combat error spam', 'features.errorFilter') } } } },
 		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
@@ -192,6 +216,14 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.0.0', lines = {
+		'Setup window: choose how Blizzard\'s windows look, Original or SlimARK. Change it any time under Interface: Blizzard windows',
+		'SlimARK windows: flat and dark with a thin black edge, a gold line on top and the SlimARK font. Character sheet, inspect, spellbook and talents, Group Finder and PvP, Great Vault, Adventure Guide, collections, achievements, friends (BetterFriendlist too), guild and calendar, mail, world map, quests and NPC talk, talking head, merchant and bank, Auction House and trade, professions, game menu, pop-ups and bags. Each window is dressed the first time you open it, one switch per window',
+		'Combat text: floating numbers in the SlimARK font. Crits are twice the size, orange on your target, and land with a pop and shake; damage you take and heals you get beside your character, damage on your target while you are not in a group',
+		'Deleting a good item asks for a click on Confirm, with the item shown, instead of typing DELETE',
+		'BetterBags: the SlimARK theme has the gold line and the title on the left, like the new windows',
+		'Tooltip: with Raider.IO installed the Mythic+ rating shows once, in Raider.IO\'s lines; the item level also uses the inspects Raider.IO makes',
+	} },
 	{ version = '1.8.1', lines = {
 		'Tooltip: the fixed place sits right above the bags and consumables row, clear of the Details title bar',
 		'Quest tracker: shorter by the marker bar\'s height when the bar is under the minimap',
