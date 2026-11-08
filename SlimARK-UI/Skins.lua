@@ -65,6 +65,13 @@ local function StyleDetails()
 			window:SetBarSettings(math.floor(cfg.barHeight * s + 0.5), ns.SOFT_NAME)
 			window:SetBarTextSettings(fontSize, ns.FONT_NAME, nil, nil, nil, true, true)
 			if window.SetBarRightTextSettings then window:SetBarRightTextSettings(true, true, false) end
+			-- The retail Details reads the percent column from show_percent, not from the flags above. It draws
+			-- it only when the names are not hidden, so out of combat, when overall updates, a third column came
+			-- in and ran over the name.
+			if window.row_info and window.row_info.show_percent ~= false then
+				if window.SetSimpleFormattingSettings then window:SetSimpleFormattingSettings(false)
+				else window.row_info.show_percent = false end
+			end
 			FitAllNames(D, window)
 			-- Because of the third parameter, Details pulls back to here at the start of every fight.
 			window:SetSegmentType(DETAILS_SESSIONS[i], true, true)

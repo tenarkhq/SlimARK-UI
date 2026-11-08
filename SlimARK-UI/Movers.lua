@@ -122,6 +122,7 @@ local function Refresh(item, overlay)
 	for _, other in ipairs(ns.Placed) do
 		if other.owner == item then ns.Place(other) end
 	end
+	if ns.TestRedraw then ns.TestRedraw() end
 end
 
 local function CreateOverlay(item)

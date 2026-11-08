@@ -166,6 +166,11 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '1.5.1', lines = {
+		'Fixed: a click on a dungeon in the keystone teleport list closed the list without teleporting',
+		'Fixed: test mode showed no party and raid frames while you were not in a group',
+		'Fixed: Details! added a percent column when overall updated out of combat, and the texts ran into each other',
+	} },
 	{ version = '1.5.0', lines = {
 		'Test mode (General: Test mode, or /slimark test): made-up players fill the party, raid 20, raid 40 or Mythic+ frames, so you see the layout without a group',
 		'Test mode shows the healer or the DPS and tank layout, whichever spec you play, and stays on in Edit Mode so you can drag the filled frames',

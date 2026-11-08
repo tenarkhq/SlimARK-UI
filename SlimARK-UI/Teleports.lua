@@ -137,7 +137,8 @@ local function Row(i)
 	local row = CreateFrame('Button', nil, menu, 'SecureActionButtonTemplate')
 	row:SetSize(WIDTH, ROW_H)
 	row:SetPoint('TOPLEFT', 0, -(24 + (i - 1) * ROW_H))
-	row:RegisterForClicks('AnyUp', 'AnyDown')
+	-- A mouse click casts on the release only, so the press must not close the menu under it.
+	row:RegisterForClicks('AnyUp')
 	row:SetAttribute('type', 'spell')
 	local line = row:CreateTexture(nil, 'ARTWORK')
 	line:SetColorTexture(0, 0, 0, 1)
@@ -162,8 +163,8 @@ local function Row(i)
 		GameTooltip:Show()
 	end)
 	row:SetScript('OnLeave', GameTooltip_Hide)
-	row:HookScript('PostClick', function()
-		if not InCombatLockdown() then menu:Hide() end
+	row:HookScript('PostClick', function(_, _, down)
+		if not down and not InCombatLockdown() then menu:Hide() end
 	end)
 	rows[i] = row
 	return row

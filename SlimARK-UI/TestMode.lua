@@ -250,8 +250,25 @@ local function OnFrame(key, kind, real, u)
 	Fill(f, u)
 end
 
+-- Without a group the real header is hidden and has no size, so nothing anchored to it is
+-- drawn. A plain frame takes the header's place and size, the made-up frames hang on it.
+local proxies = {}
+state.proxies = proxies
+local function Proxy(header)
+	for _, item in ipairs(ns.Placed) do
+		if item.frame == header then
+			local p = proxies[header] or CreateFrame('Frame', nil, UIParent)
+			proxies[header] = p
+			p:SetSize(item.w, item.h)
+			ns.Place(item, p)
+			return p
+		end
+	end
+end
+
 -- The group header lays its frames out the same way as the real header does.
 local function OnHeader(prefix, kind, header, units, perRow, upward)
+	header = header and Proxy(header)
 	if not header then return end
 	local o = C.units[kind]
 	for i, u in ipairs(units) do
@@ -397,6 +414,11 @@ end)
 ns.On('GROUP_ROSTER_UPDATE', function() if state.mode ~= 'off' then Draw() end end)
 ns.On('UI_SCALE_CHANGED', function() if state.mode ~= 'off' then Refresh() end end)
 ns.On('DISPLAY_SIZE_CHANGED', function() if state.mode ~= 'off' then Refresh() end end)
+-- A frame dragged or resized in Edit Mode draws the made-up frames again at its new place.
+function ns.TestRedraw()
+	if state.mode ~= 'off' then Draw() end
+end
+
 if EditModeManagerFrame then
 	EditModeManagerFrame:HookScript('OnHide', function() if state.mode ~= 'off' then Draw() end end)
 end

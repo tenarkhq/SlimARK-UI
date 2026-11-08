@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1
+
+- Fixed: a click on a dungeon in the keystone teleport list closed the list without teleporting
+- Fixed: test mode showed no party and raid frames while you were not in a group
+- Fixed: Details! added a percent column when the overall panel updated out of combat, and the texts ran into each other. The panels show total and per second only
+
 ## 1.5.0
 
 - **Test mode:** see your layout without a group. Open `/slimark` → General → Test mode, or type `/slimark test`. Made-up players fill the frames:
