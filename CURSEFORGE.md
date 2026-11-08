@@ -32,6 +32,15 @@ The group grid sits right above the action bars. A party takes one row, a raid g
 
 ![Healer layout](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f538765e6100ff77a6ff0ad55529bc855bcd13a5/assets/layout-healer.png)
 
+## Fits every screen
+
+- Reads your real screen size at login, there is nothing to choose
+- Frames and text scale with the screen height, so they take the same share of the screen on 1080p, 1440p, ultrawide and 4K
+- Chat, minimap, buffs, quest tracker, boss frames, consumables and Details! stay at their screen edge
+- Everything around your character stays together in the middle, on ultrawide too
+- Thin borders stay one sharp pixel on every screen
+- Frames you dragged in Edit Mode keep their place
+
 ## Settings panel
 
 Type `/slimark`, click the SlimARK button at the minimap, or open Options → AddOns → SlimARK-UI.
