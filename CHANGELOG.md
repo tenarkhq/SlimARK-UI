@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.3
+
+- **Mail:** the parchment behind the inbox letters is gone, and so is the old bar under the sender and subject of an open letter
+- **Page arrows:** the round arrows Blizzard took from the old spellbook (mail, merchant, books and letters, calendar, collections, spellbook pages) are flat squares with a thin arrow, dimmed while there is no page to turn to
+
 ## 2.0.2
 
 Every SlimARK window was checked against the windows of the 12.1 game and now follows what the game actually draws there.

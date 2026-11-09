@@ -430,6 +430,45 @@ function K.Activity(button)
 	end
 end
 
+-- The round page arrows Blizzard took from the old spellbook (mail, merchant, books, calendar,
+-- collections, paged lists): a flat square with a thin arrow; dimmed while it cannot be used.
+local ARROWS = {
+	LEFT = { 0.234375, 0.421875, 0.015625, 0.203125 },
+	RIGHT = { 0.421875, 0.234375, 0.015625, 0.203125 },
+}
+function K.Pager(button, dir)
+	if not button or K.Done(button, 'pager') then return end
+	for _, tex in ipairs({ button:GetNormalTexture(), button:GetPushedTexture(), button:GetDisabledTexture() }) do K.Hide(tex) end
+	local fill = Box(button, BUTTON, { 4, 4, 4, 4 })
+	local arrow = button:CreateTexture(nil, 'ARTWORK')
+	arrow:SetTexture('Interface\\Buttons\\SquareButtonTextures')
+	local c = ARROWS[dir] or ARROWS.RIGHT
+	arrow:SetTexCoord(c[1], c[2], c[3], c[4])
+	arrow:SetSize(12, 12)
+	arrow:SetPoint('CENTER', fill, 'CENTER')
+	local hl = button:GetHighlightTexture()
+	if hl then
+		hl:SetColorTexture(1, 1, 1, 0.08)
+		hl:ClearAllPoints()
+		hl:SetAllPoints(fill)
+	end
+	local function State(self)
+		local on = self:IsEnabled()
+		arrow:SetDesaturated(not on)
+		arrow:SetAlpha(on and 1 or 0.35)
+	end
+	button:HookScript('OnEnable', State)
+	button:HookScript('OnDisable', State)
+	State(button)
+end
+
+local function PagerDirection(child, name)
+	local key = child.GetParentKey and child:GetParentKey() or ''
+	local id = (name or '') .. ' ' .. key
+	if id:find('PrevPage') or id:find('PrevMonth') or key == 'BackwardButton' then return 'LEFT' end
+	if id:find('NextPage') or id:find('NextMonth') or key == 'ForwardButton' then return 'RIGHT' end
+end
+
 -- A checkbox gets no new look: Blizzard's is small and clear on the dark body.
 
 -- Walks the children of a frame and dresses the known Blizzard widgets: buttons, tabs,
@@ -441,6 +480,8 @@ local function Classify(child)
 	if child.Track and child.Track.Thumb then K.Scroll(child) return end
 	local name = child.GetName and child:GetName()
 	if kind == 'Button' then
+		local dir = PagerDirection(child, name)
+		if dir and child:GetNormalTexture() then K.Pager(child, dir) return end
 		if child.LeftActive or child.slimTabLike then K.Tab(child) return end
 		if name and name:find('CloseButton$') then K.Close(child) return end
 		if child.Left and child.Middle and child.Right and child.Left.GetObjectType and child.Left:GetObjectType() == 'Texture' then

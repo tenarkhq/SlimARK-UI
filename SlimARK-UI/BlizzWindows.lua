@@ -833,6 +833,8 @@ end)
 K.Register('mail', nil, { 'MailFrame', 'OpenMailFrame' }, function(frame)
 	K.Window(frame)
 	if frame == _G.MailFrame then
+		-- The inbox parchment behind the letters.
+		K.Hide(_G.InboxFrameBg)
 		for i = 1, 7 do
 			local row = _G['MailItem' .. i]
 			if row then
@@ -851,6 +853,13 @@ K.Register('mail', nil, { 'MailFrame', 'OpenMailFrame' }, function(frame)
 		K.Inset(_G.SendMailMoneyInset)
 		K.Auto(_G.SendMailFrame)
 	else
+		-- The old trainer bar under the sender and subject, both halves.
+		local bar = _G.OpenMailHorizontalBarLeft
+		K.Hide(bar)
+		for _, region in ipairs({ frame:GetRegions() }) do
+			local _, relative = region:GetPoint(1)
+			if bar and relative == bar then K.Hide(region) end
+		end
 		K.Hide(_G.OpenStationeryBackgroundLeft)
 		K.Hide(_G.OpenStationeryBackgroundRight)
 		Light(_G.OpenMailBodyText)
