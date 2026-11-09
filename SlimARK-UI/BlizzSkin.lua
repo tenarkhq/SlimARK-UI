@@ -18,7 +18,8 @@ local BLACK = { 0, 0, 0, 1 }
 local GOLD = { 0.95, 0.72, 0.29, 1 }
 local TEXT = { 0.93, 0.91, 0.87 }
 local SOFT = { 0.73, 0.71, 0.66 }
-K.GOLD, K.TEXT, K.SOFT, K.BODY, K.BUTTON, K.FIELD = GOLD, TEXT, SOFT, BODY, BUTTON, FIELD
+local ROW_FILL = { 0.09, 0.094, 0.114, 1 }
+K.GOLD, K.TEXT, K.SOFT, K.BODY, K.BUTTON, K.FIELD, K.INSET = GOLD, TEXT, SOFT, BODY, BUTTON, FIELD, INSET
 
 -- True when the Blizzard windows have the SlimARK look and this window is switched on.
 function K.On(key)
@@ -131,6 +132,23 @@ function K.Rim(frame, header)
 	gold:SetPoint('TOPLEFT')
 	gold:SetPoint('TOPRIGHT')
 	gold:SetHeight(2 * px)
+end
+
+-- Blizzard's old backdrop art (BackdropTemplate: the wood and gold borders of the achievements,
+-- tooltip-style edges on rows) is cleared. Later SetBackdropBorderColor calls do nothing then.
+function K.NoBackdrop(frame)
+	if frame and frame.ClearBackdrop and frame.backdropInfo then frame:ClearBackdrop() end
+end
+
+-- The same for every frame under this one.
+function K.NoBackdrops(frame, depth)
+	if not frame or not frame.GetChildren then return end
+	depth = depth or 4
+	if depth <= 0 then return end
+	for _, child in ipairs({ frame:GetChildren() }) do
+		K.NoBackdrop(child)
+		K.NoBackdrops(child, depth - 1)
+	end
 end
 
 -- An inner panel (InsetFrameTemplate and its kind): a darker flat box with a black edge.
@@ -309,6 +327,7 @@ function K.Edit(box)
 	K.Hide(box.Right)
 	K.Hide(box.Mid)
 	K.Hide(box.NineSlice)
+	K.NoBackdrop(box)
 	K.Strip(box, { [box.searchIcon or false] = true, [box.Instructions or false] = true })
 	Box(box, FIELD, { -4, 2, 0, 2 })
 end
@@ -363,6 +382,51 @@ function K.Item(button)
 		hooksecurefunc(border, 'Hide', function() EdgeColor(button, 0, 0, 0) end)
 		hooksecurefunc(border, 'SetShown', function(_, shown) if not shown then EdgeColor(button, 0, 0, 0) end end)
 		if border:IsShown() then EdgeColor(button, border:GetVertexColor()) end
+	end
+end
+
+-- A big list button with a picture (Group Finder and PvP categories): the blue frame and the
+-- ring go, the picture stays; a flat dark box, a light hover and a gold line on the left of the
+-- selected one. Returns the function that shows or hides the gold line.
+function K.Category(button, keys)
+	if not button or K.Done(button, 'category') then return button and button.slimSelect end
+	for _, key in ipairs(keys) do K.Hide(button[key]) end
+	local hl = button.GetHighlightTexture and button:GetHighlightTexture()
+	local fill = Box(button, BUTTON, { 1, 1, 1, 1 })
+	if hl then
+		hl:SetColorTexture(1, 1, 1, 0.06)
+		hl:ClearAllPoints()
+		hl:SetAllPoints(fill)
+	end
+	local gold = Fill(button, GOLD, 'BACKGROUND', -5)
+	gold:SetPoint('TOPLEFT', fill, 'TOPLEFT')
+	gold:SetPoint('BOTTOMLEFT', fill, 'BOTTOMLEFT')
+	gold:SetWidth(2 * ns.Px())
+	gold:Hide()
+	button.slimSelect = function(on) gold:SetShown(on and true or false) end
+	return button.slimSelect
+end
+
+-- A wide activity button drawn by an atlas (PvP queues): the atlas goes, a flat box comes, the
+-- hover is a light film and the selected state a gold film. The normal texture is emptied, not
+-- faded, because Blizzard sets its alpha for disabled queues.
+function K.Activity(button)
+	if not button or K.Done(button, 'activity') then return end
+	local normal = button.GetNormalTexture and button:GetNormalTexture()
+	if normal then normal:SetTexture(nil) end
+	local pushed = button.GetPushedTexture and button:GetPushedTexture()
+	if pushed then pushed:SetTexture(nil) end
+	local fill = Box(button, ROW_FILL, { 2, 2, 2, 2 })
+	local hl = button.GetHighlightTexture and button:GetHighlightTexture()
+	if hl then
+		hl:SetColorTexture(1, 1, 1, 0.06)
+		hl:ClearAllPoints()
+		hl:SetAllPoints(fill)
+	end
+	if button.SelectedTexture then
+		button.SelectedTexture:SetColorTexture(GOLD[1], GOLD[2], GOLD[3], 0.14)
+		button.SelectedTexture:ClearAllPoints()
+		button.SelectedTexture:SetAllPoints(fill)
 	end
 end
 

@@ -55,7 +55,10 @@ local function ReadItem(slot)
 	local types = Enum.TooltipDataLineType
 	for _, line in ipairs(data.lines) do
 		if line.type == types.ItemEnchantmentPermanent then
-			result.enchant = (line.leftText or ''):gsub('^[^:]+:%s*', '')
+			-- 'Enchanted: Enchant Helm - Empowered ...' shows as 'Empowered ...': the slot is clear
+			-- from the button, the room beside it is short.
+			local text = (line.leftText or ''):gsub('^[^:]+:%s*', '')
+			result.enchant = text:gsub('^Enchant [^%-]+ %- ', '')
 		elseif line.type == types.GemSocket then
 			if line.gemIcon then
 				table.insert(result.gems, line.gemIcon)
@@ -67,8 +70,18 @@ local function ReadItem(slot)
 	return result
 end
 
+-- The text beside a slot gets half of the room between the left and the right slot column, so
+-- the two sides never run into each other at any UI scale.
+local function InfoWidth()
+	local left, right = _G.CharacterHeadSlot, _G.CharacterHandsSlot
+	local l, r = left and left:GetRight(), right and right:GetLeft()
+	if not (l and r) or r <= l then return 150 end
+	return math.max(60, math.min(150, (r - l) / 2 - 10))
+end
+
 local function Update(button, side, slot)
 	local o = Overlay(button, side)
+	if side ~= 'bottom' then o.Info:SetWidth(InfoWidth()) end
 	local link = GetInventoryItemLink('player', slot)
 
 	o.Level:SetText('')

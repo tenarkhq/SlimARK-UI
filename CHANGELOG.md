@@ -1,5 +1,30 @@
 # Changelog
 
+## 2.0.2
+
+Every SlimARK window was checked against the windows of the 12.1 game and now follows what the game actually draws there.
+
+- **Character sheet:** enchant texts on the left and the right side no longer run into each other; each side gets half of the room between the slot columns and the "Enchant Slot -" prefix is left out. The stat headers are flat bands instead of the ornate frames, the class picture behind the stats is gone
+- **Inspect:** the inner border around the model is gone
+- **Spellbook and talents:** the book pages, the bookmark and the page corner are gone; spell rows are flat with light names, the talent and specialization pages lose their dark bars
+- **Group Finder:** the category buttons (Dungeon Finder, Raid Finder, Premade Groups) and the premade categories are flat boxes with a gold line on the selected one; the role backgrounds and streaks are gone
+- **PvP:** the category buttons and every queue (random battlegrounds, arenas, brawls, Solo Shuffle, Blitz, rated, Training Grounds) are flat rows with a gold film on the selected one
+- **Mythic+:** the dungeon icons have a black edge instead of the frames, the background art is gone
+- **Great Vault:** the row backgrounds, borders and dividers are gone
+- **Adventure Guide:** the path bar at the top (Home and the steps after it) is flat; the rock behind Journeys and the expansion picture behind the dungeon lists are gone; renown and journey cards are flat with a light hover, the dividers are thin lines; the Traveler's Log loses its themed border, paper and shadows; suggested content, item sets and the loot tab are flat. The pages of a dungeon or a boss stay on their parchment, because the game writes their text in black
+- **Collections:** mount, pet and appearance set lists are flat rows with a gold film on the selected one; the landscape behind the mount, the pet battle slot frames and the pet card art are gone; the collected bars are flat
+- **Transmogrifier:** the 12.x window keeps its gear slots (they show pending and saved states); its extra dark layers, the ornate tab frame and the divider lines are gone
+- **Achievements:** the wood frame and the gold edges are gone (the game draws them as backdrops now), achievement rows, categories, statistics, comparison and the summary bars are flat
+- **Friends:** the Battle.net bar, the Who column headers and the rock behind invite headers are flat
+- **Guild and communities:** the blue menu with gold filigree is gone, communities are flat rows with a gold film on the selected one; the side tabs, the member list headers, the chat input and the finder pages are flat
+- **Calendar:** the event, holiday and invite windows are flat too
+- **Mail:** inbox rows are flat, the stationery is gone and letters are written and read in light text
+- **Books and letters:** the page and its material are gone, the text stays light on every page
+- **NPC talk:** the letter material in the corners is gone
+- **Quests:** only the quest window's own pages turn light; the quest log beside the map keeps its parchment and dark text
+- **Auction House:** the category list, its buttons, the result and sell panels and the item headers are flat
+- **Professions:** the recipe list, its category headers, the profession picture behind the recipe, the skill bar and the crafting order panels are flat; the specialization dials stay, like the talent trees. The profession book (your list of professions) is flat with light texts
+
 ## 2.0.1
 
 - **Combat text:** off by default. The game's own numbers stay as they are; switch the SlimARK combat text on under Combat: Combat text if you want it. If 2.0.0 had switched it on for you, the game's numbers come back exactly as you had them
