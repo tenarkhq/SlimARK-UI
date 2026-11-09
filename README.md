@@ -3,14 +3,13 @@
 
 **A slim, clean and fast interface for World of Warcraft Retail (Midnight) and WoW Forever.**
 
-SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking, group frames, tooltip, loot pop-ups and, if you switch it on, combat text with one consistent, sharp look, and if you want, Blizzard's own windows too: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF and runs on events only, so it stays light: the crisp ElvUI style without ElvUI's pile of extras and twenty helper addons next to it.
+SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking, group frames, tooltip, loot pop-ups and the game's combat text font with one consistent, sharp look, and if you want, Blizzard's own windows too: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF and runs on events only, so it stays light: the crisp ElvUI style without ElvUI's pile of extras and twenty helper addons next to it.
 
 One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
 
 ## Highlights
 
 - **New in 2.0, Blizzard windows in the SlimARK look:** character sheet, spellbook, Group Finder, Great Vault, map, mail, merchant, Auction House and every other game window, flat and dark. Your choice at the first login: Original or SlimARK
-- **New in 2.0, combat text:** floating numbers in the SlimARK font, crits twice the size with a pop and a shake. Off by default, one switch turns it on
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
 - **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
@@ -209,18 +208,9 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 ![Active trinket and potion effects](assets/feature-effects.png)
 
-## Combat text
+## Combat text font
 
-New in 2.0, off by default: switch it on under Combat: Combat text if you want it. Floating numbers in the SlimARK font, with crits you cannot miss.
-
-![Combat text](assets/feature-combattext.png)
-
-- **Crits** are twice the size and land with a pop and a short shake, then stay up a little longer: orange on your target, brighter red and green on you. Prefer it calmer? Pick **Bigger only**
-- **Damage you take** floats up left of your character, **heals you get** further left, misses like Dodge or Parry in grey
-- **Damage on your target** floats above the middle of the screen while you are not in a group
-- **In a group** the game only tells addons the damage your target takes from everyone, not only yours. So there your own hits stay the game's numbers, in the SlimARK font, and nobody else's damage is shown as yours
-- Size, crit look and every part on the Combat text page, with a button that shows a sample
-- Switch it off and the game's own combat text comes back exactly as you had it
+The game's own floating combat text uses the SlimARK font, so the numbers match the rest of the UI. One switch under Modules turns it off; a change shows after a reload.
 
 ## Action bars
 
@@ -392,7 +382,7 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 
 ![Settings panel](assets/feature-settings.png)
 
-- Every element has its own page in a list on the left: test mode, Blizzard windows, combat text, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, deleting items, error messages and quality of life features
+- Every element has its own page in a list on the left: test mode, Blizzard windows, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, deleting items, error messages and quality of life features
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Where a feature has two ways to work, like the tooltip place or the marker bar place, you pick one on its page
 - Every page can be reset to the SlimARK defaults on its own
@@ -427,12 +417,12 @@ SlimARK-UI is written to stay out of your frame time:
 - Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, the Mythic+ clock while a key runs, and the ready check countdown while the window is open. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
 - Parts you switch off do nothing at all, and panels that are not shown, such as the character sheet overlay, do no work
-- Blizzard windows are dressed once, the first time each one opens; with the Original look that code never runs. Combat text is off until you switch it on, then it uses one event and a small pool of reused text lines
+- Blizzard windows are dressed once, the first time each one opens; with the Original look that code never runs.
 
 ## Good to know
 
 - The layout fits itself to your screen: it is drawn for 2560×1600 and scales automatically on 1080p, 1440p, ultrawide and 4K. Screen edges stay at the edges, everything around your character stays in the middle. Sizes can still be changed in `/slimark` and frames dragged in Edit Mode.
-- Made for Midnight's addon rules: it works with the protected values the game uses in combat. That is also why combat text shows your target's damage only while you are not in a group: the game does not tell addons which hits are yours.
+- Made for Midnight's addon rules: it works with the protected values the game uses in combat.
 - **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel and the keystone of the top bar stay off. Details!, the boss mods and the other skinned addons need their own Forever versions.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 
@@ -453,7 +443,7 @@ SlimARK-UI is brand new, and every bug report helps make it better. If you try i
 **Feature requests** are welcome too. Tell me what you miss, what's in the way, or what another addon does better.
 
 Things I'd especially like feedback on:
-- **New in 2.0:** the Blizzard windows in the SlimARK look (which window looks off, or which one you miss), the combat text and its crits, and the delete confirmation
+- **New in 2.0:** the Blizzard windows in the SlimARK look (which window looks off, or which one you miss) and the delete confirmation
 - Shields on party and raid frames
 - Proc trinkets in the active effects row
 - Interrupter names on nameplates in dungeons

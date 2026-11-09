@@ -2,7 +2,7 @@
 ## Title: SlimARK-UI Media
 ## Notes: Font and texture for SlimARK-UI. Loads first, so Details, BigWigs and Chattynator see them at startup.
 ## Author: Roland
-## Version: 2.0.5
+## Version: 2.0.6
 
 Libs\LibStub.lua
 Libs\CallbackHandler-1.0.lua

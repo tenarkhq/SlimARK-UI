@@ -72,7 +72,7 @@ ns.C = {
 		cooldowns = true, consumables = true, mythicplus = true, actionbars = true, minimap = true,
 		tracker = true, vendor = true, character = true, movers = true, betterbags = true, effects = true,
 		databar = true, tooltip = true, loot = true, markers = true, readycheck = true,
-		combattext = false,
+		combatfont = true,
 	},
 
 	-- Single features, switched in /slimark.
@@ -93,10 +93,6 @@ ns.C = {
 		mail = true, map = true, gossip = true, talkinghead = true, merchant = true, auction = true,
 		professions = true, menu = true, bags = true, housing = true,
 	},
-
-	-- Floating combat text (2.0), off until the player switches it on (2.0.1). crit: 'impact' (lands with a pop and shake) or 'bigger'.
-	-- size: percent of the default. target: numbers on the target while not in a group.
-	combattext = { crit = 'impact', size = 100, heals = true, incoming = true, target = true },
 
 	units = {
 		player = { x = 720, y = 1160, w = 340, h = 66, font = 20, classPower = 12, heal = { x = 630, y = 1160 } },

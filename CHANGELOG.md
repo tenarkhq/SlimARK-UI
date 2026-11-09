@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.6
+
+- **Combat text:** SlimARK's own floating numbers are gone; the game's combat text stays and uses the SlimARK font (one switch under Modules: Combat text font). If you had SlimARK's combat text on, the game's own numbers come back as you had them before
+
 ## 2.0.5
 
 - **Achievements:** the achievement points and their title no longer float above the window; they sit on one line in the window's header band
