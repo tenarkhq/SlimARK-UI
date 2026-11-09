@@ -138,7 +138,10 @@ local function Row(i)
 	row:SetSize(WIDTH, ROW_H)
 	row:SetPoint('TOPLEFT', 0, -(24 + (i - 1) * ROW_H))
 	-- A mouse click casts on the release only, so the press must not close the menu under it.
+	-- useOnKeyDown false: without it the game follows its "cast on key down" setting, waits for
+	-- a press that is not registered, and the click does nothing.
 	row:RegisterForClicks('AnyUp')
+	row:SetAttribute('useOnKeyDown', false)
 	row:SetAttribute('type', 'spell')
 	local line = row:CreateTexture(nil, 'ARTWORK')
 	line:SetColorTexture(0, 0, 0, 1)

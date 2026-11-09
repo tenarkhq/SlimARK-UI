@@ -154,6 +154,7 @@ local function BuildMicro()
 			b:SetSize(size, size)
 			b:SetPoint('LEFT', micro, 'LEFT', x, 0)
 			b:RegisterForClicks('AnyUp')
+			b:SetAttribute('useOnKeyDown', false) -- acts on the release it is registered for
 			b:SetAttribute('type', 'click')
 			b:SetAttribute('clickbutton', real)
 			local bg = b:CreateTexture(nil, 'BACKGROUND')

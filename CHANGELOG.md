@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.7
+
+- Fixed: a click on a dungeon in the keystone teleport list did nothing. With the game's "cast on key down" setting on, SlimARK's buttons waited for a key press that a mouse click never sends. The same fix makes the marker bar, the ready check Use buttons and the micro menu buttons on the top bar act on the click
+
 ## 2.0.6
 
 - **Combat text:** SlimARK's own floating numbers are gone; the game's combat text stays and uses the SlimARK font (one switch under Modules: Combat text font). If you had SlimARK's combat text on, the game's own numbers come back as you had them before

@@ -196,6 +196,7 @@ local function UseButton(i)
 	b:SetScale(ns.Scale())
 	b:SetSize(84, 26)
 	b:RegisterForClicks('AnyUp')
+	b:SetAttribute('useOnKeyDown', false) -- acts on the release it is registered for
 	Fill(b, { 0.137, 0.145, 0.169 })
 	ns.Outline(b)
 	local hl = b:CreateTexture(nil, 'HIGHLIGHT')
