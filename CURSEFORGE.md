@@ -25,7 +25,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 2. Log in. A setup window asks how Blizzard's windows should look: **Original** leaves them as they are, **SlimARK** gives them the look of the rest of the UI. Pick one, then click **Apply now** (or type `/slimark apply` any time).
 3. Done. Every position and skin is set, and the UI reloads. After each update the window asks once more; click **Apply now**.
 
-![Setup window](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/feature-setup.png)
+![Setup window](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/feature-setup.png)
 
 | Command | What it does |
 | --- | --- |
@@ -64,75 +64,75 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - **BetterFriendlist:** its window is dressed in place of the friends list
 - **BetterBags:** the bags keep the BetterBags skin; without BetterBags Blizzard's bags get the SlimARK look
 
-![Blizzard windows settings page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/feature-blizzwindows-page.png)
+![Blizzard windows settings page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/feature-blizzwindows-page.png)
 
 **Character sheet.** The SlimARK item level, gem and enchant marks stay on the slots.
 
-![Character sheet](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-character.png)
+![Character sheet](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-character.png)
 
 **Spellbook and talents**
 
-![Talents](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-talents.png)
+![Talents](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-talents.png)
 
 **Group Finder and PvP**
 
-![Group Finder](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-groupfinder.png)
+![Group Finder](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-groupfinder.png)
 
 **Great Vault**
 
-![Great Vault](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-vault.png)
+![Great Vault](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-vault.png)
 
 **Adventure Guide**
 
-![Adventure Guide](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-journal.png)
+![Adventure Guide](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-journal.png)
 
 **World map and quest log**
 
-![World map](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-map.png)
+![World map](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-map.png)
 
 **Quests and NPC talk.** The parchment goes, the text turns light.
 
-![Quest window](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-quest.png)
+![Quest window](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-quest.png)
 
 **The talking head**
 
-![Talking head](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-talkinghead.png)
+![Talking head](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-talkinghead.png)
 
 **Merchant** (the two-page vendor keeps working) **and bank**
 
-![Merchant](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-merchant.png)
+![Merchant](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-merchant.png)
 
-![Bank](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-bank.png)
+![Bank](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-bank.png)
 
 **Collections and achievements**
 
-![Collections](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-collections.png)
+![Collections](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-collections.png)
 
-![Achievements](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-achievements.png)
+![Achievements](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-achievements.png)
 
 **Friends, guild, calendar and mail**
 
-![Friends list](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-friends.png)
+![Friends list](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-friends.png)
 
-![Guild](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-guild.png)
+![Guild](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-guild.png)
 
-![Calendar](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-calendar.png)
+![Calendar](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-calendar.png)
 
-![Mail](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-mail.png)
+![Mail](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-mail.png)
 
 **Auction House, trade and professions**
 
-![Auction House](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-auction.png)
+![Auction House](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-auction.png)
 
-![Trade](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-trade.png)
+![Trade](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-trade.png)
 
-![Professions](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-professions.png)
+![Professions](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-professions.png)
 
 **Game menu, pop-ups and bags.** With BetterBags its SlimARK theme takes the same gold line and title on the left.
 
-![Game menu and pop-ups](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-menu.png)
+![Game menu and pop-ups](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-menu.png)
 
-![Blizzard bags and BetterBags](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/window-bags.png)
+![Blizzard bags and BetterBags](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/window-bags.png)
 
 ## Unit frames
 
@@ -206,7 +206,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 New in 2.0, off by default: switch it on under Combat: Combat text if you want it. Floating numbers in the SlimARK font, with crits you cannot miss.
 
-![Combat text](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/feature-combattext.png)
+![Combat text](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/feature-combattext.png)
 
 - **Crits** are twice the size and land with a pop and a short shake, then stay up a little longer: orange on your target, brighter red and green on you. Prefer it calmer? Pick **Bigger only**
 - **Damage you take** floats up left of your character, **heals you get** further left, misses like Dodge or Parry in grey
@@ -339,7 +339,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 - **Deleting a good item** asks for a click on **Confirm**, with the item shown, instead of typing DELETE
 
-![Delete confirmation](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/feature-delete.png)
+![Delete confirmation](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/feature-delete.png)
 
 - Cinematics and movies you have already seen are skipped automatically
 - Vendor shows two pages at once, can hide what you already own, and marks items you lack the currency or reputation for
