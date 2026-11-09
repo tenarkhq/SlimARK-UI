@@ -762,10 +762,21 @@ K.Register('achievements', 'Blizzard_AchievementUI', 'AchievementFrame', functio
 		'MetalBorderTopLeft', 'MetalBorderTopRight', 'MetalBorderBottomLeft', 'MetalBorderBottomRight',
 		'WoodBorderTopLeft', 'WoodBorderTopRight', 'WoodBorderBottomLeft', 'WoodBorderBottomRight',
 		'CategoriesBG', 'WaterMark', 'GuildEmblemLeft', 'GuildEmblemRight' })
-	if frame.Header then
-		K.Hide(frame.Header.Left)
-		K.Hide(frame.Header.Right)
-		K.Hide(frame.Header.PointBorder)
+	local header = frame.Header
+	if header then
+		K.Hide(header.Left)
+		K.Hide(header.Right)
+		K.Hide(header.PointBorder)
+		-- Blizzard's header sits above the window; its title and points move into our header
+		-- band on one line: "Achievement Points  21,930 (shield)".
+		if header.Points and header.Title then
+			header.Points:ClearAllPoints()
+			header.Points:SetPoint('LEFT', frame, 'TOP', 4, -20)
+			header.Title:ClearAllPoints()
+			header.Title:SetPoint('RIGHT', header.Points, 'LEFT', -8, 0)
+			header.Title:SetSize(240, 14)
+			header.Title:SetJustifyH('RIGHT')
+		end
 	end
 	if frame.HeaderDetails then K.Hide(frame.HeaderDetails.TopTileStreaks) end
 	K.NoBackdrops(frame, 3)

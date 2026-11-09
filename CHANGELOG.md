@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.5
+
+- **Achievements:** the achievement points and their title no longer float above the window; they sit on one line in the window's header band
+
 ## 2.0.4
 
 - **Group Finder:** the refresh button of the premade group list and the Filter button are flat like the other buttons; every dropdown has a thin grey arrow in place of Blizzard's yellow one
