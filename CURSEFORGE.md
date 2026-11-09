@@ -420,7 +420,7 @@ SlimARK-UI is written to stay out of your frame time:
 - Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, the Mythic+ clock while a key runs, and the ready check countdown while the window is open. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
 - Parts you switch off do nothing at all, and panels that are not shown, such as the character sheet overlay, do no work
-- Blizzard windows are dressed once, the first time each one opens; with the Original look that code never runs. Combat text uses one event and a small pool of reused text lines
+- Blizzard windows are dressed once, the first time each one opens; with the Original look that code never runs. Combat text is off until you switch it on, then it uses one event and a small pool of reused text lines
 
 ## Good to know
 
