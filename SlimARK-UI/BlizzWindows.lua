@@ -24,6 +24,40 @@ local function Light(fs, gold)
 	end
 end
 
+-- Text Blizzard keeps setting back to black (parchment text): every near-black color it gets
+-- turns into our light text (or soft grey).
+local function NearBlack(r, g, b) return r and g and b and r + g + b < 0.6 end
+local function KeepLight(fs, soft)
+	if not fs or not fs.SetTextColor or K.Done(fs, 'keeplight') then return end
+	local c = soft and K.SOFT or K.TEXT
+	local busy
+	hooksecurefunc(fs, 'SetTextColor', function(self, r, g, b)
+		if busy or not NearBlack(r, g, b) then return end
+		busy = true
+		self:SetTextColor(c[1], c[2], c[3])
+		busy = false
+	end)
+	if NearBlack(fs:GetTextColor()) then fs:SetTextColor(c[1], c[2], c[3]) end
+end
+
+-- A texture Blizzard shows again with SetAlpha: it stays at alpha 0.
+local function KeepHidden(tex)
+	if not tex or not tex.SetAlpha or K.Done(tex, 'keephidden') then return end
+	tex:SetAlpha(0)
+	hooksecurefunc(tex, 'SetAlpha', function(self, a) if a and a > 0 then self:SetAlpha(0) end end)
+end
+
+-- Every near-black font string under a frame turns light (lists Blizzard fills from a pool).
+local function LightDark(frame, depth)
+	if not frame or not frame.GetRegions then return end
+	for _, region in ipairs({ frame:GetRegions() }) do
+		if region:GetObjectType() == 'FontString' and NearBlack(region:GetTextColor()) then Light(region) end
+	end
+	depth = depth or 2
+	if depth <= 0 then return end
+	for _, child in ipairs({ frame:GetChildren() }) do LightDark(child, depth - 1) end
+end
+
 -- Character sheet, reputation, currency and the equipment manager.
 local SLOTS = { 'Head', 'Neck', 'Shoulder', 'Back', 'Chest', 'Shirt', 'Tabard', 'Wrist', 'Hands', 'Waist', 'Legs', 'Feet',
 	'Finger0', 'Finger1', 'Trinket0', 'Trinket1', 'MainHand', 'SecondaryHand' }
@@ -109,8 +143,26 @@ K.Register('spellbook', 'Blizzard_PlayerSpells', 'PlayerSpellsFrame', function(f
 	K.Window(frame)
 	if frame.TabSystem then K.Auto(frame.TabSystem) end
 	SpellBook(frame.SpellBookFrame)
-	-- Talents: the spec picture behind the tree stays, the bottom bar goes.
-	if frame.TalentsFrame then K.Hide(frame.TalentsFrame.BottomBar) end
+	-- Talents: the spec picture, its clouds and the bottom bar go, our body shows behind the tree.
+	local talents = frame.TalentsFrame
+	if talents then
+		for _, key in ipairs({ 'BottomBar', 'Background', 'OverlayBackgroundRight', 'OverlayBackgroundMid' }) do KeepHidden(talents[key]) end
+		for _, key in ipairs({ 'Clouds1', 'Clouds2', 'AirParticlesClose', 'AirParticlesFar' }) do K.Kill(talents[key]) end
+		-- Hero talents: the ornate backplates go, each state of the panel is a flat box.
+		local hero = talents.HeroTalentsContainer
+		if hero then
+			if hero.CurrencyFrame then K.Hide(hero.CurrencyFrame.Background) end
+			for _, key in ipairs({ 'ExpandedContainer', 'PreviewContainer', 'CollapsedContainer' }) do
+				local part = hero[key]
+				if part then
+					for _, art in ipairs({ 'Background', 'BlankNodes', 'HeroClassBackplateFullSheen', 'BackgroundTop', 'BackgroundBottom', 'BackgroundMiddle' }) do
+						K.Hide(part[art])
+					end
+					K.Box(part, K.INSET)
+				end
+			end
+		end
+	end
 	-- Specializations: the dark picture behind the three columns goes, our body shows.
 	if frame.SpecFrame then
 		K.Hide(frame.SpecFrame.Background)
@@ -186,6 +238,12 @@ K.Register('groupfinder', nil, 'PVEFrame', function(frame)
 	local list = _G.LFGListFrame
 	if list then
 		K.Auto(list)
+		local search, viewer = list.SearchPanel, list.ApplicationViewer
+		if search then
+			K.Square(search.RefreshButton)
+			K.Dropdown(search.FilterButton)
+		end
+		if viewer then K.Square(viewer.RefreshButton) end
 		local selection = list.CategorySelection
 		if selection then
 			for _, button in ipairs(selection.CategoryButtons or {}) do LFGCategory(button) end
@@ -249,12 +307,27 @@ local function DungeonIcons(challenges)
 	end
 end
 
+-- The season picture and the runes behind "This Week" are hidden again after every update.
+local function ChallengesArt(challenges)
+	KeepHidden(challenges.Background)
+	local child = challenges.WeeklyInfo and challenges.WeeklyInfo.Child
+	if child then
+		for _, key in ipairs({ 'RuneBG', 'RunesLarge', 'RunesSmall', 'LargeRuneGlow', 'SmallRuneGlow' }) do KeepHidden(child[key]) end
+	end
+end
+
 K.Register('groupfinder', 'Blizzard_ChallengesUI', 'ChallengesFrame', function(frame)
 	K.Strip(frame)
 	K.Inset(_G.ChallengesFrameInset)
 	K.Auto(frame)
+	ChallengesArt(frame)
 	DungeonIcons(frame)
-	if frame.Update then hooksecurefunc(frame, 'Update', DungeonIcons) end
+	if frame.Update then
+		hooksecurefunc(frame, 'Update', function(self)
+			ChallengesArt(self)
+			DungeonIcons(self)
+		end)
+	end
 end)
 
 -- Great Vault: flat rows, a gold line on the left of the unlocked slots.
@@ -413,6 +486,14 @@ end
 local function ActivityRow(row)
 	if not row.NormalTexture then return end
 	K.Hide(row.NormalTexture)
+	K.Hide(row.Ribbon)
+	K.Hide(row.RibbonStacked)
+	-- Completed activities: Blizzard writes their name and conditions in black.
+	local text = row.TextContainer
+	if text then
+		KeepLight(text.NameText, true)
+		KeepLight(text.ConditionsText, true)
+	end
 	local fill = K.Box(row, ROW, { 0, 1, 0, 1 })
 	local hl = row.HighlightTexture or row:GetHighlightTexture()
 	if hl then
@@ -431,6 +512,15 @@ local function TravelersLog(log)
 	if log.FilterList then
 		K.Hide(log.FilterList.Bg)
 		K.Box(log.FilterList, K.INSET)
+	end
+	-- The progress bar: its ornate frame goes, a dark field goes under the fill.
+	local bar = log.ThresholdContainer
+	if bar then
+		K.Hide(bar.BarBackground)
+		K.Hide(bar.BarBorder)
+		K.Kill(bar.BarBackgroundGlow)
+		K.Kill(bar.BarBorderGlow)
+		K.Box(bar, K.FIELD)
 	end
 	K.ScrollRows(log.ScrollBox, ActivityRow)
 	K.Auto(log)
@@ -600,13 +690,22 @@ local function AchievementCard(card)
 	if not card or K.Done(card, 'card') then return end
 	K.NoBackdrop(card)
 	for _, key in ipairs({ 'Background', 'BottomLeftTsunami', 'BottomRightTsunami', 'TopLeftTsunami', 'TopRightTsunami',
-		'BottomTsunami1', 'TopTsunami1', 'Glow', 'TitleBar', 'RewardBackground', 'GuildCornerL', 'GuildCornerR' }) do
+		'BottomTsunami1', 'TopTsunami1', 'Glow', 'RewardBackground', 'GuildCornerL', 'GuildCornerR' }) do
 		K.Hide(card[key])
 	end
+	-- The colored title banner: Blizzard sets its alpha again on every update.
+	KeepHidden(card.TitleBar)
 	if card.GetName and card:GetName() then K.Hide(_G[card:GetName() .. 'Background']) end
 	K.Box(card, ROW, { 2, 2, 2, 2 })
-	Light(card.Description)
-	Light(card.HiddenDescription)
+	KeepLight(card.Description)
+	KeepLight(card.HiddenDescription)
+	KeepLight(card.Reward, true)
+	if card.Label and card.Label.SetTextColor then KeepLight(card.Label) end
+end
+
+-- The criteria under an open achievement are drawn black by Blizzard.
+local function AchievementObjectives(objectives)
+	LightDark(objectives, 2)
 end
 
 local function AchievementRow(row)
@@ -707,6 +806,9 @@ K.Register('achievements', 'Blizzard_AchievementUI', 'AchievementFrame', functio
 	for i = 1, 12 do SummaryBar(_G['AchievementFrameSummaryCategoriesCategory' .. i]) end
 	SummaryAchievements()
 	if _G.AchievementFrameSummary_UpdateAchievements then hooksecurefunc('AchievementFrameSummary_UpdateAchievements', SummaryAchievements) end
+	for _, fn in ipairs({ 'AchievementObjectives_DisplayCriteria', 'AchievementObjectives_DisplayProgressiveAchievement' }) do
+		if _G[fn] then hooksecurefunc(fn, AchievementObjectives) end
+	end
 end)
 
 -- Friends, or BetterFriendlist's window when it is installed (both use the same Blizzard frame template).
@@ -866,6 +968,18 @@ K.Register('mail', nil, { 'MailFrame', 'OpenMailFrame' }, function(frame)
 	end
 end)
 
+-- The quest log's ornate frames (quest list, quest details, events): frame and filigree go.
+local function QuestBorders(frame, depth)
+	if not frame or not frame.GetChildren or depth <= 0 then return end
+	for _, child in ipairs({ frame:GetChildren() }) do
+		if child.Border and child.TopDetail then
+			K.Hide(child.Border)
+			K.Hide(child.TopDetail)
+		end
+		QuestBorders(child, depth - 1)
+	end
+end
+
 -- World map and quest log.
 -- The border frame lies above the map (strata HIGH), so it gets only edges and the header;
 -- the dark fill goes on the map window itself, under the map.
@@ -878,9 +992,12 @@ K.Register('map', nil, 'WorldMapFrame', function(frame)
 		if border.CloseButton then K.Close(border.CloseButton) end
 		local title = border.TitleContainer and border.TitleContainer.TitleText
 		if title then title:SetTextColor(K.TEXT[1], K.TEXT[2], K.TEXT[3]) end
+		K.Hide(border.InsetBorderTop)
 		K.Auto(border)
 	end
+	NavBar(frame.NavBar)
 	K.Auto(_G.QuestMapFrame)
+	QuestBorders(_G.QuestMapFrame, 4)
 end)
 
 -- Gossip and quest windows: the parchment goes and the text turns light.
@@ -1261,4 +1378,99 @@ for i = 1, 6 do table.insert(BAGS, 'ContainerFrame' .. i) end
 K.Register('bags', nil, BAGS, function(bag)
 	if C_AddOns.IsAddOnLoaded('BetterBags') then return end
 	Bag(bag)
+end)
+
+-- Housing Dashboard: the house pictures, the filigree corners and the wood signs go; the panels
+-- are flat boxes, the side tabs flat buttons with a gold film on the selected one.
+local function HousingTab(tab)
+	if not tab or K.Done(tab, 'housingtab') then return end
+	K.Hide(tab.Background)
+	K.Hide(tab.TabGlow)
+	local fill = K.Box(tab, K.BUTTON, { 2, 2, 2, 2 })
+	for _, key in ipairs({ 'SelectedTexture', 'HighlightTexture' }) do
+		local tex = tab[key]
+		if tex then
+			local c = key == 'SelectedTexture' and K.GOLD or { 1, 1, 1 }
+			tex:SetColorTexture(c[1], c[2], c[3], key == 'SelectedTexture' and 0.16 or 0.08)
+			tex:ClearAllPoints()
+			tex:SetAllPoints(fill)
+		end
+	end
+end
+
+local function HousingRewards(upgrade)
+	for _, pool in ipairs({ upgrade.rewardPoolLarge, upgrade.rewardPoolSmall }) do
+		if pool and pool.EnumerateActive then
+			for reward in pool:EnumerateActive() do
+				if not K.Done(reward, 'housingreward') then
+					K.Hide(reward.Background)
+					if reward.PortraitFrame then K.Hide(reward.PortraitFrame.Background) end
+					if reward.ValueIncreaseReward then K.Hide(reward.ValueIncreaseReward.Divider) end
+					K.Box(reward, ROW)
+				end
+			end
+		end
+	end
+end
+
+local function HousingTask(row)
+	if not row.BG then return end
+	K.Hide(row.BG)
+	K.Hide(row.BGAlphaAdd)
+	K.Box(row, ROW, { 0, 1, 0, 1 })
+end
+
+local function HousingInitiatives(initiatives)
+	if not initiatives then return end
+	local art = initiatives.InitiativesArt
+	if art then
+		K.Hide(art.InitiativesBG)
+		K.Strip(art.BorderArt)
+		K.Box(art, K.INSET)
+	end
+	local set = initiatives.InitiativeSetFrame
+	if not set then return end
+	if set.ProgressBar then
+		K.Hide(set.ProgressBar.BarBackground)
+		K.Box(set.ProgressBar, K.FIELD)
+	end
+	K.Strip(set.InitiativeActiveNeighborhoodSwitcher)
+	for _, key in ipairs({ 'InitiativeTasks', 'InitiativeActivity' }) do
+		local part = set[key]
+		if part then
+			K.Strip(part)
+			K.Strip(part.TaskListTitleContainer)
+			K.Strip(part.ActivityLogTitleContainer)
+		end
+	end
+	local tasks = set.InitiativeTasks
+	if tasks and tasks.TaskList then K.ScrollRows(tasks.TaskList, HousingTask) end
+end
+
+K.Register('housing', 'Blizzard_HousingDashboard', 'HousingDashboardFrame', function(frame)
+	K.Window(frame)
+	for _, key in ipairs({ 'HouseInfoTabButton', 'CatalogTabButton', 'CollectionTabButton' }) do HousingTab(frame[key]) end
+	for _, key in ipairs({ 'CatalogContent', 'CollectionContent' }) do
+		local content = frame[key]
+		if content then
+			K.Hide(content.Background)
+			K.Hide(content.Divider)
+			K.Box(content, K.INSET)
+		end
+	end
+	local info = frame.HouseInfoContent
+	if not info then return end
+	if info.DashboardNoHousesFrame then K.Hide(info.DashboardNoHousesFrame.Background) end
+	local content = info.ContentFrame
+	if not content then return end
+	local upgrade = content.HouseUpgradeFrame
+	if upgrade then
+		-- Background, the four filigree corners and the divider under the address.
+		K.Strip(upgrade)
+		K.Box(upgrade, K.INSET)
+		if upgrade.TrackFrame then K.Strip(upgrade.TrackFrame) end
+		HousingRewards(upgrade)
+		if upgrade.SetRewards then hooksecurefunc(upgrade, 'SetRewards', HousingRewards) end
+	end
+	HousingInitiatives(content.InitiativesFrame)
 end)

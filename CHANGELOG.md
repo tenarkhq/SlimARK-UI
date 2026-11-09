@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.0.4
+
+- **Group Finder:** the refresh button of the premade group list and the Filter button are flat like the other buttons; every dropdown has a thin grey arrow in place of Blizzard's yellow one
+- **Talents:** the spec picture, its clouds and the hero talent backplates are gone; the tree sits on the dark window body and the hero talent panel is a flat box
+- **Mythic+:** the dungeon picture and the runes behind "This Week" stay hidden after the tab updates
+- **World map:** the red bar with "World" is a flat dark bar with flat buttons; the ornate frame around the quest log and the quest details is gone
+- **Traveler's Log:** completed activities are readable (light grey instead of black), the red ribbons are gone and the progress bar sits in a flat dark field
+- **Achievements:** the gold and blue edges around the summary and the achievement cards are gone, the colored title banners stay hidden, and descriptions and criteria are light instead of black
+- **Housing dashboard:** new; the house picture, the filigree corners and the wood signs go, the panels are flat boxes and the side tabs flat buttons (own switch under Blizzard windows)
+
 ## 2.0.3
 
 - **Mail:** the parchment behind the inbox letters is gone, and so is the old bar under the sender and subject of an open letter

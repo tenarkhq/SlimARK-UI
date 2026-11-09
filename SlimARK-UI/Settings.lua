@@ -180,7 +180,7 @@ S.groups = {
 					W('Guild and calendar', 'guild'), W('Mail', 'mail'), W('World map', 'map'),
 					W('Quests and NPC talk', 'gossip'), W('Talking head', 'talkinghead'), W('Merchant and bank', 'merchant'),
 					W('Auction House and trade', 'auction'), W('Professions', 'professions'), W('Game menu and pop-ups', 'menu'),
-					W('Bags (without BetterBags)', 'bags'),
+					W('Bags (without BetterBags)', 'bags'), W('Housing dashboard', 'housing'),
 				} } } },
 		{ id = 'windows', name = 'Windows', module = 'modules.movers', desc = 'Move Blizzard windows by their title bar, resize them with Ctrl + mouse wheel.',
 			secs = { { name = 'Frame rate', rows = { R('FPS counter Y', 'fps.y', 0, 200) } } } },
@@ -221,7 +221,7 @@ S.changelog = {
 	} },
 	{ version = '2.0.0', lines = {
 		'Setup window: choose how Blizzard\'s windows look, Original or SlimARK. Change it any time under Interface: Blizzard windows',
-		'SlimARK windows: flat and dark with a thin black edge, a gold line on top and the SlimARK font. Character sheet, inspect, spellbook and talents, Group Finder and PvP, Great Vault, Adventure Guide, collections, achievements, friends (BetterFriendlist too), guild and calendar, mail, world map, quests and NPC talk, talking head, merchant and bank, Auction House and trade, professions, game menu, pop-ups and bags. Each window is dressed the first time you open it, one switch per window',
+		'SlimARK windows: flat and dark with a thin black edge, a gold line on top and the SlimARK font. Character sheet, inspect, spellbook and talents, Group Finder and PvP, Great Vault, Adventure Guide, collections, achievements, friends (BetterFriendlist too), guild and calendar, mail, world map, quests and NPC talk, talking head, merchant and bank, Auction House and trade, professions, game menu, pop-ups, bags and the housing dashboard. Each window is dressed the first time you open it, one switch per window',
 		'Combat text: floating numbers in the SlimARK font. Crits are twice the size, orange on your target, and land with a pop and shake; damage you take and heals you get beside your character, damage on your target while you are not in a group',
 		'Deleting a good item asks for a click on Confirm, with the item shown, instead of typing DELETE',
 		'BetterBags: the SlimARK theme has the gold line and the title on the left, like the new windows',

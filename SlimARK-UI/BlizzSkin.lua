@@ -136,8 +136,12 @@ end
 
 -- Blizzard's old backdrop art (BackdropTemplate: the wood and gold borders of the achievements,
 -- tooltip-style edges on rows) is cleared. Later SetBackdropBorderColor calls do nothing then.
+-- The newer tooltip-style templates draw the same edges with a NineSlice and a layoutType:
+-- that NineSlice is hidden.
 function K.NoBackdrop(frame)
-	if frame and frame.ClearBackdrop and frame.backdropInfo then frame:ClearBackdrop() end
+	if not frame then return end
+	if frame.ClearBackdrop and frame.backdropInfo then frame:ClearBackdrop() end
+	if frame.NineSlice and frame.layoutType then K.Hide(frame.NineSlice) end
 end
 
 -- The same for every frame under this one.
@@ -332,7 +336,24 @@ function K.Edit(box)
 	Box(box, FIELD, { -4, 2, 0, 2 })
 end
 
--- Dropdowns: a flat button look, the arrow stays.
+-- The thin arrows of the flat buttons, from Blizzard's square button sheet.
+local ARROWS = {
+	LEFT = { 0.234375, 0.421875, 0.015625, 0.203125 },
+	RIGHT = { 0.421875, 0.234375, 0.015625, 0.203125 },
+	DOWN = { 0.453125, 0.640625, 0.203125, 0.015625 },
+}
+local function Arrow(parent, dir, size)
+	local arrow = parent:CreateTexture(nil, 'ARTWORK', nil, 7)
+	arrow:SetTexture('Interface\\Buttons\\SquareButtonTextures')
+	local c = ARROWS[dir] or ARROWS.RIGHT
+	arrow:SetTexCoord(c[1], c[2], c[3], c[4])
+	arrow:SetSize(size or 12, size or 12)
+	return arrow
+end
+K.Arrow = Arrow
+
+-- Dropdowns: a flat button look with a thin grey arrow on the right. Blizzard's yellow arrow
+-- (and the filter dropdown's arrow, which is part of its background picture) goes.
 function K.Dropdown(dd)
 	if not dd or K.Done(dd, 'dropdown') then return end
 	K.Hide(dd.Background)
@@ -340,7 +361,33 @@ function K.Dropdown(dd)
 	K.Hide(dd.Left)
 	K.Hide(dd.Middle)
 	K.Hide(dd.Right)
-	Box(dd, BUTTON)
+	K.Hide(dd.Arrow)
+	local fill = Box(dd, BUTTON)
+	local arrow = Arrow(dd, 'DOWN', 10)
+	arrow:SetPoint('RIGHT', fill, 'RIGHT', -6, 0)
+	arrow:SetVertexColor(SOFT[1], SOFT[2], SOFT[3])
+	dd:HookScript('OnEnable', function() arrow:SetAlpha(1) end)
+	dd:HookScript('OnDisable', function() arrow:SetAlpha(0.35) end)
+	if dd.IsEnabled and not dd:IsEnabled() then arrow:SetAlpha(0.35) end
+end
+
+-- Blizzard's small square buttons (UI-SquareButton: the refresh buttons of Group Finder and
+-- others): the frame goes, a flat box comes, the icon stays. Returns the fill.
+function K.Square(button)
+	if not button or K.Done(button, 'square') then return button and button.slimSquare end
+	for _, key in ipairs({ 'GetNormalTexture', 'GetPushedTexture', 'GetDisabledTexture' }) do
+		local tex = button[key] and button[key](button)
+		if tex then K.Hide(tex) end
+	end
+	local fill = Box(button, BUTTON, { 4, 4, 4, 4 })
+	local hl = button.GetHighlightTexture and button:GetHighlightTexture()
+	if hl then
+		hl:SetColorTexture(1, 1, 1, 0.08)
+		hl:ClearAllPoints()
+		hl:SetAllPoints(fill)
+	end
+	button.slimSquare = fill
+	return fill
 end
 
 -- Item buttons: icon cropped, Blizzard's border replaced by a one-pixel edge in the
@@ -432,26 +479,11 @@ end
 
 -- The round page arrows Blizzard took from the old spellbook (mail, merchant, books, calendar,
 -- collections, paged lists): a flat square with a thin arrow; dimmed while it cannot be used.
-local ARROWS = {
-	LEFT = { 0.234375, 0.421875, 0.015625, 0.203125 },
-	RIGHT = { 0.421875, 0.234375, 0.015625, 0.203125 },
-}
 function K.Pager(button, dir)
 	if not button or K.Done(button, 'pager') then return end
-	for _, tex in ipairs({ button:GetNormalTexture(), button:GetPushedTexture(), button:GetDisabledTexture() }) do K.Hide(tex) end
-	local fill = Box(button, BUTTON, { 4, 4, 4, 4 })
-	local arrow = button:CreateTexture(nil, 'ARTWORK')
-	arrow:SetTexture('Interface\\Buttons\\SquareButtonTextures')
-	local c = ARROWS[dir] or ARROWS.RIGHT
-	arrow:SetTexCoord(c[1], c[2], c[3], c[4])
-	arrow:SetSize(12, 12)
+	local fill = K.Square(button)
+	local arrow = Arrow(button, dir)
 	arrow:SetPoint('CENTER', fill, 'CENTER')
-	local hl = button:GetHighlightTexture()
-	if hl then
-		hl:SetColorTexture(1, 1, 1, 0.08)
-		hl:ClearAllPoints()
-		hl:SetAllPoints(fill)
-	end
 	local function State(self)
 		local on = self:IsEnabled()
 		arrow:SetDesaturated(not on)
@@ -489,8 +521,12 @@ local function Classify(child)
 			return
 		end
 		if child.IconBorder then K.Item(child) return end
+		if child.GetParentKey and child:GetParentKey() == 'RefreshButton' and child:GetNormalTexture() then K.Square(child) return end
 	end
 	if kind == 'DropdownButton' or child.Arrow and child.Background and kind ~= 'Frame' then K.Dropdown(child) return end
+	-- The filter dropdown has no Arrow: its arrow is drawn in the background atlas.
+	local bg = child.Background
+	if kind ~= 'Frame' and bg and bg.GetAtlas and (bg:GetAtlas() or ''):find('^common%-dropdown') then K.Dropdown(child) return end
 	if child.NineSlice and child.Bg and (child.layoutType or (name and name:find('Inset$'))) then K.Inset(child) end
 	if name and name:find('Inset$') and child.NineSlice then K.Inset(child) end
 end

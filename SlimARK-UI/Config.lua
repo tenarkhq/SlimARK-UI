@@ -91,7 +91,7 @@ ns.C = {
 		character = true, inspect = true, spellbook = true, groupfinder = true, vault = true,
 		journal = true, collections = true, achievements = true, friends = true, guild = true,
 		mail = true, map = true, gossip = true, talkinghead = true, merchant = true, auction = true,
-		professions = true, menu = true, bags = true,
+		professions = true, menu = true, bags = true, housing = true,
 	},
 
 	-- Floating combat text (2.0), off until the player switches it on (2.0.1). crit: 'impact' (lands with a pop and shake) or 'bigger'.
