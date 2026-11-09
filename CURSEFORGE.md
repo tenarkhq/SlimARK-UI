@@ -217,7 +217,7 @@ New in 2.0, off by default: switch it on under Combat: Combat text if you want i
 
 ## Action bars
 
-![Action bars](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/42516eb7c703a71fccf65aafc69dd02b9846fc88/assets/feature-actionbars.png)
+![Action bars](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/dfc112a0890ede41d6c9525938a84ad5cd9fce5b/assets/feature-actionbars.png)
 
 - Square buttons with a thin black border and flat states: a light layer on mouse-over, a dark one while pressed, a thin gold edge on an active aura, stance or auto attack
 - **Procs** get a gold edge in place of the spinning glow; Blizzard's assisted highlight becomes a turquoise edge
