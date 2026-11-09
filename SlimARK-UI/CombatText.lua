@@ -1,8 +1,9 @@
 local addonName, ns = ...
 local C = ns.C
 
--- Floating combat text in the SlimARK look (2.0, on by default, independent of the Blizzard
--- windows choice). Crits stand apart: twice the size, a stronger color (orange on the target), they land with a pop and shake,
+-- Floating combat text in the SlimARK look (2.0, off by default from 2.0.1: the player switches it
+-- on, independent of the Blizzard windows choice). While it is off, nothing here runs and the
+-- game's own numbers stay as they were. Crits stand apart: twice the size, a stronger color (orange on the target), they land with a pop and shake,
 -- and stay up longer. The source is the game's UNIT_COMBAT event: its kind and the crit flag
 -- are always readable, the amount can be secret (boss fights, Mythic+) and is then shown
 -- as the game gives it, without arithmetic.

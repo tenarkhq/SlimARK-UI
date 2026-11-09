@@ -98,7 +98,7 @@ S.groups = {
 			secs = { { name = 'Place', rows = { Choice('Place', 'markers.place', { { 'map', 'Under the minimap' }, { 'party', 'Next to the party frames' } }) } },
 				{ name = 'Buttons', rows = { R('Button size', 'markers.size', 20, 44), R('Gap', 'markers.gap', 0, 10) } } } },
 		{ id = 'combattext', name = 'Combat text', module = 'modules.combattext',
-			desc = 'Floating numbers in the SlimARK font: damage you take left of your character, heals on you further left, and damage on your target above the middle while you are not in a group. Crits are twice the size, orange on your target, and land with a pop and shake. In a group the game only tells addons the damage your target takes from everyone, so there your own hits stay the game\'s numbers, in the SlimARK font.',
+			desc = 'Off by default, switch it on here. Floating numbers in the SlimARK font: damage you take left of your character, heals on you further left, and damage on your target above the middle while you are not in a group. Crits are twice the size, orange on your target, and land with a pop and shake. In a group the game only tells addons the damage your target takes from everyone, so there your own hits stay the game\'s numbers, in the SlimARK font.',
 			secs = { { name = 'Crits', rows = { Choice('Crit look', 'combattext.crit', { { 'impact', 'Impact: lands with a pop and shake' }, { 'bigger', 'Bigger only' } }) } },
 				{ name = 'Numbers', rows = { R('Size (%)', 'combattext.size', 50, 200, 10), T('Damage on your target when solo', 'combattext.target'),
 					T('Damage you take', 'combattext.incoming'), T('Heals you get', 'combattext.heals') } },
@@ -216,6 +216,9 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.0.1', lines = {
+		'Combat text is off by default: the game\'s own numbers stay until you switch it on under Combat: Combat text',
+	} },
 	{ version = '2.0.0', lines = {
 		'Setup window: choose how Blizzard\'s windows look, Original or SlimARK. Change it any time under Interface: Blizzard windows',
 		'SlimARK windows: flat and dark with a thin black edge, a gold line on top and the SlimARK font. Character sheet, inspect, spellbook and talents, Group Finder and PvP, Great Vault, Adventure Guide, collections, achievements, friends (BetterFriendlist too), guild and calendar, mail, world map, quests and NPC talk, talking head, merchant and bank, Auction House and trade, professions, game menu, pop-ups and bags. Each window is dressed the first time you open it, one switch per window',

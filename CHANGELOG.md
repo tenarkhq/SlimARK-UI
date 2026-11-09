@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- **Combat text:** off by default. The game's own numbers stay as they are; switch the SlimARK combat text on under Combat: Combat text if you want it. If 2.0.0 had switched it on for you, the game's numbers come back exactly as you had them
+
 ## 2.0.0
 
 - **Setup window:** after the update a window asks how Blizzard's windows should look: **Original** leaves them alone, **SlimARK** dresses them in the look of the rest of the UI. Nothing is picked for you; Apply now works once you choose, Later asks again at the next login. Change it any time under Interface: Blizzard windows

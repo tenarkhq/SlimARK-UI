@@ -2,14 +2,14 @@
 
 **A slim, clean and fast interface for World of Warcraft Retail (Midnight) and WoW Forever.**
 
-SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking, group frames, tooltip, loot pop-ups and combat text with one consistent, sharp look, and if you want, Blizzard's own windows too: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF and runs on events only, so it stays light: the crisp ElvUI style without ElvUI's pile of extras and twenty helper addons next to it.
+SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown tracking, group frames, tooltip, loot pop-ups and, if you switch it on, combat text with one consistent, sharp look, and if you want, Blizzard's own windows too: flat dark bars, thin black edges, one readable font, and nothing on screen that you do not need in a fight. It is built from scratch on oUF and runs on events only, so it stays light: the crisp ElvUI style without ElvUI's pile of extras and twenty helper addons next to it.
 
 One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
 
 ## Highlights
 
 - **New in 2.0, Blizzard windows in the SlimARK look:** character sheet, spellbook, Group Finder, Great Vault, map, mail, merchant, Auction House and every other game window, flat and dark. Your choice at the first login: Original or SlimARK
-- **New in 2.0, combat text:** floating numbers in the SlimARK font, crits twice the size with a pop and a shake
+- **New in 2.0, combat text:** floating numbers in the SlimARK font, crits twice the size with a pop and a shake. Off by default, one switch turns it on
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
 - **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
@@ -204,7 +204,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 ## Combat text
 
-New in 2.0, on by default. Floating numbers in the SlimARK font, with crits you cannot miss.
+New in 2.0, off by default: switch it on under Combat: Combat text if you want it. Floating numbers in the SlimARK font, with crits you cannot miss.
 
 ![Combat text](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/v2.0.0/assets/feature-combattext.png)
 

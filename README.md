@@ -40,7 +40,7 @@ The pictures show the SlimARK look as drawn from the addon's design.
 
 - Settings panel (`/slimark`, the SlimARK icon on the top bar, or Options > AddOns): every element's position, size, font, colors and on/off switch, with a reset per value, per page or for everything
 - Blizzard windows in the SlimARK look (2.0), chosen in the setup window: Original or SlimARK, one switch per window, each dressed on its first open; BetterFriendlist's window too, BetterBags keeps its own skin
-- Combat text (2.0): SlimARK numbers, crits twice the size with a pop and shake; your target's damage while not in a group
+- Combat text (2.0, off by default): SlimARK numbers, crits twice the size with a pop and shake; your target's damage while not in a group
 - Delete confirmation (2.0): a Confirm button instead of typing DELETE
 - Unit frames, party and raid frames, boss frames
 - Two layouts that switch with your spec: DPS and tank share one, healers get a grid of group frames above the action bars
