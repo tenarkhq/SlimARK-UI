@@ -387,16 +387,33 @@ local function ClockTooltip(self)
 end
 
 local function CharKey()
-	return (GetRealmName() or '?') .. '|' .. (UnitName('player') or '?')
+	local guid = UnitGUID('player')
+	if guid and not issecretvalue(guid) then return guid end
+end
+
+local function GoldStore()
+	if not ns.DB then return {} end
+	ns.DB.gold = ns.DB.gold or {}
+	for key, data in pairs(ns.DB.gold) do
+		-- Keep old offline balances visible, but their names cannot prove a character's identity
+		-- after a rename. They are excluded from the total until that character next logs in.
+		local realm, name = key:match('^(.-)|(.+)$')
+		if realm then data.realm, data.name, data.legacy = realm, name, true end
+	end
+	return ns.DB.gold
 end
 
 local function UpdateGold()
 	if not seg.gold then return end
 	local money = GetMoney()
 	sessionMoney = sessionMoney or money
-	if ns.DB then
-		ns.DB.gold = ns.DB.gold or {}
-		ns.DB.gold[CharKey()] = { money = money, class = select(2, UnitClass('player')) }
+	local key = CharKey()
+	if ns.DB and key then
+		local store = GoldStore()
+		local name, realm = UnitName('player'), GetRealmName()
+		store[(realm or '?') .. '|' .. (name or '?')] = nil
+		store[key] = { money = money, class = select(2, UnitClass('player')),
+			name = name, realm = realm, updatedAt = GetServerTime() }
 	end
 	local text = Colored(GOLD, BreakUpLargeNumbers(math.floor(money / 10000)) .. 'g')
 	local delta = math.floor((money - sessionMoney) / 10000)
@@ -411,25 +428,51 @@ local function GoldTooltip(self)
 	GameTooltip:AddLine('Gold')
 	local realm = GetRealmName()
 	local total, list = 0, {}
-	for key, data in pairs(ns.DB and ns.DB.gold or {}) do
-		local r, name = key:match('^(.-)|(.+)$')
-		if r == realm then
-			table.insert(list, { name = name, money = data.money, class = data.class })
-			total = total + data.money
+	for _, data in pairs(GoldStore()) do
+		if data.realm == realm then
+			table.insert(list, data)
+			if not data.legacy then total = total + data.money end
 		end
 	end
 	table.sort(list, function(a, b) return a.money > b.money end)
 	for _, c in ipairs(list) do
 		local color = RAID_CLASS_COLORS[c.class] or NORMAL_FONT_COLOR
 		GameTooltip:AddDoubleLine(c.name, GetMoneyString(c.money, true), color.r, color.g, color.b, 1, 1, 1)
+		if c.legacy then
+			GameTooltip:AddLine('Legacy snapshot; last seen unknown; excluded from total', 0.6, 0.6, 0.6)
+		else
+			local stale = GetServerTime() - c.updatedAt > 30 * 86400 and ' (over 30 days old)' or ''
+			GameTooltip:AddLine('Last seen: ' .. date('%Y-%m-%d %H:%M', c.updatedAt) .. stale, 0.6, 0.6, 0.6)
+		end
 	end
-	GameTooltip:AddDoubleLine('Total', GetMoneyString(total, true), 0.95, 0.72, 0.29, 1, 1, 1)
+	GameTooltip:AddDoubleLine('Saved realm total', GetMoneyString(total, true), 0.95, 0.72, 0.29, 1, 1, 1)
+	GameTooltip:AddLine('Offline balances are snapshots and may have changed.', 0.6, 0.6, 0.6)
 	local delta = GetMoney() - (sessionMoney or GetMoney())
 	if delta ~= 0 then
 		GameTooltip:AddDoubleLine('This session', (delta < 0 and '-' or '+') .. GetMoneyString(math.abs(delta), true), 0.6, 0.6, 0.6, 1, 1, 1)
 	end
-	GameTooltip:AddLine('Click: bags', 0.6, 0.6, 0.6)
+	GameTooltip:AddLine('Click: bags; right click: remove saved characters', 0.6, 0.6, 0.6)
 	GameTooltip:Show()
+end
+
+local function GoldClick(self, button)
+	if button ~= 'RightButton' then ToggleAllBags() return end
+	MenuUtil.CreateContextMenu(self, function(_, root)
+		root:CreateTitle('Remove a saved gold snapshot')
+		local current, store, list = CharKey(), GoldStore(), {}
+		for key, data in pairs(store) do
+			if key ~= current then list[#list + 1] = { key = key, data = data } end
+		end
+		table.sort(list, function(a, b) return a.key < b.key end)
+		for _, entry in ipairs(list) do
+			local key = entry.key
+			root:CreateButton(entry.data.name .. ' (' .. entry.data.realm .. ')', function()
+				store[key] = nil
+				GoldTooltip(self)
+			end)
+		end
+		if #list == 0 then root:CreateTitle('No other saved characters') end
+	end)
 end
 
 local function UpdateItemLevel()
@@ -610,7 +653,7 @@ local function Build()
 		seg.clock = s
 	end
 
-	if show.gold then Add(rightChain, 'gold', true, GoldTooltip, function() ToggleAllBags() end) end
+	if show.gold then Add(rightChain, 'gold', true, GoldTooltip, GoldClick) end
 	if show.itemLevel then
 		Add(rightChain, 'itemLevel', true, function(self)
 			Tooltip(self)
@@ -620,13 +663,13 @@ local function Build()
 			GameTooltip:Show()
 		end, function() ToggleCharacter('PaperDollFrame') end)
 	end
-	if show.keystone and C_MythicPlus and C_ChallengeMode then
+	if not ns.isForever and show.keystone and C_MythicPlus and C_ChallengeMode then
 		local key
 		key = Add(rightChain, 'keystone', true, KeystoneTooltip, function()
 			if ns.ToggleTeleports then ns.ToggleTeleports(key, bar) end
 		end)
 	end
-	if show.vault and C_WeeklyRewards then Add(rightChain, 'vault', true, VaultTooltip, OpenVault) end
+	if not ns.isForever and show.vault and C_WeeklyRewards then Add(rightChain, 'vault', true, VaultTooltip, OpenVault) end
 	if show.autoQuest and C.features.autoQuest then
 		Add(rightChain, 'autoQuest', true, function(self)
 			Tooltip(self)
@@ -674,7 +717,7 @@ ns.On('PLAYER_LOGIN', function()
 		UpdateClock()
 		UpdateQueue()
 	end)
-	if C_MythicPlus and C_MythicPlus.RequestMapInfo then C_MythicPlus.RequestMapInfo() end
+	if not ns.isForever and C_MythicPlus and C_MythicPlus.RequestMapInfo then C_MythicPlus.RequestMapInfo() end
 end)
 
 local function On(events, fn)

@@ -8,12 +8,13 @@
 - Group frames keep a Blizzard fallback when their SlimARK replacement is disabled; the aggro edge uses the current unit. The test player's role is preserved.
 - Tooltip and ready check use current Retail/PTR/Forever APIs. Ready check fits every class-buff row, and its item buttons are hidden before combat starts.
 - Consumable recognition uses item and spell identity across client languages. Effect learning no longer stores a nearby unrelated buff as an item effect, and failed item-data requests remain retryable.
+- Temporary effect estimates carry a question mark and are not learned. Older unverified effect mappings are cleared once; verified item spell IDs are retained.
 - A Mythic+ preview stops before a real run. Already completed bosses have no invented kill time after reload, and a delayed keystone link can still be announced. Forever does not build unsupported Mythic+/vault widgets.
 - Action bars return at combat start without needing a target. Interrupt attribution avoids naming the wrong player from an unrelated recent kick.
 - Turning off Vendor stops its automatic sale and repair too. Junk-sale messages do not treat other money changes as sale proceeds, and bursts of item data do not repeatedly process the full merchant list.
 - Disabled Group Finder automation preserves manual roles. Directly opened low-level quests are skipped, and a different cinematic in a previously visited zone is not treated as already seen.
 - Cinematics play by default. Skipping by place is a separate opt-in setting with a warning that it can skip new scenes; movies are still remembered by their ID.
-- Gold snapshots can distinguish a renamed character and remove stale character entries.
+- Gold snapshots follow a renamed character, show the last update and allow manual removal. Older unidentified snapshots remain visible outside the total until that character next logs in.
 - Added regression checks and release-package validation; unused upstream oUF developer tools are excluded from the installable package.
 
 ## 2.1.0

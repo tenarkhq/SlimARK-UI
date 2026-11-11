@@ -42,7 +42,11 @@ end
 
 local function You()
 	local _, class = UnitClass('player')
-	local _, role = ns.SpecInfo and ns.SpecInfo()
+	local role
+	if ns.SpecInfo then
+		local _
+		_, role = ns.SpecInfo()
+	end
 	if ns.healer then role = 'HEALER' elseif role == 'HEALER' then role = 'DAMAGER' end
 	return { name = UnitName('player'), class = class, role = role or 'DAMAGER', hp = 100 }
 end
@@ -408,6 +412,9 @@ end
 
 -- Combat ends it while that is still allowed; the frames go back to the spec's layout.
 ns.On('PLAYER_REGEN_DISABLED', function()
+	if state.mode ~= 'off' then ns.SetTestMode('off') end
+end)
+ns.On('CHALLENGE_MODE_START', function()
 	if state.mode ~= 'off' then ns.SetTestMode('off') end
 end)
 -- A real group, a moved frame or a new scale: the made-up frames are drawn again.

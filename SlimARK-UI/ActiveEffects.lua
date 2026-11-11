@@ -8,14 +8,15 @@ local cfg = C.effects
 -- In combat the game hides most aura data (spell ID, name), but the aura instance ID and its
 -- duration object stay usable. So an effect is recognized in three ways:
 --   1. its spell ID or name, when readable (out of combat, or an aura the game leaves open);
---   2. the first new buff right after a trinket or potion use (the use itself is seen from the
---      cast event or from the item's cooldown starting);
---   3. spell IDs learned by the first two, kept in SlimARKDB for later fights.
+--   2. a new buff right after an item use, as a temporary estimate marked with '?';
+--   3. item use spell IDs verified by C_Item.GetItemSpell, kept for later fights.
+-- Name matches and timing guesses never teach a permanent spell ID.
 -- A trinket that procs by itself has no use event, so it shows only through 1 and 3.
 
 local SLOTS = { 13, 14 }
 local CAST_WINDOW = 1
 local POTION = Enum.ItemConsumableSubclass and Enum.ItemConsumableSubclass.Potion or 1
+local MAX_LOAD_ATTEMPTS = 3
 
 local entries = {}
 local recent = {}
@@ -27,8 +28,10 @@ end
 
 local function Learned()
 	if not ns.DB then return { potions = {} } end
-	ns.DB.effectBuffs = ns.DB.effectBuffs or {}
-	ns.DB.effectBuffs.potions = ns.DB.effectBuffs.potions or {}
+	-- Older entries mixed verified IDs with timing guesses, so none can be trusted on migration.
+	if not ns.DB.effectBuffs or ns.DB.effectBuffs.version ~= 2 then
+		ns.DB.effectBuffs = { version = 2, potions = {} }
+	end
 	return ns.DB.effectBuffs
 end
 
@@ -62,6 +65,10 @@ local function CreateIcon(parent)
 	f.Time = ns.Text(f, cfg.font, 'CENTER')
 	f.Time:SetPoint('TOP', bar, 'BOTTOM', 0, -2)
 	f.Time:SetTextColor(gold[1], gold[2], gold[3])
+	f.Estimate = ns.Text(f, cfg.font, 'RIGHT')
+	f.Estimate:SetPoint('TOPRIGHT', -1, -1)
+	f.Estimate:SetText('?')
+	f.Estimate:Hide()
 	f.binding = C_DurationUtil.CreateDurationTextBinding()
 	f.binding:SetFormatter(formatter)
 	f.binding:SetFontString(f.Time)
@@ -87,32 +94,24 @@ end
 
 local function Clear(e)
 	e.instance = nil
+	e.estimated = nil
 	e.f.binding:SetEnabled(false)
 	Layout()
 end
 
-local function Show(e, instance, icon)
+local function Show(e, instance, icon, estimated)
 	local ok, duration = pcall(C_UnitAuras.GetAuraDuration, 'player', instance)
 	if not ok or not duration then return false end
 	e.instance, e.castAt, e.shownAt = instance, nil, GetTime()
+	e.estimated = estimated == true
 	local f = e.f
+	f.Estimate:SetShown(e.estimated)
 	f.Icon:SetTexture(icon or e.texture)
 	f.Bar:SetTimerDuration(duration, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
 	f.binding:SetDuration(duration)
 	f.binding:SetEnabled(true)
 	Layout()
 	return true
-end
-
-local function Learn(e, id)
-	if not id or e.ids[id] then return end
-	e.ids[id] = true
-	local store = Learned()
-	if e.kind == 'potion' then
-		store.potions[id] = true
-	elseif e.item then
-		store[e.item] = id
-	end
 end
 
 -- The icon of the effect: the aura's own when readable, otherwise the item's.
@@ -123,26 +122,31 @@ end
 
 local function SetupTrinket(e)
 	local item = GetInventoryItemID('player', e.slot)
-	if item ~= e.item then e.loaded = nil end
+	if item ~= e.item then e.requested, e.attempts = nil, 0 end
 	e.item, e.ids, e.names = item, {}, {}
 	e.texture = GetInventoryItemTexture('player', e.slot)
 	e.enabled = cfg.trinkets and item ~= nil
-	if not item then return end
+	if not item then e.loaded = false return end
 	local spellName, spellID = C_Item.GetItemSpell(item)
 	-- Right after login the item data may not be loaded yet; it is read again when it arrives.
 	-- A trinket may have no spell at all, so "loaded" comes from the item cache, and the
-	-- data is requested once per item: the request can fire its result event at once.
-	e.loaded = e.loaded or C_Item.IsItemDataCachedByID(item)
-	if not e.loaded and e.requested ~= item then
-		e.requested = item
-		C_Item.RequestLoadItemDataByID(item)
+	-- requests have a bounded retry count; a request can fire its result event at once.
+	e.loaded = C_Item.IsItemDataCachedByID(item) == true
+	if e.loaded then e.requested = nil end
+	if Readable(spellID) then
+		e.ids[spellID] = true
+		Learned()[item] = spellID
 	end
-	if spellID then e.ids[spellID] = true end
 	if spellName then e.names[spellName] = true end
 	local itemName = C_Item.GetItemNameByID(item)
 	if itemName then e.names[itemName] = true end
 	local learned = Learned()[item]
 	if learned then e.ids[learned] = true end
+	-- Request last: the result event can run synchronously and rebuild these fields.
+	if not e.loaded and e.requested ~= item and (e.attempts or 0) < MAX_LOAD_ATTEMPTS then
+		e.requested, e.attempts = item, (e.attempts or 0) + 1
+		C_Item.RequestLoadItemDataByID(item)
+	end
 end
 
 local function SetupPotion(e)
@@ -156,9 +160,10 @@ local function SetupPotion(e)
 				local _, _, _, _, _, classID, subclass = C_Item.GetItemInfoInstant(info.itemID)
 				if classID == Enum.ItemClass.Consumable and subclass == POTION then
 					local name, id = C_Item.GetItemSpell(info.itemID)
-					if id then
+					if Readable(id) then
 						e.ids[id] = true
 						e.icons[id] = info.iconFileID
+						Learned().potions[id] = true
 					end
 					if name then e.names[name] = true end
 					table.insert(e.items, info.itemID)
@@ -189,20 +194,20 @@ local function ClassAura(instance)
 	return false
 end
 
--- Which entry a new aura belongs to, and a spell ID to learn when the match came another way.
+-- Only an item spell ID is exact; name matches and temporal matches remain estimates.
 local function Match(aura, now)
 	local id, name = aura.spellId, aura.name
 	local idOk, nameOk = Readable(id), Readable(name)
 	for _, e in ipairs(entries) do
 		if e.enabled then
 			if idOk and e.ids[id] then return e end
-			if nameOk and e.names[name] then return e, idOk and id or nil end
+			if nameOk and e.names[name] then return e, true end
 		end
 	end
 	if ClassAura(aura.auraInstanceID) then return end
 	for _, e in ipairs(entries) do
 		if e.enabled and e.castAt and now - e.castAt <= CAST_WINDOW then
-			return e, idOk and id or nil
+			return e, true
 		end
 	end
 end
@@ -253,7 +258,7 @@ local function OnAura(info)
 		-- A refreshed effect gets its new duration.
 		for _, instance in ipairs(info.updatedAuraInstanceIDs) do
 			local e = Readable(instance) and Owner(instance)
-			if e then Show(e, instance, e.f.Icon:GetTexture()) end
+			if e then Show(e, instance, e.f.Icon:GetTexture(), e.estimated) end
 		end
 	end
 	if info.addedAuras then
@@ -261,10 +266,9 @@ local function OnAura(info)
 			local helpful = aura.isHelpful
 			local instance = aura.auraInstanceID
 			if Readable(instance) and (not Readable(helpful) or helpful) then
-				local e, learn = Match(aura, now)
+				local e, estimated = Match(aura, now)
 				if e then
-					Learn(e, learn)
-					Show(e, instance, IconFor(e, aura, e.castSpell))
+					Show(e, instance, IconFor(e, aura, e.castSpell), estimated)
 				else
 					table.insert(recent, { instance = instance, time = now, aura = aura })
 				end
@@ -301,8 +305,8 @@ local function Used(e, now, spellID)
 		if now - r.time <= CAST_WINDOW and not ClassAura(r.instance) then
 			table.remove(recent, i)
 			local id = r.aura.spellId
-			Learn(e, Readable(id) and id or nil)
-			Show(e, r.instance, IconFor(e, r.aura, spellID))
+			local exact = Readable(id) and e.ids[id]
+			Show(e, r.instance, IconFor(e, r.aura, spellID), not exact)
 			return
 		end
 	end
@@ -340,10 +344,8 @@ ns.On('PLAYER_LOGIN', function()
 
 	for i, slot in ipairs(SLOTS) do
 		entries[i] = { kind = 'trinket', slot = slot, ids = {}, names = {}, f = CreateIcon(holder) }
-		SetupTrinket(entries[i])
 	end
 	entries[3] = { kind = 'potion', ids = {}, names = {}, items = {}, f = CreateIcon(holder) }
-	SetupPotion(entries[3])
 
 	local watch = CreateFrame('Frame')
 	watch:RegisterUnitEvent('UNIT_AURA', 'player')
@@ -366,18 +368,31 @@ ns.On('PLAYER_LOGIN', function()
 	end)
 	ns.On('BAG_UPDATE_DELAYED', function() SetupPotion(entries[3]) end)
 	-- Item data that was not loaded at login.
-	ns.On('ITEM_DATA_LOAD_RESULT', function(_, itemID)
+	ns.On('ITEM_DATA_LOAD_RESULT', function(_, itemID, success)
 		for _, e in ipairs(entries) do
 			if e.kind == 'trinket' and e.item == itemID and not e.loaded then
-				e.loaded = true
-				SetupTrinket(e)
+				e.requested = nil
+				if success and C_Item.IsItemDataCachedByID(itemID) then
+					SetupTrinket(e)
+					FullCheck()
+				elseif (e.attempts or 0) < MAX_LOAD_ATTEMPTS then
+					C_Timer.After(1, function()
+						if e.item == itemID and not e.loaded then SetupTrinket(e) end
+					end)
+				end
 			end
 		end
 	end)
 	ns.On('PLAYER_ENTERING_WORLD', function()
 		for _, e in ipairs(entries) do
-			if e.kind == 'trinket' and not e.loaded then SetupTrinket(e) end
+			if e.kind == 'trinket' and not e.loaded then
+				e.attempts = 0
+				SetupTrinket(e)
+			end
 		end
 	end)
+	-- Register the result handler before requesting: cached requests may answer immediately.
+	for i = 1, #SLOTS do SetupTrinket(entries[i]) end
+	SetupPotion(entries[3])
 	FullCheck()
 end)

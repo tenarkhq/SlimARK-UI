@@ -209,7 +209,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 - Slim countdown bars with your spec's own important cooldowns, for all 13 classes
 - While a spell's effect is up, like the wings, its bar counts the effect down first with a gold frame, then shows the cooldown
-- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself
+- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself. A "?" marks an estimate from a name or a recent item use; estimates are not remembered for later fights
 - A bar updates only when its own spell changes, so busy fights cost almost nothing
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing
@@ -250,7 +250,7 @@ The game's own floating combat text uses the SlimARK font, so the numbers match 
 - Key level and dungeon name, deaths and the time they cost
 - Timer with the +3 and +2 marks and the time left for each
 - Enemy forces to two decimals, with the raw count
-- One line per boss with its kill time
+- One line per boss with its observed kill time. After a reload, a boss already killed has a checkmark when its time is unknown
 - The quest tracker steps aside for the whole key, even if the game tries to bring it back in combat, and returns when the key ends
 - **Keystone:** your keystone goes into the Font of Power the moment you open it
 - After a run your new keystone is posted to the party as a link, as soon as the game allows addon chat again
@@ -301,7 +301,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 - **Clock:** a click opens the calendar, a right click the stopwatch and alarm. It turns gold when a calendar invite is waiting. The tooltip shows local and realm time
 
 **Right side**
-- **Gold:** your gold and what you earned or spent this session. The tooltip lists the gold of your characters on the realm and the total; a click opens your bags
+- **Gold:** your gold and what you earned or spent this session. The tooltip lists dated character snapshots and their saved realm total, with older balances labelled. Renaming a character updates its existing entry. Older snapshots whose character identity is unverified stay visible but are excluded from the total until that character next logs in. A click opens your bags; right click removes an offline or deleted character's snapshot
 - **Item level** of your equipped gear
 - **Keystone:** your Mythic+ key, for example "Voidscar Arena +12". **A click opens the teleport list:** the dungeons of the current season that you have learned the teleport for (by timing a +10 there), your key's dungeon first, each with its cooldown. One click teleports you, no digging in the spellbook, the action bars or the dungeon journal. Dungeons you have no teleport for are not listed
 - **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault
@@ -429,6 +429,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 - Event driven: frames update only when their data changes. The only timers: the top bar's FPS, latency, clock and queue time once a second, the coordinates while the minimap is shown, the Mythic+ clock while a key runs, and the ready check countdown while the window is open. The action bar fade has no timer: the mouse over a button wakes it
 - Bursts of spell, talent and bag events are handled once instead of many times
+- Item-data failures and a delayed keystone use bounded retries; no permanent background polling is added
 - Parts you switch off do nothing at all, and panels that are not shown, such as the character sheet overlay, do no work
 - Blizzard windows are dressed once, the first time each one opens; with the Original look that code never runs.
 
@@ -436,7 +437,7 @@ SlimARK-UI is written to stay out of your frame time:
 
 - The layout fits itself to your screen: it is drawn for 2560×1600 and scales automatically on 1080p, 1440p, ultrawide and 4K. Screen edges stay at the edges, everything around your character stays in the middle. Sizes can still be changed in `/slimark` and frames dragged in Edit Mode.
 - Made for Midnight's addon rules: it works with the protected values the game uses in combat.
-- **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel and the keystone of the top bar stay off. Details!, the boss mods and the other skinned addons need their own Forever versions.
+- **WoW Forever:** the same download loads there too. Switch on the Cooldown Manager in the game options for the cooldown bars and the trinket icons. Forever has no Mythic+, so the Mythic+ panel, keystone helpers and top-bar keystone and Great Vault stay off. Details!, the boss mods and the other skinned addons need their own Forever versions.
 - Found a bug? Open an issue on [GitHub](https://github.com/tenarkhq/SlimARK-UI/issues) and include the BugSack text.
 
 ## Credits

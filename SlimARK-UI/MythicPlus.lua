@@ -11,8 +11,14 @@ local MAX_BOSSES = 8
 local panel, timerBar, forcesBar, bosses
 local timerID, timeLimit = nil, 0
 local killTimes = {}
+local completed = {}
 local active = false
 local trackerHidden = false
+local ticker, previewTicker
+
+local function StopPreview()
+	if previewTicker then previewTicker:Cancel() previewTicker = nil end
+end
 
 local function Clock(seconds)
 	seconds = math.max(0, math.floor(seconds))
@@ -136,7 +142,10 @@ local function UpdateCriteria()
 			elseif line < MAX_BOSSES then
 				line = line + 1
 				local row = bosses[line]
-				if info.completed and not killTimes[i] then killTimes[i] = Elapsed() end
+				-- A boss already dead on the first snapshot has an unknown kill time (reload).
+				-- Only a completion transition observed during this session supplies a time.
+				if info.completed and completed[i] == false then killTimes[i] = Elapsed() end
+				completed[i] = info.completed == true
 				row.name:SetText(info.description)
 				if info.completed then
 					row.name:SetTextColor(0.5, 0.85, 0.5)
@@ -206,8 +215,8 @@ local function FindTimer()
 	end
 end
 
-local ticker
 local function Start()
+	StopPreview()
 	local mapID = C_ChallengeMode.GetActiveChallengeMapID()
 	if not mapID then return end
 	local name, _, limit = C_ChallengeMode.GetMapUIInfo(mapID)
@@ -227,8 +236,10 @@ local function Start()
 end
 
 local function Stop()
+	StopPreview()
 	active = false
 	wipe(killTimes)
+	wipe(completed)
 	if ticker then
 		ticker:Cancel()
 		ticker = nil
@@ -243,10 +254,9 @@ local function Check()
 end
 
 -- The test mode shows the panel with a made-up run. A real key always wins.
-local previewTicker
 function ns.MythicPlusPreview(on)
+	StopPreview()
 	if not panel or active then return end
-	if previewTicker then previewTicker:Cancel() previewTicker = nil end
 	if not on then
 		panel:Hide()
 		SetTrackerHidden(false)
@@ -287,12 +297,14 @@ function ns.MythicPlusPreview(on)
 end
 
 ns.On('PLAYER_LOGIN', function()
-	-- WoW Forever has no Mythic+: without the API the panel is never built.
-	if not C.modules.mythicplus or not C_ChallengeMode then return end
+	if ns.isForever or not C.modules.mythicplus or not C_ChallengeMode then return end
 	Build()
 	KeepTrackerHidden()
 end)
-ns.On('CHALLENGE_MODE_START', function() C_Timer.After(0.5, Check) end)
+ns.On('CHALLENGE_MODE_START', function()
+	if panel then Stop() end
+	C_Timer.After(0.5, Check)
+end)
 ns.On('PLAYER_ENTERING_WORLD', function() C_Timer.After(1, Check) end)
 ns.On('WORLD_STATE_TIMER_START', function()
 	if active then FindTimer() end

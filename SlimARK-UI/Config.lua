@@ -1,6 +1,10 @@
 -- Every position and size is here, in real pixels, from the top left corner of the 2560x1600 image.
 -- /slimark apply calculates the position and size of the Blizzard elements from this for the current UI scale.
-local _, ns = ...
+local addonName, ns = ...
+
+-- The selected TOC identifies the client. Forever exposes Mythic+/vault namespaces too, but
+-- does not offer those game modes; namespace existence alone is not a capability check.
+ns.isForever = C_AddOns and C_AddOns.GetAddOnMetadata(addonName, 'X-SlimARK-Flavor') == 'forever' or false
 
 -- Colors of the cooldown bars per role.
 local MAIN = { 0.89, 0.70, 0.24 }

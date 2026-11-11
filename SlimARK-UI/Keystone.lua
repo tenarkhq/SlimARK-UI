@@ -32,6 +32,8 @@ ns.InsertKeystone = Insert
 local before -- the keystone you had when the run started: 'mapID:level'
 local waiting = false
 local pending -- a message held back while the game blocks addon chat
+local deadline, generation = 0, 0
+local WAIT_SECONDS = 120
 
 local function Owned()
 	local map = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
@@ -51,40 +53,57 @@ local function Send()
 		send(pending, 'PARTY')
 	end
 	pending = nil
+	waiting = false
+	before = Owned()
 end
 
 local function CheckNewKey()
 	if not waiting then return end
+	if GetTime() > deadline then waiting = false return end
 	local now = Owned()
 	if not now or now == before then return end
-	waiting = false
-	before = now
 	local _, _, link = FindKeystone()
 	if not link then return end
+	-- The owned API can update before the bags; an older bag link must not close the wait.
+	local map, level = link:match('|Hkeystone:%d+:(%d+):(%d+)')
+	if not map or map .. ':' .. level ~= now then return end
 	pending = 'My new key: ' .. link
 	Send()
 end
 ns.CheckNewKeystone = CheckNewKey
 
+local function Poll(epoch)
+	if epoch ~= generation or not waiting then return end
+	CheckNewKey()
+	if waiting then C_Timer.After(1, function() Poll(epoch) end) end
+end
+
 ns.On('PLAYER_LOGIN', function()
 	-- WoW Forever has no Mythic+.
-	if not C_ChallengeMode or not C_MythicPlus then return end
+	if ns.isForever or not C_ChallengeMode or not C_MythicPlus then return end
 	if ShowChallengesKeystoneFrame then hooksecurefunc('ShowChallengesKeystoneFrame', Insert) end
 
-	ns.On('CHALLENGE_MODE_START', function() before = Owned() end)
+	ns.On('CHALLENGE_MODE_START', function()
+		generation = generation + 1
+		waiting, pending = false, nil
+		before = Owned()
+	end)
 	ns.On('CHALLENGE_MODE_COMPLETED', function()
 		if not C.features.announceKey then return end
 		waiting = true
-		CheckNewKey()
+		deadline = GetTime() + WAIT_SECONDS
+		generation = generation + 1
+		Poll(generation)
 	end)
 	ns.On('BAG_UPDATE_DELAYED', function()
 		CheckNewKey()
 		Send()
 	end)
-	-- Leaving the dungeon or the end of combat lifts the chat block. A run with another
-	-- player's keystone leaves yours as it was: leaving the dungeon stops the wait.
+	ns.On('ITEM_DATA_LOAD_RESULT', CheckNewKey)
+	-- Leaving the dungeon can lift the chat block before the bag link arrives. Keep the
+	-- bounded wait alive across that transition; an unchanged key simply expires.
 	ns.On('PLAYER_ENTERING_WORLD', function()
-		waiting = false
+		CheckNewKey()
 		Send()
 	end)
 	ns.On('PLAYER_REGEN_ENABLED', Send)
