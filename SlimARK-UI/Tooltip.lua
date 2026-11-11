@@ -131,8 +131,12 @@ local function OnInspect(_, guid)
 	local hasLine = known and GetTime() - known.time < CACHE_TIME
 	local ilvl = C_PaperDollInfo and C_PaperDollInfo.GetInspectItemLevel and C_PaperDollInfo.GetInspectItemLevel(unit)
 	if not Readable(ilvl) or ilvl <= 0 then return end
-	local specID = GetInspectSpecialization(unit)
-	local spec = specID and specID > 0 and select(2, GetSpecializationInfoByID(specID)) or nil
+	-- The C_SpecializationInfo functions are there in every client; the old globals are deprecated
+	-- fallbacks that WoW Forever does not load at all.
+	local specID = C_SpecializationInfo.GetInspectSpecialization(unit)
+	-- Blizzard checks for GetSpecializationInfoByID before using it too (UnitFrameUtil.lua).
+	local spec = Readable(specID) and specID > 0 and GetSpecializationInfoByID
+		and select(2, GetSpecializationInfoByID(specID)) or nil
 	local entry = { ilvl = ilvl, spec = spec, time = GetTime() }
 	inspected[guid] = entry
 	if not hasLine and GameTooltip:IsShown() then
@@ -161,8 +165,8 @@ local function PlayerLines(tip, unit)
 	local guid = UnitGUID(unit)
 	if UnitIsUnit(unit, 'player') then
 		local _, equipped = GetAverageItemLevel()
-		local specIndex = GetSpecialization()
-		local spec = specIndex and select(2, GetSpecializationInfo(specIndex)) or nil
+		local specIndex = C_SpecializationInfo.GetSpecialization()
+		local spec = specIndex and specIndex > 0 and select(2, C_SpecializationInfo.GetSpecializationInfo(specIndex)) or nil
 		AddItemLevel(tip, { ilvl = equipped, spec = spec })
 	elseif Readable(guid) then
 		local entry = inspected[guid]

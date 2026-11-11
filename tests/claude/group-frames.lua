@@ -1,6 +1,6 @@
 -- H1: group frames (audit F2, F5). Run from the repository root:
---   lua5.1 tests/claude/h1_groupframes_test.lua
-local H = dofile('tests/claude/helpers.lua')
+--   lua5.1 tests/claude/group-frames.lua
+local H = dofile('tests/claude/lib/helpers.lua')
 
 -- A stand-in for oUF with only what UnitFrames.lua uses. SpawnHeader copies one real oUF
 -- behaviour (Libs/oUF/ouf.lua:820-821): a header made with showParty switches Blizzard's

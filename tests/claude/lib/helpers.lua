@@ -1,7 +1,7 @@
 -- Shared test helpers for the tests in tests/claude. Plain Lua 5.1, no WoW client:
 -- the real addon files are loaded into a stand-in WoW environment with fake frames and
 -- fake API functions whose answers each test sets. Run every test from the repository root:
---   lua5.1 tests/claude/<name>_test.lua      (luajit works as well)
+--   lua5.1 tests/claude/<name>.lua      (luajit works as well)
 local H = {}
 local realPrint = print
 
@@ -187,7 +187,9 @@ end
 
 function H.setup()
 	H.frames, H.timers, H.prints = {}, {}, {}
-	H.now, H.combat = 1000, false
+	H.now, H.combat, H.secret = 1000, false, nil
+	-- Every environment starts from fresh SavedVariables: nothing learned in one test leaks into the next.
+	_G.SlimARKDB, _G.SlimARKCharDB = nil, nil
 	_G.UIParent = new('Frame', 'UIParent')
 	_G.CreateFrame = function(kind, name, parent) return new(kind, name, parent) end
 	_G.GetPhysicalScreenSize = function() return 2560, 1600 end

@@ -3,8 +3,20 @@ local C = ns.C
 local cfg = C.consumables
 
 local IMBUE_SUBCLASS = 6
--- Thalassian Phoenix Oil and Smuggler's Enchanted Edge, both qualities. These count regardless of class.
-local KNOWN_IMBUES = { [243733] = true, [243734] = true, [243737] = true, [243738] = true }
+-- Weapon oils and stones by item ID, every quality: their names and descriptions differ in every
+-- language. These count regardless of their item class.
+local KNOWN_IMBUES = {}
+for _, id in ipairs({
+	-- Midnight: Thalassian Phoenix Oil, Oil of Dawn, Smuggler's Enchanted Edge.
+	243733, 243734, 243735, 243736, 243737, 243738,
+	-- Refulgent Whetstone and Weightstone.
+	237370, 237371, 237367, 237369,
+	-- The War Within: Algari Mana Oil, Oil of Beledar's Grace, Oil of Deep Toxins.
+	224105, 224106, 224107, 224108, 224109, 224110, 224111, 224112, 224113,
+	-- Ironclaw Whetstone and Weightstone.
+	222502, 222503, 222504, 222508, 222509, 222510,
+}) do KNOWN_IMBUES[id] = true end
+local ENGLISH = { enUS = true, enGB = true }
 
 local buttons = {}
 local bar
@@ -18,10 +30,12 @@ end
 
 local imbues = {}
 
--- The class of weapon oils differs per expansion, so we recognize them from their description:
--- the use line is about a weapon, lasts minutes or hours, and is not a healing oil.
+-- The class of weapon oils differs per expansion. The known ones go by item ID; an older one is
+-- recognized from its English description (on English clients only): the use line is about a
+-- weapon, lasts minutes or hours, and is not a healing oil.
 local function IsWeaponImbue(bag, slot, id)
 	if KNOWN_IMBUES[id] then return true end
+	if not (GetLocale and ENGLISH[GetLocale()]) then return false end
 	if imbues[id] ~= nil then return imbues[id] end
 	local data = C_TooltipInfo.GetBagItem(bag, slot)
 	if not data or not data.lines or #data.lines == 0 then return false end

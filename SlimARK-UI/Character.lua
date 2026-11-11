@@ -56,9 +56,11 @@ local function ReadItem(slot)
 	for _, line in ipairs(data.lines) do
 		if line.type == types.ItemEnchantmentPermanent then
 			-- 'Enchanted: Enchant Helm - Empowered ...' shows as 'Empowered ...': the slot is clear
-			-- from the button, the room beside it is short.
+			-- from the button, the room beside it is short. The label before the colon and the
+			-- enchant's slot before ' - ' are cut in any language, not by their English words.
 			local text = (line.leftText or ''):gsub('^[^:]+:%s*', '')
-			result.enchant = text:gsub('^Enchant [^%-]+ %- ', '')
+			local name = text:match('^.- %- (.+)$')
+			result.enchant = name or text
 		elseif line.type == types.GemSocket then
 			if line.gemIcon then
 				table.insert(result.gems, line.gemIcon)
