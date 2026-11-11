@@ -18,7 +18,7 @@ end
 local function Boot(modules)
 	local ns = H.setup()
 	world = { money = 100000, junk = {}, bags = { [0] = {} }, excluded = {}, sold = 0, repairs = 0,
-		tooltips = 0, qualityPaints = 0, items = 0, cached = {}, prices = {} }
+		tooltips = 0, qualityPaints = 0, items = 0, cached = {}, prices = {}, buyback = {} }
 	local poor = Enum.ItemQuality.Poor
 	world.POOR = poor
 	_G.NUM_TOTAL_EQUIPPED_BAG_SLOTS = 1
@@ -46,15 +46,22 @@ local function Boot(modules)
 			end
 			return n
 		end,
-		-- The game sells the junk outside excluded bags; gold from elsewhere comes in meanwhile.
+		-- The game sells the junk outside excluded bags into the buyback list (it keeps the latest
+		-- 12); gold from elsewhere comes in meanwhile. saleFails: nothing is sold.
 		SellAllJunkItems = function()
 			world.sold = world.sold + 1
+			if world.saleFails then return end
 			for bag, items in pairs(world.bags) do
 				if not world.excluded[bag] then
 					for slot, item in ipairs(items) do
-						if item.quality == poor and not item.noValue and not item.keep then
-							world.money = world.money + (world.prices[item.id] or 0) * (item.count or 1)
+						if item.quality == poor and not item.noValue then
+							local gold = (world.prices[item.id] or 0) * (item.count or 1)
+							world.money = world.money + gold
 							items[slot] = {}
+							if not world.noBuyback then
+								table.insert(world.buyback, { link = 'item:' .. item.id, price = gold, quantity = item.count or 1 })
+								if #world.buyback > 12 then table.remove(world.buyback, 1) end
+							end
 						end
 					end
 				end
@@ -68,6 +75,13 @@ local function Boot(modules)
 		IsMerchantItemRefundable = function() return false end,
 	}
 	_G.GetMoney = function() return world.money end
+	_G.GetNumBuybackItems = function() return #world.buyback end
+	_G.GetBuybackItemInfo = function(i)
+		local e = world.buyback[i]
+		if e then return 'Junk', 1, e.price, e.quantity end
+	end
+	_G.GetBuybackItemLink = function(i) return world.buyback[i] and world.buyback[i].link end
+	_G.BUYBACK_ITEMS_PER_PAGE = 12
 	_G.GetMoneyString = function(copper) return copper .. 'c' end
 	_G.CanMerchantRepair = function() return true end
 	_G.GetRepairAllCost = function() return 500, true end
@@ -163,14 +177,41 @@ do
 end
 
 do
-	-- A junk item without a known sell price: the count is told, no wrong gold figure.
+	-- The sale does not go through; the player moves the junk item to another slot meanwhile.
+	Boot()
+	world.bags[0] = { { id = 1, quality = world.POOR }, {} }
+	world.prices[1] = 100
+	world.saleFails = true
+	H.fire('MERCHANT_SHOW')
+	world.bags[0] = { {}, { id = 1, quality = world.POOR } }
+	H.runTimers(2)
+	H.equal(Printed('Sold junk'), nil, 'F24 an emptied slot is no proof: nothing sold, nothing reported')
+end
+
+do
+	-- More junk than the buyback list keeps: the report is a lower bound, marked as such.
+	Boot()
+	for i = 1, 5 do table.insert(world.buyback, { link = 'item:900' .. i, price = 7, quantity = 1 }) end
+	world.bags[0] = {}
+	for i = 1, 14 do
+		world.bags[0][i] = { id = 100 + i, quality = world.POOR }
+		world.prices[100 + i] = 10
+	end
+	H.fire('MERCHANT_SHOW')
+	H.runTimers(2)
+	H.check(Printed('Sold junk: at least 12 items, 120c') ~= nil, 'F24 a full buyback list gives "at least" (12 of 14 seen)')
+end
+
+do
+	-- The buyback list shows nothing: only the junk count's drop, as an estimate and without gold.
 	Boot()
 	world.bags[0] = { { id = 1, quality = world.POOR }, { id = 2, quality = world.POOR } }
-	world.prices[1] = 100
+	world.prices[1], world.prices[2] = 100, 200
+	world.noBuyback = true
 	H.fire('MERCHANT_SHOW')
 	H.runTimers(2)
 	local line = Printed('Sold junk:')
-	H.check(line ~= nil and line:match('Sold junk: 2 items$') ~= nil, 'F24 an unknown price gives the count only, no gold figure')
+	H.check(line ~= nil and line:match('Sold junk: about 2 items$') ~= nil, 'F24 without buyback proof only an estimated count')
 end
 
 ------------------------------------------------------------------------
@@ -187,14 +228,20 @@ do
 	MerchantFrame_UpdateMerchantInfo()
 	H.equal(world.tooltips, 100, 'F26 a redraw before any item data arrives reads no tooltip again')
 
-	-- Three items' data arrive in the same frame.
+	-- Data of some other item arrives: none of the waiting ones, so no redraw.
 	local paints = world.qualityPaints
+	MerchantFrame_UpdateItemQualityBorders(MerchantFrame)
+	H.runTimers(0)
+	H.equal(world.tooltips, 100, 'F26 data of an item not on this vendor redraws nothing')
+	H.equal(world.qualityPaints - paints, 20, 'F26 the 20 shown slots still get their quality border at once')
+
+	-- Three of the vendor's items arrive in the same frame.
+	world.cached[1001], world.cached[1002], world.cached[1003] = true, true, true
 	for _ = 1, 3 do MerchantFrame_UpdateItemQualityBorders(MerchantFrame) end
 	H.equal(world.tooltips, 100, 'F26 no full redraw right at the item data events')
-	H.equal(world.qualityPaints - paints, 60, 'F26 the 20 shown slots get their quality border at once, each time')
 	H.equal(MerchantItem1ItemButton:GetID(), 1, 'F26 the slots still buy the items they show')
 	H.runTimers(0)
-	H.equal(world.tooltips, 200, 'F26 one redraw on the next frame for all three (100 reads, not 300)')
+	H.equal(world.tooltips, 103, 'F26 one redraw on the next frame reads only the 3 arrived items')
 	H.equal(MerchantItem20ItemButton:GetID(), 20, 'F26 after the redraw slot 20 still buys item 20')
 
 	-- Once the items are loaded the owned check is kept for good.
@@ -204,6 +251,17 @@ do
 	local reads = world.tooltips
 	MerchantFrame_UpdateMerchantInfo()
 	H.equal(world.tooltips, reads, 'F26 loaded items are not read again')
+end
+
+do
+	-- The audit's case: 100 unloaded items, one of them loads.
+	Boot()
+	world.items = 100
+	MerchantFrame_UpdateMerchantInfo()
+	world.cached[1050] = true
+	MerchantFrame_UpdateItemQualityBorders(MerchantFrame)
+	H.runTimers(0)
+	H.equal(world.tooltips, 101, 'F26 one loaded item: 101 reads in all, not 200')
 end
 
 H.done()
