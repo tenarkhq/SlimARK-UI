@@ -1,0 +1,2 @@
+# Lua 5.1 and LuaJIT engines for tests/run.py (no system Lua needed).
+lupa==2.8

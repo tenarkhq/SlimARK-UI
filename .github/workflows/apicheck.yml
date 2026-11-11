@@ -1,0 +1,22 @@
+# Checks the game API SlimARK-UI uses against the retail, PTR and WoW Forever UI source. It needs
+# the network (Gethe/wow-ui-source), so it only runs when started by hand.
+name: apicheck
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  apicheck:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install luacheck
+        run: sudo apt-get update && sudo apt-get install -y lua-check
+      - name: Check the API against live, ptr and forever
+        run: python tools/apicheck.py --fetch

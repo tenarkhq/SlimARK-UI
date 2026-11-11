@@ -1,1 +1,7 @@
 *.zip
+# tools/package.py output
+dist/
+# tools/apicheck.py --fetch: Blizzard UI source checkouts
+.cache/
+__pycache__/
+*.pyc

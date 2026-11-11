@@ -1,0 +1,16 @@
+# CurseForge / BigWigs packager. The reference build is tools/package.py; this file mirrors its
+# content: the two addon folders, without upstream oUF's developer scripts (Libs/oUF/utils).
+# tests/package_release.py checks that the exclusion below stays in step with tools/package.py.
+package-as: SlimARK-UI
+
+move-folders:
+  SlimARK-UI/SlimARK-UI: SlimARK-UI
+  SlimARK-UI/!SlimARK_Media: "!SlimARK_Media"
+
+ignore:
+  - SlimARK-UI/Libs/oUF/utils
+  - assets
+  - tests
+  - tools
+  - CURSEFORGE.md
+  - requirements-test.txt
