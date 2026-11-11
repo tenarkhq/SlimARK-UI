@@ -178,7 +178,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - The mob's name and its health with one decimal sit inside the plate, not above it
 - Casters are marked before they start casting: mana users, mage type mobs and lieutenants. Every mob the addon has seen casting is remembered by name for later runs
 - Light blue cast bars for normal casts, magenta for the important ones you should interrupt, so they stand apart from red, orange and yellow plates
-- After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color. In dungeons the game hides the interrupter from addons; your own interrupts are always named, others wherever the game lets the name through
+- After an interrupt the bar reads "Interrupted" with the interrupter's name when the game provides it, in class color when available. A recent party kick aimed at that nameplate can supply an estimate, marked with "?". If neither is available, no name is shown
 - See which group members target the mob
 - Debuffs you applied are shown above the plate
 - Enemy shields in light stripes, so you see what has to break first
