@@ -233,12 +233,18 @@ function ns.AddShield(health)
 	if not C.features.shields then return end
 	local color = C.colors.shield
 
-	-- oUF fills this one, clamped to the missing health.
+	-- oUF fills this one, clamped to the missing health. With incoming heals on the bar it starts
+	-- after them and fits in what the heals leave free.
 	local after = ShieldBar(health, color)
-	after:SetPoint('LEFT', health:GetStatusBarTexture(), 'RIGHT')
+	if health.HealingAll then
+		after:SetPoint('LEFT', health.HealingAll:GetStatusBarTexture(), 'RIGHT')
+		health.damageAbsorbClampMode = Enum.UnitDamageAbsorbClampMode.MissingHealth
+	else
+		after:SetPoint('LEFT', health:GetStatusBarTexture(), 'RIGHT')
+		health.damageAbsorbClampMode = Enum.UnitDamageAbsorbClampMode.MissingHealthWithoutIncomingHeals
+	end
 	after:SetWidth(health:GetWidth())
 	health.DamageAbsorb = after
-	health.damageAbsorbClampMode = Enum.UnitDamageAbsorbClampMode.MissingHealthWithoutIncomingHeals
 
 	-- The whole shield from the right edge, shown only when it does not fit.
 	local over = ShieldBar(health, color)
@@ -269,6 +275,43 @@ function ns.AddShield(health)
 		if element.values and not pcall(Overflow, element, unit) then over:SetAlpha(0) end
 		if post then return post(element, unit, ...) end
 	end
+end
+
+-- Incoming heals after the health (pale green, never past the end of the bar) and heal absorbs
+-- (debuffs that eat healing) in dark red stripes at the end of the health. The amounts are the
+-- game's own (secret in combat); oUF hands them to the bars. Call it before ns.AddShield.
+function ns.AddPrediction(health)
+	if not C.features.healPrediction then return end
+	local c = C.colors.incomingHeal
+	local heal = CreateFrame('StatusBar', nil, health)
+	heal:SetFrameLevel(health:GetFrameLevel() + 1)
+	heal:SetStatusBarTexture(ns.TEX)
+	heal:SetStatusBarColor(c[1], c[2], c[3], c[4] or 0.5)
+	heal:SetPoint('TOP')
+	heal:SetPoint('BOTTOM')
+	heal:SetPoint('LEFT', health:GetStatusBarTexture(), 'RIGHT')
+	heal:SetWidth(health:GetWidth())
+	health.HealingAll = heal
+	health.incomingHealOverflow = 1
+
+	local a = C.colors.healAbsorb
+	local absorb = CreateFrame('StatusBar', nil, health)
+	absorb:SetFrameLevel(health:GetFrameLevel() + 1)
+	absorb:SetStatusBarTexture(SHIELD_FILL)
+	absorb:SetStatusBarColor(a[1], a[2], a[3], 0.6)
+	absorb:SetReverseFill(true)
+	absorb:SetPoint('TOP')
+	absorb:SetPoint('BOTTOM')
+	absorb:SetPoint('RIGHT', health:GetStatusBarTexture(), 'RIGHT')
+	absorb:SetWidth(health:GetWidth())
+	local stripes = absorb:CreateTexture(nil, 'ARTWORK', nil, 1)
+	stripes:SetTexture(SHIELD_STRIPES, 'REPEAT', 'REPEAT')
+	stripes:SetHorizTile(true)
+	stripes:SetVertTile(true)
+	stripes:SetVertexColor(a[1] * 0.5, a[2] * 0.5, a[3] * 0.5, 1)
+	stripes:SetAllPoints(absorb:GetStatusBarTexture())
+	health.HealAbsorb = absorb
+	health.healAbsorbClampMode = Enum.UnitHealAbsorbClampMode.CurrentHealth
 end
 
 -- Texts and icons of a health bar go on this layer, above the shield.

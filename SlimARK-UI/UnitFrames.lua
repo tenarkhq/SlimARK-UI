@@ -66,7 +66,7 @@ local function AuraBelowStyle(cfg)
 	end
 end
 
-local function CreateHealth(self, bottomOffset)
+local function CreateHealth(self, bottomOffset, group)
 	local health = CreateFrame('StatusBar', nil, self)
 	health:SetStatusBarTexture(TEX)
 	health:SetPoint('TOPLEFT')
@@ -78,6 +78,8 @@ local function CreateHealth(self, bottomOffset)
 	health.colorClass = true
 	health.colorReaction = true
 	health.Texts = ns.TextLayer(health)
+	-- Group frames show incoming heals and heal absorbs; the shield then starts after the heals.
+	if group then ns.AddPrediction(health) end
 	ns.AddShield(health)
 	self.Health = health
 	return health
@@ -286,9 +288,9 @@ local function Style(self, unit)
 		CreateClassPower(self, o.w, o.classPower)
 	elseif kind == 'party' then
 		CreatePower(self, 0)
-		CreateHealth(self, 7)
+		CreateHealth(self, 7, true)
 	else
-		CreateHealth(self, 0)
+		CreateHealth(self, 0, isGroup)
 	end
 
 	local health = self.Health
@@ -314,7 +316,8 @@ local function Style(self, unit)
 		self:Tag(name, '[name]')
 	elseif kind == 'raid' then
 		name:SetPoint('TOPLEFT', o.font + 7, -3)
-		name:SetPoint('RIGHT', -4, 0)
+		-- The own HoTs take the end of the name row.
+		name:SetPoint('RIGHT', -(4 + (C.features.ownHots and o.hotsInName and o.hotMax * (o.hot + 1) or 0)), 0)
 		self:Tag(name, '[name]')
 		value:SetFont(ns.FONT, 14, 'OUTLINE')
 		value:SetPoint('BOTTOMRIGHT', -3, 2)
@@ -441,6 +444,90 @@ local function Style(self, unit)
 		end
 
 		self.TargetIndicator = ns.Edge(self, 2, C.colors.target, 1)
+
+		-- Your own HoTs: small icons on the right under the value (raid: at the end of the name
+		-- row), the remaining time as the dark swipe. RAID_IN_COMBAT with PLAYER gives the
+		-- self-cast HoTs the game shows on raid frames; the spells are hidden in combat, so they
+		-- come in the game's order, not in fixed corners.
+		if C.features.ownHots then
+			local hots = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = o.hotMax * (o.hot + 1) })
+			hots:SetSize(o.hotMax * (o.hot + 1), o.hot)
+			hots:SetPoint('TOPRIGHT', health, 'TOPRIGHT', -1, -o.hotY)
+			hots:SetFrameLevel(health:GetFrameLevel() + 3)
+			hots.size = o.hot
+			hots.elementSpacing = 1
+			hots.disableMouse = true
+			hots.PostCreateButton = function(element, button)
+				ns.StyleAuraButton(element, button)
+				if button.Cooldown then
+					button.Cooldown:SetHideCountdownNumbers(true)
+					button.Cooldown:SetDrawEdge(false)
+				end
+			end
+			hots:AddGroup('HELPFUL|PLAYER|RAID_IN_COMBAT', { maxFrameCount = o.hotMax })
+		end
+
+		-- Private auras: the boss debuffs the game keeps from addons. Blizzard draws them (icon,
+		-- swipe, countdown) in the place given here, in the middle, above everything.
+		if C.features.privateAuras then
+			local private = CreateFrame('Frame', nil, self)
+			local num = o.privateNum or 1
+			private:SetSize(num * o.center + (num - 1) * 2, o.center)
+			private:SetPoint('TOP', health, 'TOP', 0, -o.centerY)
+			private:SetFrameLevel(self:GetFrameLevel() + 14)
+			private.size = o.center
+			private.spacing = 2
+			private.num = num
+			private.initialAnchor = 'TOPLEFT'
+			private.growthX = 'RIGHT'
+			private.growthY = 'DOWN'
+			private.maxCols = num
+			self.PrivateAuras = private
+		end
+
+		-- Leader crown and raid marker on the left; res, summon, ready check and phase in the
+		-- middle, where the private auras are (those come in combat, these mostly out of it).
+		if C.features.statusIcons then
+			local top = CreateFrame('Frame', nil, self)
+			top:SetAllPoints(self)
+			top:SetFrameLevel(self:GetFrameLevel() + 13)
+			local leader = top:CreateTexture(nil, 'OVERLAY')
+			leader:SetSize(o.ind, o.ind)
+			leader:SetPoint('TOPLEFT', health, 'TOPLEFT', 3, -o.indY)
+			self.LeaderIndicator = leader
+			local marker = top:CreateTexture(nil, 'OVERLAY')
+			marker:SetSize(o.ind, o.ind)
+			marker:SetPoint('TOPLEFT', health, 'TOPLEFT', 3 + o.ind + 2, -o.indY)
+			self.RaidTargetIndicator = marker
+			local function Center(texture)
+				texture:SetSize(o.center, o.center)
+				texture:SetPoint('TOP', health, 'TOP', 0, -o.centerY)
+				return texture
+			end
+			self.ResurrectIndicator = Center(top:CreateTexture(nil, 'OVERLAY', nil, 1))
+			self.SummonIndicator = Center(top:CreateTexture(nil, 'OVERLAY', nil, 2))
+			self.ReadyCheckIndicator = Center(top:CreateTexture(nil, 'OVERLAY', nil, 3))
+			local phase = CreateFrame('Frame', nil, top)
+			Center(phase)
+			phase.Icon = phase:CreateTexture(nil, 'OVERLAY')
+			phase.Icon:SetAllPoints()
+			self.PhaseIndicator = phase
+		end
+
+		-- Aggro: a red frame inside the edge of the member a mob hits (threat 2 or 3). Asked for
+		-- one unit only, the threat state is readable in combat; a hidden value hides the frame.
+		if C.features.aggro then
+			local aggro = ns.Edge(self, 2, C.colors.aggro, 0)
+			aggro:SetFrameLevel(self:GetFrameLevel() + 11)
+			aggro:Hide()
+			aggro.Override = function(frame, _, unit)
+				if unit and unit ~= frame.unit then return end
+				local ok, status = pcall(UnitThreatSituation, frame.unit)
+				local hit = ok and status ~= nil and not issecretvalue(status) and status >= 2
+				aggro:SetShown(hit and UnitExists(frame.unit) or false)
+			end
+			self.ThreatIndicator = aggro
+		end
 
 		-- Tank, heal or dps icon before the name.
 		if C.features.roleIcon then

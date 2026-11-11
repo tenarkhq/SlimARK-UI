@@ -82,15 +82,24 @@ S.groups = {
 		{ id = 'party', name = 'Party', module = 'modules.party', keys = { 'party' }, desc = 'Party frames for DPS and tank specs, in a column next to your character.',
 			secs = { Pos('units.party'), { name = 'Size', rows = { R('Width', 'units.party.w', 60, 400), R('Height', 'units.party.h', 20, 160), R('Gap', 'units.party.gap', 0, 30) } },
 				{ name = 'Icons', rows = { R('Debuff size', 'units.party.debuff', 10, 48), R('Defensive size', 'units.party.defensive', 10, 48),
-					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow') } }, Font('units.party') } },
+					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow'),
+					T('Private auras (boss debuffs)', 'features.privateAuras'), T('Incoming heals and heal absorbs', 'features.healPrediction'),
+					T('Your HoTs', 'features.ownHots'), T('Leader, marker, res, summon, ready check, phase', 'features.statusIcons'),
+					T('Red frame on aggro', 'features.aggro') } }, Font('units.party') } },
 		{ id = 'raid', name = 'Raid', module = 'modules.raid', keys = { 'raid' },
 			secs = { Pos('units.raid'), { name = 'Size', rows = { R('Width', 'units.raid.w', 60, 300), R('Height', 'units.raid.h', 20, 120), R('Gap', 'units.raid.gap', 0, 30) } },
 				{ name = 'Icons', rows = { R('Debuff size', 'units.raid.debuff', 10, 48), R('Defensive size', 'units.raid.defensive', 10, 48),
-					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow') } }, Font('units.raid') } },
+					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow'),
+					T('Private auras (boss debuffs)', 'features.privateAuras'), T('Incoming heals and heal absorbs', 'features.healPrediction'),
+					T('Your HoTs', 'features.ownHots'), T('Leader, marker, res, summon, ready check, phase', 'features.statusIcons'),
+					T('Red frame on aggro', 'features.aggro') } }, Font('units.raid') } },
 		{ id = 'grid', name = 'Healer grid', module = 'modules.grid', keys = { 'healparty', 'healraid' }, desc = 'Group frames of the healer layout, above the action bars. X and Y are the bottom left corner.',
 			secs = { Pos('units.grid'), { name = 'Size', rows = { R('Width', 'units.grid.w', 60, 300), R('Height', 'units.grid.h', 20, 120), R('Gap', 'units.grid.gap', 0, 30) } },
 				{ name = 'Icons', rows = { R('Debuff size', 'units.grid.debuff', 10, 48), R('Defensive size', 'units.grid.defensive', 10, 48),
-					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow') } }, Font('units.grid') } },
+					T('Role icon', 'features.roleIcon'), T('Dispel highlight', 'features.dispelGlow'),
+					T('Private auras (boss debuffs)', 'features.privateAuras'), T('Incoming heals and heal absorbs', 'features.healPrediction'),
+					T('Your HoTs', 'features.ownHots'), T('Leader, marker, res, summon, ready check, phase', 'features.statusIcons'),
+					T('Red frame on aggro', 'features.aggro') } }, Font('units.grid') } },
 	} },
 	{ name = 'Combat', pages = {
 		{ id = 'markers', name = 'Marker bar', module = 'modules.markers', apply = true, keys = { 'markers' },
@@ -210,6 +219,13 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.1.0', lines = {
+		'Group frames: private auras (boss debuffs) in the middle, drawn by the game',
+		'Group frames: incoming heals in pale green after the health, heal absorbs in dark red stripes at its end',
+		'Group frames: your own HoTs as small icons with a swipe',
+		'Group frames: leader, raid marker, resurrection, summon, ready check and phase icons',
+		'Group frames: a red frame on the member a mob is hitting',
+	} },
 	{ version = '2.0.1', lines = {
 		'Combat text is off by default: the game\'s own numbers stay until you switch it on under Combat: Combat text',
 	} },

@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0
+
+New on the party, raid and healer grid frames (each one can be switched off on the frame's page in /slimark):
+
+- Private auras: the boss debuffs the game keeps from addons now show in the middle of the frame, above everything. The game draws them itself, with its own icon and countdown
+- Incoming heals as a pale green bar after the health, and heal absorbs (debuffs that eat healing) in dark red stripes at the end of the health. The shield now starts after the incoming heals
+- Your own HoTs as small icons on the right under the health value, the remaining time as a dark swipe. On the raid frame they sit at the end of the name row
+- Leader crown and raid marker on the left; resurrection, summon, ready check and phase icons in the middle
+- A red frame inside the edge of the group member a mob is hitting
+
 ## 2.0.8
 
 - New: junk is sold at every vendor. SlimARK presses the game's own Sell All Junk for you (grey items; bags you excluded from it in the bag menu stay untouched) and prints how many items it sold and for how much. Switch: Vendor page, "Sell junk (grey items)"; on by default

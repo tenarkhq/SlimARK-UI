@@ -58,6 +58,11 @@ ns.C = {
 		mana = { 0.25, 0.5, 0.88 },
 		-- Shields (damage absorbs) on the health bars.
 		shield = { 0.85, 0.95, 1 },
+		-- Incoming heals after the health, heal absorbs (necrotic-like debuffs) at its end.
+		incomingHeal = { 0.47, 1, 0.55, 0.5 },
+		healAbsorb = { 0.75, 0.08, 0.08 },
+		-- The frame of the group member a mob hits.
+		aggro = { 1, 0.16, 0.12 },
 		-- The cooldown bars share these tables, so a color set in /slimark reaches every bar.
 		cdMain = MAIN,
 		cdKick = KICK,
@@ -82,6 +87,7 @@ ns.C = {
 		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
 		autoQuest = true, autoKeystone = true, announceKey = true, errorFilter = true,
 		easyDelete = true,
+		privateAuras = true, healPrediction = true, ownHots = true, statusIcons = true, aggro = true,
 	},
 
 	-- The look of Blizzard's own windows (2.0). 'none' until the setup window asks for it,
@@ -102,10 +108,16 @@ ns.C = {
 		focus = { x = 1500, y = 1050, w = 260, h = 38, font = 18, heal = { x = 1600, y = 1050 } },
 		boss = { x = 1920, y = 430, w = 270, h = 50, gap = 8, font = 16 },
 		-- Party (DPS and tank): a column of large frames right next to the character.
-		party = { x = 710, y = 690, w = 240, h = 72, gap = 4, debuff = 26, defensive = 28, font = 16 },
-		raid = { x = 12, y = 760, w = 112, h = 48, gap = 3, debuff = 18, defensive = 20, font = 15 },
+		-- hot/hotMax/hotY: own HoTs on the right under the value; ind/indY: leader and raid marker on the
+		-- left; center/centerY: private auras and the res, summon, ready check and phase icons.
+		party = { x = 710, y = 690, w = 240, h = 72, gap = 4, debuff = 26, defensive = 28, font = 16,
+			hot = 18, hotMax = 4, hotY = 20, ind = 18, indY = 20, center = 26, centerY = 33, privateNum = 2 },
+		-- In the raid frame the own HoTs share the name row (hotY 3), the name gets shorter by them.
+		raid = { x = 12, y = 760, w = 112, h = 48, gap = 3, debuff = 18, defensive = 20, font = 15,
+			hot = 12, hotMax = 3, hotY = 3, hotsInName = true, ind = 11, indY = 16, center = 18, centerY = 20, privateNum = 1 },
 		-- The grid of the healer group above the action bars. The y is the bottom of the grid, it grows upward.
-		grid = { x = 974, y = 1420, w = 120, h = 56, gap = 3, debuff = 22, defensive = 26, font = 16 },
+		grid = { x = 974, y = 1420, w = 120, h = 56, gap = 3, debuff = 22, defensive = 26, font = 16,
+			hot = 14, hotMax = 3, hotY = 19, ind = 12, indY = 18, center = 22, centerY = 30, privateNum = 1 },
 	},
 
 	auras = {
