@@ -582,8 +582,10 @@ function K.Register(key, addon, frames, fn)
 end
 
 local function Dress(entry, frame)
-	if K.Done(frame, 'window') then return end
-	xpcall(function() entry.fn(frame) end, geterrorhandler())
+	local flags = done[frame]
+	if flags and flags.window then return end
+	local ok, result = xpcall(function() return entry.fn(frame) end, geterrorhandler())
+	if ok and result ~= false then K.Done(frame, 'window') end
 end
 
 local function Arm(entry)
@@ -593,10 +595,9 @@ local function Arm(entry)
 		local frame = type(name) == 'string' and _G[name] or name
 		if type(name) == 'function' then frame = name() end
 		if frame and frame.HookScript then
+			frame:HookScript('OnShow', function(self) Dress(entry, self) end)
 			if frame:IsShown() then
 				Dress(entry, frame)
-			else
-				frame:HookScript('OnShow', function(self) Dress(entry, self) end)
 			end
 		end
 	end

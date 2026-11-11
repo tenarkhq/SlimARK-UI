@@ -89,7 +89,7 @@ local function ApplyDetails()
 
 	for i = 1, 2 do
 		local window = D:GetInstance(i) or D:CreateInstance(true)
-		if not window then return end
+		if not window then return false end
 		if not window:IsEnabled() then window:EnableInstance() end
 		window:UngroupInstance()
 		window:ChangeSkin(cfg.skin)
@@ -148,8 +148,6 @@ end
 local function RegisterBigWigsStyle()
 	local API = _G.BigWigsAPI
 	if not API or ns.bigWigsStyle then return end
-	ns.bigWigsStyle = true
-
 	local backdrop = { bgFile = ns.TEX, edgeFile = ns.TEX, edgeSize = 1 }
 
 	local function dress(frame, target)
@@ -161,7 +159,7 @@ local function RegisterBigWigsStyle()
 		frame:SetPoint('BOTTOMRIGHT', target, 'BOTTOMRIGHT', 1, -1)
 	end
 
-	API:RegisterBarStyle('SlimARK-UI', {
+	local registered = API:RegisterBarStyle('SlimARK-UI', {
 		apiVersion = 1,
 		version = 1,
 		barSpacing = C.bossmods.gap,
@@ -180,6 +178,7 @@ local function RegisterBigWigsStyle()
 		end,
 		GetStyleName = function() return 'SlimARK-UI' end,
 	})
+	if registered ~= false then ns.bigWigsStyle = true end
 end
 
 -- If the Bars plugin is not loaded yet, we write straight into the profile.
@@ -320,11 +319,14 @@ local function BigWigsProfile()
 end
 
 local targets = {
-	{ name = 'Details', profile = DetailsProfile, apply = ApplyDetails, style = StyleDetails },
-	{ name = 'DBM', profile = DBMProfile, apply = ApplyDBM, style = StyleDBM },
-	{ name = 'BigWigs', profile = BigWigsProfile, apply = ApplyBigWigs, style = StyleBigWigs },
+	{ name = 'Details', profile = DetailsProfile, apply = ApplyDetails, style = StyleDetails,
+		selected = function() local d = _G.Details return d and d.GetCurrentProfileName and d:GetCurrentProfileName() == PROFILE end },
+	{ name = 'DBM', profile = DBMProfile, apply = ApplyDBM, style = StyleDBM,
+		selected = function() return _G.DBM and _G.DBM_UsedProfile == PROFILE end },
+	{ name = 'BigWigs', profile = BigWigsProfile, apply = ApplyBigWigs, style = StyleBigWigs,
+		selected = function() local d = _G.BigWigsLoader and _G.BigWigsLoader.db return d and d:GetCurrentProfile() == PROFILE end },
 	{ name = 'Chattynator', profile = ChattynatorProfile, apply = ApplyChattynator },
-	{ name = 'BetterBags', module = 'betterbags', profile = function() return ns.BetterBagsProfile() end, apply = function() ns.ApplyBetterBags() end },
+	{ name = 'BetterBags', module = 'betterbags', profile = function() return ns.BetterBagsProfile() end, apply = function() return ns.ApplyBetterBags() end },
 }
 
 local function Try(fn)
@@ -335,32 +337,43 @@ end
 function ns.ApplyAll()
 	if InCombatLockdown() then
 		ns.Print('Not possible in combat, try again afterwards.')
-		return
+		return false
 	end
+	ns.CharDB.applyPending = true
+	local complete = true
 	for _, target in ipairs(targets) do
 		-- A skin switched off in /slimark is left alone.
 		if not target.module or C.modules[target.module] then
-			local result
-			Try(function()
-				result = target.profile()
-				if result ~= nil then target.apply() end
+			local ok, result = Try(function()
+				if target.profile() == nil then return nil end
+				return target.apply() ~= false
 			end)
-			if result == nil then
+			if not ok or result == false then
+				complete = false
+				ns.Print(target.name .. ' could not be applied. Fix the reported problem and try again.')
+			elseif result == nil then
 				ns.Print(target.name .. ' is not loaded right now, skipped.')
 			end
 		end
 	end
-	Try(ns.ApplyEditMode)
+	local ok, applied = Try(ns.ApplyEditMode)
+	if not ok or applied ~= true then complete = false end
+	if not complete then
+		ns.Print('Apply is incomplete. The UI was not reloaded; run /slimark apply again after fixing the problem.')
+		return false
+	end
 	ns.CharDB.applied = C.version
 	ns.CharDB.appliedVersion = ns.version
+	ns.CharDB.applyPending = nil
 	ReloadUI()
+	return true
 end
 
 -- A new version asks for /slimark apply once, in the setup window (Setup.lua). Until the look
 -- of Blizzard's windows is chosen, the window asks for it on every login.
 local function AskForApply()
 	local chosen = C.blizz.look == 'original' or C.blizz.look == 'slimark'
-	if chosen and ns.CharDB.appliedVersion == ns.version then return end
+	if chosen and not ns.CharDB.applyPending and ns.CharDB.appliedVersion == ns.version then return end
 	if InCombatLockdown() then
 		ns.applyAskPending = true
 		return
@@ -375,21 +388,20 @@ ns.On('PLAYER_REGEN_ENABLED', function()
 	end
 end)
 
--- On login the profile is restored if something switched it, and the look is applied again.
--- We do not touch the positions here, they are in the profile.
+-- Refresh only a SlimARK profile the user has kept selected; never switch on login.
 local function KeepSkins()
 	AskForApply()
 	if not ns.CharDB.applied then return end
 	for _, target in ipairs(targets) do
-		if target.style then
+		if target.style and target.selected then
 			Try(function()
-				if target.profile() ~= nil then target.style() end
+				if target.selected() then target.style() end
 			end)
 		end
 	end
 end
 
-RegisterBigWigsStyle()
+Try(RegisterBigWigsStyle)
 ns.On('PLAYER_LOGIN', RegisterBigWigsStyle)
 ns.On('PLAYER_ENTERING_WORLD', function(_, isLogin, isReload)
 	if isLogin or isReload then C_Timer.After(3, KeepSkins) end

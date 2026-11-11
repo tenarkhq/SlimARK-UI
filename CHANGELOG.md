@@ -1,5 +1,20 @@
 # Changelog
 
+## 2.1.1
+
+- Settings apply the values just saved, including changes shared with Edit Mode and other addons. Changing the rotation icons' Y or the marker bar placement also clears an older dragged position.
+- A failed apply reports the affected part, keeps the UI open and allows a retry. It does not mark an incomplete setup as finished or reload away the error. Failed window skins and BetterBags themes can be retried.
+- Details!, DBM and BigWigs keep a different profile you select in their own menus. Only an explicit apply switches back to SlimARK.
+- Group frames keep a Blizzard fallback when their SlimARK replacement is disabled; the aggro edge uses the current unit. The test player's role is preserved.
+- Tooltip and ready check use current Retail/PTR/Forever APIs. Ready check fits every class-buff row, and its item buttons are hidden before combat starts.
+- Consumable recognition uses item and spell identity across client languages. Effect learning no longer stores a nearby unrelated buff as an item effect, and failed item-data requests remain retryable.
+- A Mythic+ preview stops before a real run. Already completed bosses have no invented kill time after reload, and a delayed keystone link can still be announced. Forever does not build unsupported Mythic+/vault widgets.
+- Action bars return at combat start without needing a target. Interrupt attribution avoids naming the wrong player from an unrelated recent kick.
+- Turning off Vendor stops its automatic sale and repair too. Junk-sale messages do not treat other money changes as sale proceeds, and bursts of item data do not repeatedly process the full merchant list.
+- Disabled Group Finder automation preserves manual roles. Directly opened low-level quests are skipped, and a different cinematic in a previously visited zone is not treated as already seen.
+- Gold snapshots can distinguish a renamed character and remove stale character entries.
+- Added regression checks and release-package validation; unused upstream oUF developer tools are excluded from the installable package.
+
 ## 2.1.0
 
 New on the party, raid and healer grid frames (each one can be switched off on the frame's page in /slimark):

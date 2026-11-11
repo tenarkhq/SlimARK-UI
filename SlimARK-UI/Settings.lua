@@ -219,6 +219,15 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.1.1', lines = {
+		'Settings apply the newly saved values; a failed apply stays open for a retry',
+		'Your selected Details and boss-mod profiles stay selected after login and reload',
+		'Group-frame fallback, aggro and ready check fixes; current Retail and Forever tooltip APIs',
+		'Mythic+ previews stop before real runs; old boss kills do not get invented times',
+		'Consumable recognition, item-data retries and interrupt attribution are more reliable',
+		'Disabled automation stays off; low-level quests and unseen cinematics are left alone',
+		'Regression checks and a reproducible addon package without unused developer tools',
+	} },
 	{ version = '2.1.0', lines = {
 		'Group frames: private auras (boss debuffs) in the middle, drawn by the game',
 		'Group frames: incoming heals in pale green after the health, heal absorbs in dark red stripes at its end',
@@ -474,27 +483,52 @@ function S.Save()
 	end
 	local apply = false
 	local store = SlimARKDB.settings
+	local previous, positions, seen = {}, {}, {}
 	for path, value in pairs(S.pending) do
+		previous[#previous + 1] = { path = path, live = Copy(S.Get(path)), saved = Copy(store[path]) }
 		if S.Equal(value, S.defaults[path]) then
 			store[path] = nil
 		else
 			store[path] = Copy(value)
 		end
+		-- ApplyAll reads the same tables captured by the other modules at load time.
+		Write(path, value)
 		local page = S.pageOf[path]
 		if page and page.apply then apply = true end
-		-- A new X or Y replaces the spot the frame was dragged to in Edit Mode.
+		-- Position choices replace an Edit Mode override just like explicit coordinates.
 		local last = path:match('[^.]+$')
-		if page and page.keys and (last == 'x' or last == 'y' or last == 'right' or path:find('%.heal%.')) and ns.CharDB then
+		if page and page.keys and (last == 'x' or last == 'y' or last == 'right' or last == 'iconY'
+			or path == 'markers.place' or path:find('%.heal%.')) and ns.CharDB then
 			for _, key in ipairs(page.keys) do
-				if ns.CharDB.pos then ns.CharDB.pos[key] = nil end
-				if ns.CharDB.posHeal then ns.CharDB.posHeal[key] = nil end
+				for _, name in ipairs({ 'pos', 'posHeal' }) do
+					local saved = ns.CharDB[name]
+					if saved then
+						seen[saved] = seen[saved] or {}
+						if not seen[saved][key] then
+							positions[#positions + 1] = { store = saved, key = key, value = saved[key] }
+							seen[saved][key] = true
+						end
+						saved[key] = nil
+					end
+				end
 			end
 		end
 	end
-	wipe(S.pending)
 	if apply and ns.ApplyAll then
-		ns.ApplyAll()
+		if ns.ApplyAll() == false then
+			-- External profiles may be partially applied; keep the edit and allow a retry.
+			for _, old in ipairs(previous) do
+				store[old.path] = old.saved
+				Write(old.path, old.live)
+			end
+			for _, old in ipairs(positions) do old.store[old.key] = old.value end
+			ns.Print('Settings were not saved. Your changes are still in this panel; fix the reported problem and save again.')
+			return false
+		end
 	else
+		wipe(S.pending)
 		ReloadUI()
 	end
+	wipe(S.pending)
+	return true
 end

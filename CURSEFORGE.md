@@ -6,6 +6,8 @@ SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown trackin
 
 One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
 
+**2.1.1 fixes:** saving applies your new values, incomplete setup stays available for retry, and a profile you select in another addon stays selected. Group frames, ready check, combat fading and Mythic+ preview transitions have regression checks. The supported clients are Retail 12.1.5, 12.1.7 PTR and the current WoW Forever.
+
 ## Highlights
 
 - **New in 2.0, Blizzard windows in the SlimARK look:** character sheet, spellbook, Group Finder, Great Vault, map, mail, merchant, Auction House and every other game window, flat and dark. Your choice at the first login: Original or SlimARK
@@ -410,7 +412,9 @@ See your whole layout without a group: no need to gather a raid to check where e
 
 ## Your settings stay safe
 
-SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It creates new ones named `SlimARK-UI` (and `SlimARK-UI Heal` for healers) next to them, so you can switch back at any time from the addon's own profile menu. For BetterBags it only selects the SlimARK theme, which you can change back in BetterBags' theme menu.
+SlimARK-UI never overwrites your existing profiles or Edit Mode layouts. It creates new ones named `SlimARK-UI` (and `SlimARK-UI Heal` for healers) next to them, so you can switch back at any time from the addon's own profile menu. Login and reload keep that choice; only an explicit `/slimark apply` selects the SlimARK profiles again. For BetterBags it only selects the SlimARK theme, which you can change back in BetterBags' theme menu.
+
+Saving applies the new settings before the reload. If a required apply step fails, the UI stays open with an error in chat and no successful-version stamp. Changes from the settings panel remain there so you can correct the problem and save again. External addons may already have applied part of the setup; retry after resolving the reported error.
 
 ## Performance
 

@@ -212,8 +212,11 @@ local function Build()
 			if not chosen then return end
 			Save(chosen)
 		end
-		frame:Hide()
-		ns.ApplyAll()
+		if ns.ApplyAll() == false then
+			frame.hint:SetText('Apply failed. See chat, then try again.')
+		else
+			frame:Hide()
+		end
 	end)
 end
 

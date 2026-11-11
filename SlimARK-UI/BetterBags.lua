@@ -188,21 +188,27 @@ end
 
 -- Registered once our saved settings are loaded: BetterBags loads before us (OptionalDeps),
 -- and a theme registered after BetterBags applied its saved one is applied on its own.
-local registered = false
+local registered = {}
 local function Register()
-	if registered then return true end
 	if not ns.C.modules.betterbags then return false end
 	local addon = BetterBags()
 	if not addon then return false end
-	registered = true
 	local classic, nextUI = Module(addon, 'Sonata'), Module(addon, 'SonataNext')
-	if classic and classic.RegisterTheme and not (classic.GetTheme and classic:GetTheme(THEME)) then
-		xpcall(function() classic:RegisterTheme(ClassicTheme()) end, geterrorhandler())
+	local found, complete = false, true
+	for _, entry in pairs({ classic = { module = classic, theme = ClassicTheme }, nextUI = { module = nextUI, theme = NextTheme } }) do
+		local module = entry.module
+		if module and module.RegisterTheme then
+			found = true
+			if not registered[module] then
+				local ok, result = xpcall(function()
+					if module == classic and module.GetTheme and module:GetTheme(THEME) then return true end
+					return module:RegisterTheme(entry.theme())
+				end, geterrorhandler())
+				if ok and result ~= false then registered[module] = true else complete = false end
+			end
+		end
 	end
-	if nextUI and nextUI.RegisterTheme then
-		xpcall(function() nextUI:RegisterTheme(NextTheme()) end, geterrorhandler())
-	end
-	return true
+	return found and complete
 end
 ns.On('ADDON_LOADED', function(_, name)
 	if name == 'SlimARK-UI' then Register() end
@@ -211,12 +217,25 @@ end)
 -- For /slimark apply (Skins.lua): selects the SlimARK theme in BetterBags' current
 -- profile. Returns nil when BetterBags is not loaded.
 function ns.BetterBagsProfile()
-	if not Register() or not Module(BetterBags(), 'Database') then return nil end
+	local addon = BetterBags()
+	if not addon then return nil end
+	if not Register() then error('BetterBags: SlimARK theme registration failed; try applying again.') end
+	if not Module(addon, 'Database') then error('BetterBags: the Database module is not available yet.') end
 	return false
 end
 
 function ns.ApplyBetterBags()
-	local database = Module(BetterBags(), 'Database')
-	if database.SetTheme then database:SetTheme(THEME) end
-	if database.SetNextTheme then database:SetNextTheme(THEME) end
+	local addon = BetterBags()
+	local database = addon and Module(addon, 'Database')
+	if not database then return false end
+	local applied = false
+	if database.SetTheme then
+		if database:SetTheme(THEME) == false then return false end
+		applied = true
+	end
+	if database.SetNextTheme then
+		if database:SetNextTheme(THEME) == false then return false end
+		applied = true
+	end
+	return applied
 end
