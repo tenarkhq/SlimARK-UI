@@ -166,6 +166,8 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - A red frame inside the edge of the member a mob is hitting
 - Each of these can be switched off on the frame's page in `/slimark`
 
+![Boss debuffs, incoming heals, HoTs, status icons and aggro on party, raid and healer frames](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/6550651a2c6102a434e5f2290116c2db209d87a3/assets/feature-groupframes-2-1.png)
+
 ## Nameplates
 
 ![Nameplates](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-nameplates.png)
