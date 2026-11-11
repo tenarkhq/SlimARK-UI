@@ -1,7 +1,7 @@
 -- Shared test helpers for the tests in tests/claude. Plain Lua 5.1, no WoW client:
 -- the real addon files are loaded into a stand-in WoW environment with fake frames and
 -- fake API functions whose answers each test sets. Run every test from the repository root:
---   lua5.1 tests/claude/<name>_test.lua      (luajit works as well)
+--   lua5.1 tests/claude/<name>.lua      (luajit works as well)
 local H = {}
 local realPrint = print
 

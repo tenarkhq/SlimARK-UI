@@ -13,8 +13,32 @@ local GOLD = { 0.95, 0.72, 0.29 }
 local OK = { 0.5, 0.82, 0.5 }
 local BAD = { 0.88, 0.34, 0.29 }
 local MISS_BG = { 0.88, 0.34, 0.29, 0.08 }
-local MAX_ROWS = 10
 local FOOD_ICON = 136000
+
+-- Augment runes by item ID, newest first: their names differ in every language.
+local AUGMENT_RUNES = {
+	259085, -- Void-Touched Augment Rune
+	243191, -- Ethereal Augment Rune
+	224572, -- Crystallized Augment Rune
+	211495, -- Dreambound Augment Rune
+	201325, -- Draconic Augment Rune
+	190384, -- Eternal Augment Rune
+	181468, -- Veiled Augment Rune
+	174906, -- Lightning-Forged Augment Rune
+	160053, -- Battle-Scarred Augment Rune
+	153023, -- Lightforged Augment Rune
+	140587, -- Defiled Augment Rune
+	128482, 128475, -- Empowered Augment Rune
+	118630, 118631, 118632, -- Hyper, Stout and Focus Augment Rune
+}
+local IS_RUNE = {}
+for _, id in ipairs(AUGMENT_RUNES) do IS_RUNE[id] = true end
+
+-- Buff and item names are only matched on English clients, as a last resort.
+local ENGLISH = { enUS = true, enGB = true }
+local function English()
+	return GetLocale ~= nil and ENGLISH[GetLocale()] == true
+end
 
 -- The group's class buffs, by the class that gives them.
 local CLASS_BUFFS = {
@@ -38,6 +62,20 @@ end
 ------------------------------------------------------------------------
 -- What you carry and what is on you.
 ------------------------------------------------------------------------
+-- The buff of a flask or a rune is the item's own use spell. A spell seen in the bags once is kept,
+-- so the buff is recognized in every language after the last item was used up.
+local function KnownSpells(kind)
+	if not ns.DB then return {} end
+	ns.DB.consumableSpells = ns.DB.consumableSpells or {}
+	ns.DB.consumableSpells[kind] = ns.DB.consumableSpells[kind] or {}
+	return ns.DB.consumableSpells[kind]
+end
+
+local function LearnSpell(kind, itemID)
+	local _, spellID = C_Item.GetItemSpell(itemID)
+	if spellID then KnownSpells(kind)[spellID] = true end
+end
+
 local function ScanBags()
 	local found = {}
 	local function keep(kind, id, icon, expansion)
@@ -54,10 +92,12 @@ local function ScanBags()
 				local name = C_Item.GetItemNameByID(id)
 				if classID == Enum.ItemClass.Consumable and subclass == 3 then
 					keep('flask', id, info.iconFileID, expansion)
+					LearnSpell('flask', id)
 				elseif classID == Enum.ItemClass.Consumable and subclass == 5 then
 					keep('food', id, info.iconFileID, expansion)
-				elseif Readable(name) and name:find('Augment Rune', 1, true) then
+				elseif IS_RUNE[id] or (English() and Readable(name) and name:find('Augment Rune', 1, true)) then
 					keep('rune', id, info.iconFileID, expansion)
+					LearnSpell('rune', id)
 				elseif ns.IsWeaponImbue and (classID == Enum.ItemClass.Consumable or classID == Enum.ItemClass.ItemEnhancement)
 					and ns.IsWeaponImbue(bag, slot, id) then
 					keep('oil', id, info.iconFileID, expansion)
@@ -84,13 +124,40 @@ local function AuraBySpells(ids)
 	end
 end
 
-local function ItemAura(item, test)
-	if item then
-		local _, spellID = C_Item.GetItemSpell(item.id)
-		local aura = spellID and C_UnitAuras.GetPlayerAuraBySpellID(spellID)
+local function ItemAura(item)
+	if not item then return nil end
+	local _, spellID = C_Item.GetItemSpell(item.id)
+	return spellID and C_UnitAuras.GetPlayerAuraBySpellID(spellID) or nil
+end
+
+-- A buff on you from one of the spells in the set.
+local function AuraFromSet(spells)
+	for id in pairs(spells) do
+		local aura = C_UnitAuras.GetPlayerAuraBySpellID(id)
 		if aura then return aura end
 	end
-	return FindAura(test)
+end
+
+-- The runes' spells: the known rune items' own, and the ones seen in the bags.
+local function RuneSpells()
+	local spells = {}
+	for id in pairs(KnownSpells('rune')) do spells[id] = true end
+	for _, item in ipairs(AUGMENT_RUNES) do
+		local _, spellID = C_Item.GetItemSpell(item)
+		if spellID then spells[spellID] = true end
+	end
+	return spells
+end
+
+local function ByName(...)
+	if not English() then return nil end
+	local words = { ... }
+	return FindAura(function(a)
+		for _, word in ipairs(words) do
+			if a.name:find(word, 1, true) then return true end
+		end
+		return false
+	end)
 end
 
 local function GroupClasses()
@@ -135,13 +202,20 @@ local function Collect()
 			status = text, ok = ok, item = (not ok) and item or nil, verb = verb })
 	end
 
-	add([[Interface\Icons\INV_Potion_1]], 'Flask', ItemAura(bags.flask, function(a) return a.name:find('Flask', 1, true) or a.name:find('Phial', 1, true) end), bags.flask, 'Drink')
-	add(FOOD_ICON, 'Food', FindAura(function(a) return a.icon == FOOD_ICON or a.name:find('Well Fed', 1, true) end), bags.food, 'Eat')
-	add([[Interface\Icons\INV_Misc_Rune_01]], 'Augment rune', ItemAura(bags.rune, function(a) return a.name:find('Augment', 1, true) end), bags.rune, 'Use')
+	local flask = ItemAura(bags.flask) or AuraFromSet(KnownSpells('flask')) or ByName('Flask', 'Phial')
+	add([[Interface\Icons\INV_Potion_1]], 'Flask', flask, bags.flask, 'Drink')
+	-- Well Fed has the same icon in every language; its spell is not the food's own.
+	local food = FindAura(function(a) return a.icon == FOOD_ICON end) or ByName('Well Fed')
+	add(FOOD_ICON, 'Food', food, bags.food, 'Eat')
+	local rune = ItemAura(bags.rune) or AuraFromSet(RuneSpells()) or ByName('Augment')
+	add([[Interface\Icons\INV_Misc_Rune_01]], 'Augment rune', rune, bags.rune, 'Use')
 
-	local hasMain, mainExpiration = GetWeaponEnchantInfo()
-	if hasMain then
-		local m = Readable(mainExpiration) and math.floor(mainExpiration / 60000) or nil
+	-- The temporary enchant of the main hand (C_PaperDollInfo is there in every client; the old
+	-- GetWeaponEnchantInfo is a deprecated fallback that can be missing).
+	local enchant = C_PaperDollInfo.GetTemporaryEnchantmentInfo(INVSLOT_MAINHAND or 16)
+	if enchant then
+		local left = enchant.remainingTimeMs
+		local m = Readable(left) and left > 0 and math.floor(left / 60000) or nil
 		add([[Interface\Icons\INV_Sword_04]], 'Weapon oil', { icon = bags.oil and bags.oil.icon }, nil, nil, m and (m .. ' min') or 'on you')
 	else
 		add([[Interface\Icons\INV_Sword_04]], 'Weapon oil', nil, bags.oil, 'Apply')
@@ -212,7 +286,7 @@ end
 local function Build()
 	window = CreateFrame('Frame', 'SlimARK_ReadyCheck', UIParent)
 	window:SetFrameStrata('DIALOG')
-	window:SetSize(W, HEAD + MAX_ROWS * ROW + 48)
+	window:SetSize(W, HEAD + 6 * ROW + 48)
 	Fill(window, BG)
 	ns.Outline(window)
 	window:Hide()
@@ -232,26 +306,6 @@ local function Build()
 	line:SetPoint('TOPRIGHT', 0, -HEAD)
 
 	rows = {}
-	for i = 1, MAX_ROWS do
-		local r = CreateFrame('Frame', nil, window)
-		r:SetHeight(ROW)
-		r:SetPoint('TOPLEFT', 0, -HEAD - (i - 1) * ROW)
-		r:SetPoint('RIGHT')
-		r.miss = Fill(r, MISS_BG)
-		r.icon = r:CreateTexture(nil, 'ARTWORK')
-		r.icon:SetSize(30, 30)
-		r.icon:SetPoint('LEFT', 10, 0)
-		r.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-		local edge = r:CreateTexture(nil, 'BORDER')
-		edge:SetColorTexture(0, 0, 0, 1)
-		edge:SetPoint('TOPLEFT', r.icon, -1, 1)
-		edge:SetPoint('BOTTOMRIGHT', r.icon, 1, -1)
-		r.label = ns.Text(r, 16)
-		r.label:SetPoint('LEFT', r.icon, 'RIGHT', 9, 0)
-		r.status = ns.Text(r, 16, 'RIGHT')
-		r.status:SetPoint('RIGHT', -10, 0)
-		rows[i] = r
-	end
 
 	window.yes = FlatButton(window, READY or 'Ready', OK)
 	window.no = FlatButton(window, NOT_READY or 'Not ready', BAD)
@@ -266,6 +320,31 @@ local function Build()
 	events:SetScript('OnEvent', function() ns.RefreshReadyCheck() end)
 end
 
+-- A row per line of the list, made when the list first needs it: a full raid has every class buff
+-- and the durability, more rows than a party.
+local function Row(i)
+	if rows[i] then return rows[i] end
+	local r = CreateFrame('Frame', nil, window)
+	r:SetHeight(ROW)
+	r:SetPoint('TOPLEFT', 0, -HEAD - (i - 1) * ROW)
+	r:SetPoint('RIGHT')
+	r.miss = Fill(r, MISS_BG)
+	r.icon = r:CreateTexture(nil, 'ARTWORK')
+	r.icon:SetSize(30, 30)
+	r.icon:SetPoint('LEFT', 10, 0)
+	r.icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+	local edge = r:CreateTexture(nil, 'BORDER')
+	edge:SetColorTexture(0, 0, 0, 1)
+	edge:SetPoint('TOPLEFT', r.icon, -1, 1)
+	edge:SetPoint('BOTTOMRIGHT', r.icon, 1, -1)
+	r.label = ns.Text(r, 16)
+	r.label:SetPoint('LEFT', r.icon, 'RIGHT', 9, 0)
+	r.status = ns.Text(r, 16, 'RIGHT')
+	r.status:SetPoint('RIGHT', -10, 0)
+	rows[i] = r
+	return r
+end
+
 local function HideUse()
 	for _, b in ipairs(useButtons) do
 		if InCombatLockdown() then b:SetAlpha(0) else b:Hide() b:SetAlpha(1) end
@@ -275,12 +354,13 @@ end
 local function Refresh()
 	if not window or not window:IsShown() or InCombatLockdown() then return end
 	local list = Collect()
-	local shown = math.min(#list, MAX_ROWS)
+	local shown = #list
 	local used = 0
 	HideUse()
-	for i, r in ipairs(rows) do
+	for i = 1, math.max(shown, #rows) do
 		local data = list[i]
-		if data and i <= MAX_ROWS then
+		local r = data and Row(i) or rows[i]
+		if data then
 			r.icon:SetTexture(data.icon)
 			r.label:SetText(data.label)
 			r.status:SetText(data.status)
@@ -361,11 +441,16 @@ local function Open(_, who, timeLeft)
 	local name = Readable(who) and Ambiguate(who, 'short') or ''
 	window.title:SetText('Ready check · ' .. name)
 	window:Show()
+	-- Blizzard's window is put aside only when ours is built: if building fails, ours closes again
+	-- and Blizzard's answers the check.
+	if not xpcall(Refresh, geterrorhandler()) then
+		Close()
+		return
+	end
 	if ReadyCheckListenerFrame then ReadyCheckListenerFrame:Hide() end
 	events:RegisterUnitEvent('UNIT_AURA', 'player')
 	events:RegisterUnitEvent('UNIT_INVENTORY_CHANGED', 'player')
 	events:RegisterEvent('BAG_UPDATE_DELAYED')
-	Refresh()
 	Tick()
 	if not ticker then ticker = C_Timer.NewTicker(1, Tick) end
 end
@@ -383,7 +468,14 @@ ns.On('PLAYER_LOGIN', function()
 	ns.On('READY_CHECK', Open)
 	ns.On('READY_CHECK_FINISHED', Close)
 	ns.On('GROUP_LEFT', Close)
+	-- Entering combat: the secure Use buttons go while that is still allowed (this event comes
+	-- before the lockdown), so no hidden button catches a click or uses an item in the fight.
+	-- Their rows show the status again; after the fight an open window gets its buttons back.
+	ns.On('PLAYER_REGEN_DISABLED', function()
+		HideUse()
+		for _, r in ipairs(rows) do r.status:Show() end
+	end)
 	ns.On('PLAYER_REGEN_ENABLED', function()
-		if not window:IsShown() then HideUse() end
+		if window:IsShown() then Refresh() else HideUse() end
 	end)
 end)
