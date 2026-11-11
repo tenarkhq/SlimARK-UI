@@ -1040,6 +1040,13 @@ K.Register('gossip', nil, { 'GossipFrame', 'QuestFrame', 'ItemTextFrame' }, func
 	K.Window(frame)
 	if frame == _G.GossipFrame then
 		K.Hide(frame.Background)
+		-- Blizzard colors every text line of the window again after each update (UpdateTheme:
+		-- the parchment color, dark brown and black), so they turn light after it each time.
+		if frame.UpdateTheme then
+			hooksecurefunc(frame, 'UpdateTheme', function(self)
+				for fs in pairs(self.fontStrings or {}) do Light(fs) end
+			end)
+		end
 		local panel = frame.GreetingPanel
 		if panel then
 			-- The letter material in the corners (12.x has no Bg here).

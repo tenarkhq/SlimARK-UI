@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.0.8
+
+- New: junk is sold at every vendor. SlimARK presses the game's own Sell All Junk for you (grey items; bags you excluded from it in the bag menu stay untouched) and prints how many items it sold and for how much. Switch: Vendor page, "Sell junk (grey items)"; on by default
+- Fixed: the text of NPC conversations (the greeting and the options) was dark brown and black on the dark window, because the game colored it for parchment again after every update. It stays light now
+
 ## 2.0.7
 
 - Fixed: a click on a dungeon in the keystone teleport list did nothing. With the game's "cast on key down" setting on, SlimARK's buttons waited for a key press that a mouse click never sends. The same fix makes the marker bar, the ready check Use buttons and the micro menu buttons on the top bar act on the click

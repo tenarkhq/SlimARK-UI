@@ -7,21 +7,50 @@ local visible = {}
 local hiddenCount = 0
 local slot11Point, slot12Point
 
+-- Sells the junk (grey items) the game's own Sell All Junk button would sell, bags excluded
+-- from it in the bag menu included. The gold it brought is printed once the sale has arrived.
+local function SellJunk()
+	if not C.features.autoSellJunk or not C_MerchantFrame or not C_MerchantFrame.SellAllJunkItems then return end
+	if not C_MerchantFrame.IsSellAllJunkEnabled() then return end
+	local count = C_MerchantFrame.GetNumJunkItems()
+	if count <= 0 then return end
+	local before = GetMoney()
+	C_MerchantFrame.SellAllJunkItems()
+	return count, before
+end
+
 -- Autorepair at every NPC with a hammer.
+local function Repair()
+	if not C.features.autoRepair or not CanMerchantRepair() then return 0 end
+	local cost, canRepair = GetRepairAllCost()
+	if not canRepair or cost <= 0 then return 0 end
+	if GetMoney() >= cost then
+		RepairAllItems()
+		ns.Print('Repaired: ' .. GetMoneyString(cost, true))
+		return cost
+	end
+	ns.Print('Not enough gold to repair: ' .. GetMoneyString(cost, true))
+	return 0
+end
+
 ns.On('MERCHANT_SHOW', function()
 	wipe(ownedCache)
 	C_Timer.After(0.5, function()
 		if MerchantFrame:IsShown() then MerchantFrame.update = true end
 	end)
-	if not C.features.autoRepair or not CanMerchantRepair() then return end
-	local cost, canRepair = GetRepairAllCost()
-	if not canRepair or cost <= 0 then return end
-	if GetMoney() >= cost then
-		RepairAllItems()
-		ns.Print('Repaired: ' .. GetMoneyString(cost, true))
-	else
-		ns.Print('Not enough gold to repair: ' .. GetMoneyString(cost, true))
-	end
+	-- Junk first, so the gold before the sale is read before the repair takes its share.
+	local count, before = SellJunk()
+	local repaired = Repair()
+	if not count then return end
+	C_Timer.After(1.5, function()
+		local gained = GetMoney() - before + repaired
+		local items = count == 1 and '1 item' or count .. ' items'
+		if gained > 0 then
+			ns.Print('Sold junk: ' .. items .. ', ' .. GetMoneyString(gained, true))
+		else
+			ns.Print('Sold junk: ' .. items)
+		end
+	end)
 end)
 
 local function TooltipSaysOwned(index, itemID)

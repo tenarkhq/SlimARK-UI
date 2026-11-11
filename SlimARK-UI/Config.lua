@@ -78,7 +78,7 @@ ns.C = {
 	-- Single features, switched in /slimark.
 	features = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
-		autoRepair = true, autoRoleCheck = true, oneClickSignup = true,
+		autoRepair = true, autoSellJunk = true, autoRoleCheck = true, oneClickSignup = true,
 		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
 		autoQuest = true, autoKeystone = true, announceKey = true, errorFilter = true,
 		easyDelete = true,

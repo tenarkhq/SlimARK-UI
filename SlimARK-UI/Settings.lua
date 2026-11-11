@@ -162,7 +162,7 @@ S.groups = {
 				{ name = 'Addon buttons', rows = { R('Button size', 'minimap.buttonSize', 16, 48), R('Gap', 'minimap.buttonGap', 0, 12) } } } },
 		{ id = 'tracker', name = 'Quest tracker', module = 'modules.tracker', apply = true, desc = 'Position and size are written into the SlimARK-UI Edit Mode layouts. X is the right edge.',
 			secs = { Pos('tracker'), { name = 'Tracker', rows = { R('Height', 'tracker.height', 400, 1200, 10), R('Text size', 'tracker.textSize', 12, 20) } } } },
-		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair') } } } },
+		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair'), T('Sell junk (grey items)', 'features.autoSellJunk') } } } },
 		{ id = 'character', name = 'Character sheet', module = 'modules.character', desc = 'Item level, gems, enchants and what is missing on each item.', secs = {} },
 		{ id = 'blizzwindows', name = 'Blizzard windows',
 			desc = 'The look of Blizzard\'s own windows. Original leaves them alone. SlimARK makes them flat and dark with a thin black edge and the SlimARK font; each window is dressed the first time you open it. The switches pick the windows SlimARK dresses. With BetterFriendlist its window is dressed in place of the friends list; with BetterBags the bags keep the BetterBags skin.',
