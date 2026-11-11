@@ -34,6 +34,10 @@ local function Boot()
 	H.load('Core.lua')
 	H.load('UnitFrames.lua')
 	H.load('NamePlates.lua')
+	-- Two plates: the interrupted mob and another one.
+	local other = H.NewFrame('Frame', nil, UIParent)
+	oUF.styles.SlimARKPlate(other)
+	other.__unit = 'nameplate2'
 	local plate = H.NewFrame('Frame', nil, UIParent)
 	oUF.styles.SlimARKPlate(plate)
 	plate.__unit = 'nameplate1'
@@ -51,12 +55,23 @@ local function Shown(cb)
 end
 
 do
-	-- No GUID from the game; Alice kicked the mob she targets: her name, in class color.
+	-- No GUID from the game; Alice kicked the mob she targeted: her name as an estimate (?).
 	local cb = Boot()
 	Kick('party1', 'Alice', 'ROGUE', 'nameplate1')
 	H.now = H.now + 0.2
 	cb.PostCastFail(cb, 'nameplate1', 0, 'UNIT_SPELLCAST_INTERRUPTED')
-	H.equal(Shown(cb), 'Alice', 'F18 a party kick aimed at this mob names the kicker')
+	H.equal(Shown(cb), 'Alice?', 'F18 a party kick at this plate gives an estimate, marked with ?')
+end
+
+do
+	-- Alice kicked the other mob and switched her target to this one right after.
+	local cb = Boot()
+	Kick('party1', 'Alice', 'ROGUE', 'nameplate2')
+	H.now = H.now + 0.05
+	world.targets.party1 = 'nameplate1'
+	H.now = H.now + 0.05
+	cb.PostCastFail(cb, 'nameplate1', 0, 'UNIT_SPELLCAST_INTERRUPTED')
+	H.equal(Shown(cb), nil, 'F18 a quick target switch after the kick does not move it to this mob')
 end
 
 do
@@ -100,13 +115,22 @@ do
 end
 
 do
-	-- The player kicked by focus: tied through the focus.
+	-- The player has this mob as focus but kicked their target, another mob.
 	local cb = Boot()
 	world.targets.focus = 'nameplate1'
-	Kick('player', 'Me', 'MAGE', 'nameplate3')
+	Kick('player', 'Me', 'MAGE', 'nameplate2')
 	H.now = H.now + 0.1
 	cb.PostCastFail(cb, 'nameplate1', 0, 'UNIT_SPELLCAST_INTERRUPTED')
-	H.equal(Shown(cb), 'Me', 'F18 your own kick on your focus names you')
+	H.equal(Shown(cb), nil, 'F18 a focus on this mob does not prove the kick went to it')
+end
+
+do
+	-- Your own kick at your target: the estimate names you.
+	local cb = Boot()
+	Kick('player', 'Me', 'MAGE', 'nameplate1')
+	H.now = H.now + 0.1
+	cb.PostCastFail(cb, 'nameplate1', 0, 'UNIT_SPELLCAST_INTERRUPTED')
+	H.equal(Shown(cb), 'Me?', 'F18 your own kick at your target gives an estimate')
 end
 
 do

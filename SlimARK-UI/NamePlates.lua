@@ -37,11 +37,28 @@ local function LearnCaster(frame, unit)
 end
 
 -- Who interrupted: the game gives the GUID, but in restricted content it can be hidden or left out.
--- So we also watch the party's own interrupt casts; one names the interrupter only when it can be
--- tied to the mob: cast in the last half second by a member whose target (the player's focus
--- too) is the interrupted unit. A kick at another mob, or one that cannot be tied, names nobody.
-local recentKicks = {} -- unit -> { name, class, time }
+-- So we also watch the party's own interrupt casts. The mob a kick went to is not given either:
+-- the plate the kicker had targeted at the moment of the cast is noted, and a kick from the last
+-- half second at the interrupted plate gives an estimated name, shown with a question mark (a
+-- kick by focus or mouseover can still go elsewhere). A kick that cannot be tied names nobody.
+local recentKicks = {} -- unit -> { name, class, time, plate }
 local KICK_WINDOW = 0.5
+local plateFrames = {}
+
+local function SameUnit(a, b)
+	if not UnitExists(a) or not C_Secrets.CanCompareUnitTokens(a, b) then return false end
+	local same = UnitIsUnit(a, b)
+	return not issecretvalue(same) and same == true
+end
+
+-- The plate unit the kicker targets right now.
+local function TargetPlate(kicker)
+	local target = kicker .. 'target'
+	for _, frame in ipairs(plateFrames) do
+		local unit = frame.__unit
+		if unit and SameUnit(target, unit) then return unit end
+	end
+end
 
 local KICKS = {
 	[96231] = true, [1766] = true, [6552] = true, [47528] = true, [2139] = true,
@@ -58,22 +75,15 @@ kickWatch:SetScript('OnEvent', function(_, _, unit, _, spellID)
 	if not name or issecretvalue(name) then return end
 	local class = UnitClassBase(unit)
 	if issecretvalue(class) then class = nil end
-	recentKicks[unit] = { name = name, class = class, time = GetTime() }
+	recentKicks[unit] = { name = name, class = class, time = GetTime(), plate = TargetPlate(unit) }
 end)
 
-local function SameUnit(a, b)
-	if not UnitExists(a) or not C_Secrets.CanCompareUnitTokens(a, b) then return false end
-	local same = UnitIsUnit(a, b)
-	return not issecretvalue(same) and same == true
-end
-
--- The freshest party interrupt aimed at this unit.
+-- The freshest party interrupt cast at this plate's unit.
 local function KickOn(unit)
 	if not unit then return end
 	local best
-	for kicker, kick in pairs(recentKicks) do
-		if GetTime() - kick.time < KICK_WINDOW and (not best or kick.time > best.time)
-			and (SameUnit(kicker .. 'target', unit) or (kicker == 'player' and SameUnit('focus', unit))) then
+	for _, kick in pairs(recentKicks) do
+		if kick.plate == unit and GetTime() - kick.time < KICK_WINDOW and (not best or kick.time > best.time) then
 			best = kick
 		end
 	end
@@ -82,7 +92,7 @@ end
 
 -- The exact GUID is first, then the name behind a secret GUID (enemy casts in dungeons give the
 -- GUID as a secret: the name can still be shown, SetText takes a secret, only its class color is
--- unknown), last a party interrupt tied to this unit.
+-- unknown), last a party interrupt at this plate. The third value is true for that estimate.
 local function InterrupterName(guid, unit)
 	local secret = issecretvalue(guid)
 	if not secret and guid and guid ~= '' then
@@ -98,11 +108,10 @@ local function InterrupterName(guid, unit)
 		if ok and name and name ~= '' then return name end
 	end
 	local kick = KickOn(unit)
-	if kick then return kick.name, kick.class end
+	if kick then return kick.name, kick.class, true end
 end
 
 local MAX_TARGETERS = 4
-local plateFrames = {}
 local members = {}
 
 -- In a party the four teammates, in a raid the tanks. Watching everyone in a raid would be expensive.
@@ -186,18 +195,19 @@ local function PlateStyle(self)
 	local function ShowInterrupter(element, guid)
 		element.Text:SetText('Interrupted')
 		if not C.features.interrupter then return end
-		local name, class = InterrupterName(guid, element.__owner and element.__owner.__unit)
+		local name, class, estimate = InterrupterName(guid, element.__owner and element.__owner.__unit)
 		-- A secret name can not be tested, only shown.
 		if not issecretvalue(name) and not name then return end
 		if element.Time.binding then element.Time.binding:SetEnabled(false) end
 		local color = class and C_ClassColor.GetClassColor(class)
-		element.Time:SetText(name)
+		-- The estimate from a party kick carries a question mark.
+		element.Time:SetText(estimate and (name .. '?') or name)
 		if color then element.Time:SetTextColor(color.r, color.g, color.b) else element.Time:SetTextColor(1, 1, 1) end
 	end
 	cb.PostCastInterrupted = function(element, _, _, interruptedBy)
 		ShowInterrupter(element, interruptedBy)
 	end
-	-- When the game leaves out who interrupted, our own or a party interrupt aimed at this mob still names them.
+	-- When the game leaves out who interrupted, our own or a party interrupt at this plate gives an estimate.
 	-- The event decides: the bar text can be a hidden value after a secret spell name, it can not be compared.
 	cb.PostCastFail = function(element, _, _, event)
 		if event == 'UNIT_SPELLCAST_INTERRUPTED' then ShowInterrupter(element, nil) end

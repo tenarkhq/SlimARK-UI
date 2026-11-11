@@ -187,7 +187,9 @@ end
 
 function H.setup()
 	H.frames, H.timers, H.prints = {}, {}, {}
-	H.now, H.combat = 1000, false
+	H.now, H.combat, H.secret = 1000, false, nil
+	-- Every environment starts from fresh SavedVariables: nothing learned in one test leaks into the next.
+	_G.SlimARKDB, _G.SlimARKCharDB = nil, nil
 	_G.UIParent = new('Frame', 'UIParent')
 	_G.CreateFrame = function(kind, name, parent) return new(kind, name, parent) end
 	_G.GetPhysicalScreenSize = function() return 2560, 1600 end

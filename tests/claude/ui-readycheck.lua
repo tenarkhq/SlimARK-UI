@@ -214,6 +214,36 @@ do
 end
 
 do
+	-- The audit's case: fresh SavedVariables, German client. The flask is seen in the bags (a bag
+	-- update), then drunk before the very first ready check.
+	Boot('deDE')
+	world.bag = { { id = 5003, class = world.CONSUMABLE, subclass = 3, name = 'Fläschchen des Neulings' } }
+	world.itemSpells[5003] = 9003
+	H.fire('BAG_UPDATE_DELAYED')
+	H.runTimers(2)
+	world.bag = {}
+	world.auras = { { name = 'Fläschchen des Neulings', spellId = 9003, icon = 2, expirationTime = H.now + 1200 } }
+	H.fire('READY_CHECK', 'Leader', 30)
+	H.equal(RowByLabel('Flask').status:GetText(), '20 min', 'F11 deDE, fresh data: a flask learned from the bags before any check')
+	H.fire('READY_CHECK_FINISHED')
+end
+
+do
+	-- Fresh data, German client: a current flask's buff, the item never seen (a cauldron flask).
+	Boot('deDE')
+	world.auras = { { name = 'Fläschchen der Magister', spellId = 1235108, icon = 2, expirationTime = H.now + 3000 } }
+	H.fire('READY_CHECK', 'Leader', 30)
+	H.equal(RowByLabel('Flask').status:GetText(), '50 min', 'F11 deDE, fresh data: a current flask buff is known by its spell ID')
+	H.fire('READY_CHECK_FINISHED')
+
+	-- A current rune's buff, with no item data loaded (GetItemSpell gives nothing).
+	world.auras = { { name = 'Leerenberührt', spellId = 1264426, icon = 3, expirationTime = H.now + 3600 } }
+	H.fire('READY_CHECK', 'Leader', 30)
+	H.equal(RowByLabel('Augment rune').status:GetText(), '60 min', 'F11 deDE, fresh data: a current rune buff is known by its spell ID')
+	H.fire('READY_CHECK_FINISHED')
+end
+
+do
 	-- deDE: a buff with an English-looking name is not taken for a flask by its name.
 	Boot('deDE')
 	world.auras = { { name = 'Flask of Nothing', spellId = 7777, icon = 2, expirationTime = H.now + 600 } }

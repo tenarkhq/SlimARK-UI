@@ -34,6 +34,23 @@ local AUGMENT_RUNES = {
 local IS_RUNE = {}
 for _, id in ipairs(AUGMENT_RUNES) do IS_RUNE[id] = true end
 
+-- The buffs of the current flasks and runes by spell ID (the Fleeting cauldron flasks give the
+-- same buff), so they are recognized even when no such item was ever in the bags.
+local FLASK_BUFFS = {}
+for _, id in ipairs({
+	-- Midnight: Thalassian Resistance, the Magisters, the Blood Knights, the Shattered Sun, Vicious Flask of Honor.
+	1235057, 1235108, 1235110, 1235111, 1239355,
+	-- The War Within: Tempered Aggression, Swiftness, Versatility, Mastery; Alchemical Chaos; Saving Graces.
+	431971, 431972, 431973, 431974, 432021, 432473,
+}) do FLASK_BUFFS[id] = true end
+local RUNE_BUFFS = {}
+for _, id in ipairs({
+	1264426, -- Void-Touched (Void-Touched Augment Rune)
+	1234969, -- Ethereal Augmentation
+	453250, -- Crystallization (Crystallized Augment Rune)
+	393438, -- Draconic Augmentation (Draconic and Dreambound Augment Rune)
+}) do RUNE_BUFFS[id] = true end
+
 -- Buff and item names are only matched on English clients, as a last resort.
 local ENGLISH = { enUS = true, enGB = true }
 local function English()
@@ -74,6 +91,25 @@ end
 local function LearnSpell(kind, itemID)
 	local _, spellID = C_Item.GetItemSpell(itemID)
 	if spellID then KnownSpells(kind)[spellID] = true end
+end
+
+-- The flasks and runes in the bags are learned whenever the bags change, not only during a ready
+-- check: the last one may be used up before the next check.
+local function LearnFromBags()
+	for bag = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS or 4 do
+		for slot = 1, C_Container.GetContainerNumSlots(bag) do
+			local info = C_Container.GetContainerItemInfo(bag, slot)
+			local id = info and info.itemID
+			if id then
+				local _, _, _, _, _, classID, subclass = C_Item.GetItemInfoInstant(id)
+				if classID == Enum.ItemClass.Consumable and subclass == 3 then
+					LearnSpell('flask', id)
+				elseif IS_RUNE[id] then
+					LearnSpell('rune', id)
+				end
+			end
+		end
+	end
 end
 
 local function ScanBags()
@@ -202,12 +238,13 @@ local function Collect()
 			status = text, ok = ok, item = (not ok) and item or nil, verb = verb })
 	end
 
-	local flask = ItemAura(bags.flask) or AuraFromSet(KnownSpells('flask')) or ByName('Flask', 'Phial')
+	local flask = ItemAura(bags.flask) or AuraFromSet(FLASK_BUFFS) or AuraFromSet(KnownSpells('flask'))
+		or ByName('Flask', 'Phial')
 	add([[Interface\Icons\INV_Potion_1]], 'Flask', flask, bags.flask, 'Drink')
 	-- Well Fed has the same icon in every language; its spell is not the food's own.
 	local food = FindAura(function(a) return a.icon == FOOD_ICON end) or ByName('Well Fed')
 	add(FOOD_ICON, 'Food', food, bags.food, 'Eat')
-	local rune = ItemAura(bags.rune) or AuraFromSet(RuneSpells()) or ByName('Augment')
+	local rune = ItemAura(bags.rune) or AuraFromSet(RUNE_BUFFS) or AuraFromSet(RuneSpells()) or ByName('Augment')
 	add([[Interface\Icons\INV_Misc_Rune_01]], 'Augment rune', rune, bags.rune, 'Use')
 
 	-- The temporary enchant of the main hand (C_PaperDollInfo is there in every client; the old
@@ -467,6 +504,17 @@ ns.On('PLAYER_LOGIN', function()
 	end
 	ns.On('READY_CHECK', Open)
 	ns.On('READY_CHECK_FINISHED', Close)
+	-- A burst of bag updates (looting) is learned from once, a second later.
+	local learnQueued = false
+	ns.On('BAG_UPDATE_DELAYED', function()
+		if learnQueued then return end
+		learnQueued = true
+		C_Timer.After(1, function()
+			learnQueued = false
+			LearnFromBags()
+		end)
+	end)
+	LearnFromBags()
 	ns.On('GROUP_LEFT', Close)
 	-- Entering combat: the secure Use buttons go while that is still allowed (this event comes
 	-- before the lockdown), so no hidden button catches a click or uses an item in the fight.
