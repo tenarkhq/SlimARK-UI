@@ -1,0 +1,26 @@
+# Runs every offline check on each push and pull request: Lua syntax, the TOC files, the Lua tests
+# with Lua 5.1 and LuaJIT, and the release zip check. Builds the zip too, but publishes nothing.
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the test requirements (lupa's Lua 5.1 and LuaJIT)
+        run: python -m pip install -r requirements-test.txt
+      - name: Run every check
+        run: python tests/run.py
+      - name: Build the release zip (not uploaded)
+        run: python tools/package.py --out dist
