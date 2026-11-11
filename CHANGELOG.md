@@ -3,7 +3,7 @@
 ## 2.1.1
 
 - Settings apply the values just saved, including changes shared with Edit Mode and other addons. Changing the rotation icons' Y or the marker bar placement also clears an older dragged position.
-- A failed apply reports the affected part, keeps the UI open and allows a retry. It does not mark an incomplete setup as finished or reload away the error. Failed window skins and BetterBags themes can be retried.
+- A failed apply reports the affected part, keeps the UI open and allows a retry. It does not mark an incomplete setup as finished or reload away the error. Failed window skins retry once per frame, then stop until reload; BetterBags themes remain retryable.
 - Details!, DBM and BigWigs keep a different profile you select in their own menus. Only an explicit apply switches back to SlimARK.
 - Group frames keep a Blizzard fallback when their SlimARK replacement is disabled; the aggro edge uses the current unit. The test player's role is preserved.
 - Tooltip and ready check use current Retail/PTR/Forever APIs. Ready check fits every class-buff row, and its item buttons are hidden before combat starts.

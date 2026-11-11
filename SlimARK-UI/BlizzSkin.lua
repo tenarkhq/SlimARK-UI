@@ -574,18 +574,28 @@ function K.Panel(frame, opts)
 end
 
 -- Windows by settings key. Each entry: the Blizzard addon that owns the frame (nil when it
--- is always loaded), the frame names, and the function that dresses it. The function runs
--- once, on the frame's first OnShow, or at once when the frame is already shown.
+-- is always loaded), the frame names, and the function that dresses it. Try on the first
+-- OnShow (or at once if already shown), then once more after a failure. Only success marks
+-- the window done; the two-attempt limit bounds partial hooks and allocations until reload.
 K.windows = {}
 function K.Register(key, addon, frames, fn)
 	table.insert(K.windows, { key = key, addon = addon, frames = type(frames) == 'table' and frames or { frames }, fn = fn })
 end
 
+local windowAttempts = setmetatable({}, { __mode = 'k' })
+local MAX_WINDOW_ATTEMPTS = 2
+
 local function Dress(entry, frame)
 	local flags = done[frame]
 	if flags and flags.window then return end
+	local attempts = windowAttempts[frame] or 0
+	if attempts >= MAX_WINDOW_ATTEMPTS then return end
+	windowAttempts[frame] = attempts + 1
 	local ok, result = xpcall(function() return entry.fn(frame) end, geterrorhandler())
-	if ok and result ~= false then K.Done(frame, 'window') end
+	if ok and result ~= false then
+		K.Done(frame, 'window')
+		windowAttempts[frame] = nil
+	end
 end
 
 local function Arm(entry)
