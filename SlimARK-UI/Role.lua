@@ -33,6 +33,32 @@ function ns.AddGroupHeader(header, forHealer, visibility)
 	ShowHeader(entry)
 end
 
+-- Blizzard's party or raid frames when only one role has a SlimARK frame in their place: the
+-- roleset hides them for that role and gives them back for the other. They keep running, so
+-- nothing has to be switched on again. A roleset changes only out of combat.
+local blizzard = {}
+local blizzardPending = false
+
+local function ShowBlizzard()
+	if InCombatLockdown() then
+		blizzardPending = true
+		return
+	end
+	blizzardPending = false
+	for _, entry in ipairs(blizzard) do
+		local covered
+		if ns.healer then covered = entry.forHealer else covered = entry.forDps end
+		entry.frame:SetRolesets(covered and 'alwaysBlocked' or entry.roleset)
+	end
+end
+
+-- roleset: the frame's own roleset from Blizzard's XML (nil: none).
+function ns.AddBlizzardGroup(frame, roleset, forDps, forHealer)
+	if not frame or not frame.SetRolesets then return end
+	table.insert(blizzard, { frame = frame, roleset = roleset, forDps = forDps and true or false, forHealer = forHealer and true or false })
+	ShowBlizzard()
+end
+
 function ns.OnRole(fn)
 	table.insert(listeners, fn)
 end
@@ -49,6 +75,7 @@ local function Check()
 		ns.healer = healer
 		for _, item in ipairs(ns.Placed) do ns.Place(item) end
 		for _, entry in ipairs(headers) do ShowHeader(entry) end
+		ShowBlizzard()
 		for _, fn in ipairs(listeners) do fn() end
 	end
 	ns.SyncLayout()
@@ -64,6 +91,7 @@ function ns.PreviewLayout(healer)
 	ns.healer = healer
 	for _, item in ipairs(ns.Placed) do ns.Place(item) end
 	for _, entry in ipairs(headers) do ShowHeader(entry) end
+	ShowBlizzard()
 	for _, fn in ipairs(listeners) do fn() end
 end
 
@@ -73,6 +101,7 @@ ns.On('PLAYER_SPECIALIZATION_CHANGED', function(_, unit)
 end)
 ns.On('PLAYER_REGEN_ENABLED', function()
 	if pending then Check() end
+	if blizzardPending then ShowBlizzard() end
 end)
 ns.On('PLAYER_ENTERING_WORLD', function(_, isLogin, isReload)
 	if isLogin or isReload then C_Timer.After(3, Check) end

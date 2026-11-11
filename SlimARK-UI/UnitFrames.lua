@@ -516,15 +516,21 @@ local function Style(self, unit)
 
 		-- Aggro: a red frame inside the edge of the member a mob hits (threat 2 or 3). Asked for
 		-- one unit only, the threat state is readable in combat; a hidden value hides the frame.
+		-- The unit is oUF's own (__unit); .unit is only filled in when the mouse shows the tooltip.
 		if C.features.aggro then
 			local aggro = ns.Edge(self, 2, C.colors.aggro, 0)
 			aggro:SetFrameLevel(self:GetFrameLevel() + 11)
 			aggro:Hide()
 			aggro.Override = function(frame, _, unit)
-				if unit and unit ~= frame.unit then return end
-				local ok, status = pcall(UnitThreatSituation, frame.unit)
+				local current = frame.__unit
+				if not current then
+					aggro:Hide()
+					return
+				end
+				if unit and unit ~= current then return end
+				local ok, status = pcall(UnitThreatSituation, current)
 				local hit = ok and status ~= nil and not issecretvalue(status) and status >= 2
-				aggro:SetShown(hit and UnitExists(frame.unit) or false)
+				aggro:SetShown(hit and UnitExists(current) or false)
 			end
 			self.ThreatIndicator = aggro
 		end
@@ -572,13 +578,24 @@ oUF:Factory(function(self)
 	local PARTY_SHOWN = 'custom [@raid6,exists] hide; [group] show; hide'
 	local RAID_SHOWN = 'custom [@raid6,exists] show; hide'
 
+	-- Blizzard's party and raid frames step aside for the role that has a SlimARK frame in their
+	-- place: Party and Raid for DPS and tanks, the grid for healers. With both roles covered they
+	-- are switched off for good, as oUF does it. With one role covered they are only hidden for
+	-- that role (Role.lua), so a spec change or a module switched off gives them back.
+	local partyCovered = M.party and M.grid
+	local raidCovered = M.raid and M.grid
+	-- oUF switches Blizzard's party frames off for good when a header is made with showParty, so
+	-- with one role covered showParty is set right after the header is made.
+	local showPartyLater = not partyCovered
+
 	if M.party then
 		local p = C.units.party
 		-- The player has an own frame, so the DPS party column holds only the other four.
 		local party = self:SpawnHeader('SlimARK_Party', nil,
-			'showParty', true, 'showRaid', true,
+			'showParty', not showPartyLater, 'showRaid', true,
 			'point', 'TOP', 'yOffset', -p.gap,
 			'oUF-initialConfigFunction', init(p))
+		if showPartyLater then party:SetAttribute('showParty', true) end
 		ns.AddGroupHeader(party, false, PARTY_SHOWN)
 		ns.Register(party, p.x, p.y, { key = 'party', w = p.w, h = 4 * (p.h + p.gap) - p.gap, forHealer = false })
 	end
@@ -601,9 +618,10 @@ oUF:Factory(function(self)
 		local g = C.units.grid
 		local gridWidth = 5 * (g.w + g.gap) - g.gap
 		local healParty = self:SpawnHeader('SlimARK_HealParty', nil,
-			'showParty', true, 'showPlayer', true, 'showRaid', true,
+			'showParty', not showPartyLater, 'showPlayer', true, 'showRaid', true,
 			'point', 'LEFT', 'xOffset', g.gap,
 			'oUF-initialConfigFunction', init(g))
+		if showPartyLater then healParty:SetAttribute('showParty', true) end
 		ns.AddGroupHeader(healParty, true, PARTY_SHOWN)
 		ns.Register(healParty, g.x, g.y, { key = 'healparty', w = gridWidth, h = g.h, point = 'BOTTOMLEFT', forHealer = true })
 
@@ -618,9 +636,18 @@ oUF:Factory(function(self)
 		ns.Register(healRaid, g.x, g.y, { key = 'healraid', w = gridWidth, h = 8 * (g.h + g.gap) - g.gap, point = 'BOTTOMLEFT', forHealer = true })
 	end
 
-	-- A Blizzard group frame stays when our frame for that group is switched off.
-	if M.raid or M.grid then ns.Block(CompactRaidFrameContainer) end
-	if M.party or M.grid then ns.Block(CompactPartyFrame) end
+	-- A Blizzard group frame stays for the role whose SlimARK frame for that group is switched off.
+	-- PartyFrame holds the party frames of both styles (CompactPartyFrame is made inside it later).
+	if raidCovered then
+		ns.Block(CompactRaidFrameContainer)
+	elseif M.raid or M.grid then
+		ns.AddBlizzardGroup(CompactRaidFrameContainer, nil, M.raid, M.grid)
+	end
+	if partyCovered then
+		ns.Block(CompactPartyFrame)
+	elseif M.party or M.grid then
+		ns.AddBlizzardGroup(PartyFrame, 'unitFrames', M.party, M.grid)
+	end
 	-- The buffs and debuffs belong to the player frame.
 	if M.unitframes and M.auras then
 		ns.Block(BuffFrame)
