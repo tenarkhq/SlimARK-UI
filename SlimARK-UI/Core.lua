@@ -9,9 +9,13 @@ ns.SOFT = [[Interface\AddOns\SlimARK-UI\Media\Soft.tga]]
 
 local handlers = {}
 local driver = CreateFrame('Frame')
+-- Every module's callback runs on its own: an error goes to the game's error handler (or BugSack)
+-- and the other modules still get the event. WoW's xpcall hands the extra arguments on, the way
+-- Blizzard's own FunctionUtil.lua calls scripts.
 driver:SetScript('OnEvent', function(_, event, ...)
+	local onError = geterrorhandler()
 	for _, fn in ipairs(handlers[event]) do
-		fn(event, ...)
+		xpcall(fn, onError, event, ...)
 	end
 end)
 

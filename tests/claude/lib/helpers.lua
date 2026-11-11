@@ -4,6 +4,7 @@
 --   lua5.1 tests/claude/<name>.lua      (luajit works as well)
 local H = {}
 local realPrint = print
+local luaXpcall = xpcall
 
 H.root = 'SlimARK-UI/'
 H.now = 1000
@@ -102,6 +103,9 @@ function methods:IsVisible() return self._shown end
 function methods:SetAlpha(a) self._alpha = a end
 function methods:GetAlpha() return self._alpha end
 
+function methods:SetID(id) self._id = id end
+function methods:GetID() return self._id end
+function methods:GetPoint() return nil end
 function methods:SetText(text) self._text = text end
 function methods:GetText() return self._text end
 function methods:SetAttribute(key, value) self._attributes[key] = value end
@@ -228,6 +232,11 @@ function H.setup()
 		end
 	end
 	_G.geterrorhandler = function() return function(err) table.insert(H.prints, 'ERROR ' .. tostring(err)) end end
+	-- WoW's xpcall hands extra arguments to the function (Lua 5.1's does not).
+	_G.xpcall = function(fn, handler, ...)
+		local n, args = select('#', ...), { ... }
+		return luaXpcall(function() return fn(unpack(args, 1, n)) end, handler)
+	end
 	H.ns = {}
 	return H.ns
 end

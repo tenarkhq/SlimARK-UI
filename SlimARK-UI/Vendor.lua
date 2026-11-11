@@ -3,20 +3,105 @@ local C = ns.C
 
 local PER_PAGE = C.vendor.perPage
 local ownedCache = {}
+-- The owned check of an item whose data is not loaded yet: kept until item data arrives, so the
+-- vendor's many redraws do not read the same tooltips again and again.
+local ownedGuess = {}
 local visible = {}
+local slotIndex = {} -- slot -> merchant index shown in it
 local hiddenCount = 0
 local slot11Point, slot12Point
 
--- Sells the junk (grey items) the game's own Sell All Junk button would sell, bags excluded
--- from it in the bag menu included. The gold it brought is printed once the sale has arrived.
+-- The item IDs of the junk the game's own Sell All Junk sells: grey items with a sell value,
+-- outside the bags excluded from it in the bag menu (Blizzard's ContainerFrame marks junk the
+-- same way).
+local function JunkIDs()
+	local ids, count = {}, 0
+	local flags = Enum.BagSlotFlags
+	for bag = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS or 4 do
+		local excluded = flags and C_Container.GetBagSlotFlag and C_Container.GetBagSlotFlag(bag, flags.ExcludeJunkSell)
+		if not excluded then
+			for slot = 1, C_Container.GetContainerNumSlots(bag) do
+				local info = C_Container.GetContainerItemInfo(bag, slot)
+				if info and info.quality == Enum.ItemQuality.Poor and not info.hasNoValue then
+					ids[info.itemID] = true
+					count = count + 1
+				end
+			end
+		end
+	end
+	return ids, count
+end
+
+-- The merchant's buyback list: what was sold here lately (the latest 12), newest last, each with
+-- the gold it brought.
+local function Buyback()
+	local list = {}
+	for i = 1, GetNumBuybackItems() do
+		local _, _, price, quantity = GetBuybackItemInfo(i)
+		local link = GetBuybackItemLink(i)
+		list[i] = { key = tostring(link) .. '#' .. tostring(quantity) .. '#' .. tostring(price),
+			id = link and tonumber(link:match('item:(%d+)')), price = price }
+	end
+	return list
+end
+
+-- The entries that came after the snapshot: the longest end of the old list that starts the new
+-- one is what was there before (old entries drop off the front when the list is full).
+local function NewEntries(old, new)
+	for kept = math.min(#old, #new), 0, -1 do
+		local same = true
+		for i = 1, kept do
+			if old[#old - kept + i].key ~= new[i].key then
+				same = false
+				break
+			end
+		end
+		if same then
+			local added = {}
+			for i = kept + 1, #new do added[#added + 1] = new[i] end
+			return added
+		end
+	end
+	return new
+end
+
+-- Sells the junk with the game's own Sell All Junk. What is junk and what the buyback list holds
+-- is noted first, so the report rests on the sale itself, not on the changes of your gold.
 local function SellJunk()
 	if not C.features.autoSellJunk or not C_MerchantFrame or not C_MerchantFrame.SellAllJunkItems then return end
 	if not C_MerchantFrame.IsSellAllJunkEnabled() then return end
-	local count = C_MerchantFrame.GetNumJunkItems()
-	if count <= 0 then return end
-	local before = GetMoney()
+	if C_MerchantFrame.GetNumJunkItems() <= 0 then return end
+	local ids, count = JunkIDs()
+	local sale = { ids = ids, count = count, junkBefore = C_MerchantFrame.GetNumJunkItems(), buyback = Buyback() }
 	C_MerchantFrame.SellAllJunkItems()
-	return count, before
+	return sale
+end
+
+-- Once the sale has arrived. Sold junk shows up in the buyback list with the gold it brought: that
+-- is the report. The list keeps only 12, so when it is full and fewer junk items showed up than
+-- were noted, some may have dropped off: the numbers are then 'at least'. If the list shows none,
+-- only the drop of the game's junk count is told, as an estimate and without gold. An item that
+-- only moved to another slot changes neither.
+local function ReportJunk(sale)
+	local sold, gold = 0, 0
+	for _, entry in ipairs(NewEntries(sale.buyback, Buyback())) do
+		if entry.id and sale.ids[entry.id] then
+			sold = sold + 1
+			gold = gold + (entry.price or 0)
+		end
+	end
+	if sold > 0 then
+		local full = GetNumBuybackItems() >= (BUYBACK_ITEMS_PER_PAGE or 12)
+		local least = (full and sold < sale.count) and 'at least ' or ''
+		local items = sold == 1 and '1 item' or sold .. ' items'
+		local money = gold > 0 and (', ' .. GetMoneyString(gold, true)) or ''
+		ns.Print('Sold junk: ' .. least .. items .. money)
+		return
+	end
+	local gone = sale.junkBefore - C_MerchantFrame.GetNumJunkItems()
+	if gone > 0 then
+		ns.Print('Sold junk: about ' .. (gone == 1 and '1 item' or gone .. ' items'))
+	end
 end
 
 -- Autorepair at every NPC with a hammer.
@@ -34,23 +119,19 @@ local function Repair()
 end
 
 ns.On('MERCHANT_SHOW', function()
+	-- With the vendor module off the vendor is left alone: no sale, no repair, no two pages.
+	if not C.modules.vendor then return end
 	wipe(ownedCache)
+	wipe(ownedGuess)
 	C_Timer.After(0.5, function()
 		if MerchantFrame:IsShown() then MerchantFrame.update = true end
 	end)
-	-- Junk first, so the gold before the sale is read before the repair takes its share.
-	local count, before = SellJunk()
-	local repaired = Repair()
-	if not count then return end
-	C_Timer.After(1.5, function()
-		local gained = GetMoney() - before + repaired
-		local items = count == 1 and '1 item' or count .. ' items'
-		if gained > 0 then
-			ns.Print('Sold junk: ' .. items .. ', ' .. GetMoneyString(gained, true))
-		else
-			ns.Print('Sold junk: ' .. items)
-		end
-	end)
+	-- Junk first: its gold can pay for the repair.
+	local sale = SellJunk()
+	Repair()
+	if sale then
+		C_Timer.After(1.5, function() ReportJunk(sale) end)
+	end
 end)
 
 local function TooltipSaysOwned(index, itemID)
@@ -69,6 +150,7 @@ local function IsOwned(index)
 	local itemID = GetMerchantItemID(index)
 	if not itemID then return false end
 	if ownedCache[itemID] ~= nil then return ownedCache[itemID] end
+	if ownedGuess[itemID] ~= nil then return ownedGuess[itemID] end
 
 	local owned = false
 	if C_Heirloom.IsItemHeirloom(itemID) and C_Heirloom.PlayerHasHeirloom(itemID) then
@@ -91,6 +173,8 @@ local function IsOwned(index)
 
 	if C_Item.IsItemDataCachedByID(itemID) then
 		ownedCache[itemID] = owned
+	else
+		ownedGuess[itemID] = owned
 	end
 	return owned
 end
@@ -261,10 +345,12 @@ local function Render()
 	SetWide(true)
 	PlaceRightBlock()
 
+	wipe(slotIndex)
 	for i = 1, PER_PAGE do
 		local index = visible[(page - 1) * PER_PAGE + i]
 		if index then
 			FillSlot(i, index)
+			slotIndex[i] = index
 		else
 			ResetSlot(i)
 		end
@@ -281,7 +367,33 @@ local function Render()
 	ns.vendorNote:SetText(hiddenCount > 0 and (hiddenCount .. ' hidden, already known') or '')
 end
 
+-- Item data arrived (GET_ITEM_INFO_RECEIVED): Blizzard has just painted the quality borders of
+-- its own ten slots, so ours are painted again at once; the button IDs are not touched. Only the
+-- items whose data has arrived are checked again: the full list is redrawn once on the next frame
+-- however many arrived in this one, and not at all when none of the waiting ones did.
+local renderQueued = false
+local function OnItemData()
+	if MerchantFrame.selectedTab ~= 1 then return end
+	for i, index in pairs(slotIndex) do
+		MerchantFrameItem_UpdateQuality(_G['MerchantItem' .. i], GetMerchantItemLink(index))
+	end
+	local arrived = false
+	for itemID in pairs(ownedGuess) do
+		if C_Item.IsItemDataCachedByID(itemID) then
+			ownedGuess[itemID] = nil
+			arrived = true
+		end
+	end
+	if not arrived or renderQueued then return end
+	renderQueued = true
+	C_Timer.After(0, function()
+		renderQueued = false
+		if MerchantFrame:IsShown() then Render() end
+	end)
+end
+
 local function Restore()
+	wipe(slotIndex)
 	SetWide(false)
 	MerchantItem11:ClearAllPoints()
 	MerchantItem11:SetPoint(unpack(slot11Point))
@@ -309,5 +421,5 @@ ns.On('PLAYER_LOGIN', function()
 
 	hooksecurefunc('MerchantFrame_UpdateMerchantInfo', Render)
 	hooksecurefunc('MerchantFrame_UpdateBuybackInfo', Restore)
-	hooksecurefunc('MerchantFrame_UpdateItemQualityBorders', Render)
+	hooksecurefunc('MerchantFrame_UpdateItemQualityBorders', OnItemData)
 end)
