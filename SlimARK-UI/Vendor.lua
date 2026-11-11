@@ -45,24 +45,20 @@ local function Buyback()
 	return list
 end
 
--- The entries that came after the snapshot: the longest end of the old list that starts the new
--- one is what was there before (old entries drop off the front when the list is full).
+-- Only excess copies of a key are proved new. A buyback can remove an entry anywhere in the
+-- old list; position-based overlap would then count surviving old entries as sales. Identical
+-- sales replacing identical old entries can cancel out here, so the result is a lower bound.
 local function NewEntries(old, new)
-	for kept = math.min(#old, #new), 0, -1 do
-		local same = true
-		for i = 1, kept do
-			if old[#old - kept + i].key ~= new[i].key then
-				same = false
-				break
-			end
-		end
-		if same then
-			local added = {}
-			for i = kept + 1, #new do added[#added + 1] = new[i] end
-			return added
+	local counts, added = {}, {}
+	for _, entry in ipairs(old) do counts[entry.key] = (counts[entry.key] or 0) + 1 end
+	for _, entry in ipairs(new) do
+		if (counts[entry.key] or 0) > 0 then
+			counts[entry.key] = counts[entry.key] - 1
+		else
+			added[#added + 1] = entry
 		end
 	end
-	return new
+	return added
 end
 
 -- Sells the junk with the game's own Sell All Junk. What is junk and what the buyback list holds
@@ -91,8 +87,7 @@ local function ReportJunk(sale)
 		end
 	end
 	if sold > 0 then
-		local full = GetNumBuybackItems() >= (BUYBACK_ITEMS_PER_PAGE or 12)
-		local least = (full and sold < sale.count) and 'at least ' or ''
+		local least = sold < sale.count and 'at least ' or ''
 		local items = sold == 1 and '1 item' or sold .. ' items'
 		local money = gold > 0 and (', ' .. GetMoneyString(gold, true)) or ''
 		ns.Print('Sold junk: ' .. least .. items .. money)
