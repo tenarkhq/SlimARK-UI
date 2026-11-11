@@ -229,6 +229,9 @@ def main():
     failures += [('toc', p) for p in problems]
 
     lua_tests, py_tests = discover(args.only)
+    if not lua_tests and not py_tests:
+        failures.append(('selection', f'No tests match --only {args.only!r}' if args.only is not None
+                         else 'No test files found.'))
     passed = 0
     for path in lua_tests:
         for engine in engines:

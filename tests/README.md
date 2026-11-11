@@ -30,7 +30,7 @@ output of every failing check:
 4. **py tests**: `tests/package_*.py`.
 
 Options: `--engine lua51` or `--engine luajit` (one engine only), `--only TEXT` (only the tests
-whose path holds TEXT), `-v` (show the output of passing tests too).
+whose path holds TEXT; no matches is an error), `-v` (show the output of passing tests too).
 
 GitHub Actions runs the same on every push and pull request (`.github/workflows/tests.yml`).
 
@@ -43,6 +43,7 @@ GitHub Actions runs the same on every push and pull request (`.github/workflows/
 | `tests/claude/lib/helpers.lua` | The stand-in WoW environment (fake frames, events, timers, fresh SavedVariables per test) |
 | `tests/codex/lib/` | Helpers of the Codex tests |
 | `tests/package_release.py` | The release zip check (F25) |
+| `tests/package_tooling.py` | Empty test selection and API checkout preservation checks |
 | `tools/package.py` | Builds the release zip |
 | `tools/apicheck.py` | Optional: checks the used game API against the three clients' UI source |
 
@@ -70,6 +71,9 @@ python3 tools/apicheck.py --fetch                  # clone or update .cache/wow-
 python3 tools/apicheck.py --source DIR             # use checkouts already in DIR/live, DIR/ptr, DIR/forever
 python3 tools/apicheck.py --luacheck PATH          # luacheck is needed (luarocks install luacheck, or apt install lua-check)
 ```
+
+`--fetch` refuses to reset a checkout with tracked or untracked local changes. Stash or move
+those changes before retrying; the checker leaves them in place.
 
 It compares every game global, `C_` function and `Enum` value the addon reads with the branches
 of [Gethe/wow-ui-source](https://github.com/Gethe/wow-ui-source): `live` (retail), `ptr` and

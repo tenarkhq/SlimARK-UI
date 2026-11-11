@@ -64,6 +64,9 @@ def fetch(source):
         path = os.path.join(source, branch)
         if os.path.isdir(os.path.join(path, '.git')):
             sh('git', 'fetch', '-q', '--depth', '1', 'origin', branch, cwd=path)
+            if sh('git', 'status', '--porcelain', cwd=path).strip():
+                raise SystemExit(f'Refusing to update {path}: local changes would be lost. '
+                                 'Stash or move them before using --fetch.')
             sh('git', 'reset', '-q', '--hard', 'FETCH_HEAD', cwd=path)
         else:
             sh('git', 'clone', '-q', '--depth', '1', '--single-branch', '-b', branch, REPO, path)
