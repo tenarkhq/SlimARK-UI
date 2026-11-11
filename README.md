@@ -13,7 +13,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
 - **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
-- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns and dispel highlights on every group frame
+- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
 - **Mythic+ ready:** compact timer panel, keystone slotted for you, new key posted to the party
 - **Group tools:** marker bar, ready check window that uses your missing flask or food, loot rolls in one flat column
 - **Test mode:** see party, raid, Mythic+ or the other spec's layout without a group
@@ -166,6 +166,12 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - Defensive cooldowns on every frame with the time left, both personal and external ones
 - Debuff icons on every frame
 - The whole frame lights up in the debuff type color (magic, curse, disease, poison) when you can dispel it
+- Private auras, the boss debuffs the game keeps from addons, in the middle of the frame above everything. The game draws them itself, with its own icon and countdown
+- Incoming heals as a pale green bar after the health, and heal absorbs (debuffs that eat healing) in dark red stripes at the end of the health
+- Your own HoTs as small icons with the remaining time as a dark swipe
+- Leader crown and raid marker, and the resurrection, summon, ready check and phase icons
+- A red frame inside the edge of the member a mob is hitting
+- Each of these can be switched off on the frame's page in `/slimark`
 
 ## Nameplates
 
@@ -340,7 +346,8 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 - Cinematics and movies you have already seen are skipped automatically
 - Vendor shows two pages at once, can hide what you already own, and marks items you lack the currency or reputation for
-- Automatic repair at every repair vendor
+- Automatic repair at every repair vendor, and your junk (grey items) sold at every vendor, with the gold it brought in the chat
+- NPC conversations stay readable: light text on the dark window
 - The character sheet shows item level, gems, enchants and what is missing on each item
 - Square minimap with your coordinates at its bottom, large, on a dark strip so they read on any map; they hide where the game gives no position. The clock moved to the top bar
 - Cleaner, smaller quest tracker with a thin header line
@@ -443,6 +450,7 @@ SlimARK-UI is brand new, and every bug report helps make it better. If you try i
 **Feature requests** are welcome too. Tell me what you miss, what's in the way, or what another addon does better.
 
 Things I'd especially like feedback on:
+- **New in 2.1:** boss debuffs, incoming heals, heal absorbs, your HoTs, the status icons and the aggro frame on party, raid and healer frames
 - **New in 2.0:** the Blizzard windows in the SlimARK look (which window looks off, or which one you miss) and the delete confirmation
 - Shields on party and raid frames
 - Proc trinkets in the active effects row
