@@ -258,8 +258,12 @@ local function FindFadeBars()
 end
 ns.ActionBarFadeBars = FindFadeBars
 
-local function WantsBars()
-	if InCombatLockdown() or UnitExists('target') then return true end
+-- PLAYER_REGEN_DISABLED comes before the combat lockdown begins, so InCombatLockdown() is still
+-- false in it: the event itself counts as combat, and UnitAffectingCombat covers the calls that
+-- come without an event (Blizzard's own action bars take the combat state from it too).
+local function WantsBars(event)
+	if event == 'PLAYER_REGEN_DISABLED' or InCombatLockdown() or UnitAffectingCombat('player') then return true end
+	if UnitExists('target') then return true end
 	if GetCursorInfo() then return true end
 	if SpellFlyout and SpellFlyout:IsShown() then return true end
 	if EditModeManagerFrame and EditModeManagerFrame:IsShown() then return true end
@@ -274,9 +278,10 @@ local function Recheck()
 	UpdateFade()
 end
 
-function UpdateFade()
+-- event: the event name when an event calls it (a frame when a script does).
+function UpdateFade(event)
 	if not cfg.fade then return end
-	local all = WantsBars()
+	local all = WantsBars(event)
 	local hovered = false
 	for _, frame in ipairs(fadeBars) do
 		local over = not all and frame:IsMouseOver()
