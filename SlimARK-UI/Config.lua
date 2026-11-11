@@ -84,7 +84,7 @@ ns.C = {
 	features = {
 		roleIcon = true, dispelGlow = true, interrupter = true, plateArrows = true,
 		autoRepair = true, autoSellJunk = true, autoRoleCheck = true, oneClickSignup = true,
-		skipCinematics = true, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
+		skipCinematicsByPlace = false, skipMovies = true, loginMessage = true, shields = true, activeAuras = true,
 		autoQuest = true, autoKeystone = true, announceKey = true, errorFilter = true,
 		easyDelete = true,
 		privateAuras = true, healPrediction = true, ownHots = true, statusIcons = true, aggro = true,

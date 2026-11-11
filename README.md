@@ -348,9 +348,9 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 ![Delete confirmation](assets/feature-delete.png)
 
-- Cinematics and movies you have already seen are skipped automatically
+- Movies you have already seen are skipped automatically by their ID. Cinematics play by default; the optional "Skip cinematics by place" setting can also skip a new scene in a previously visited place
 - Vendor shows two pages at once, can hide what you already own, and marks items you lack the currency or reputation for
-- Automatic repair at every repair vendor, and your junk (grey items) sold at every vendor, with the gold it brought in the chat
+- Automatic repair at every repair vendor, and your junk (grey items) sold at every vendor, with the gold it brought in the chat. Turning off the Vendor module stops both automations
 - NPC conversations stay readable: light text on the dark window
 - The character sheet shows item level, gems, enchants and what is missing on each item
 - Square minimap with your coordinates at its bottom, large, on a dark strip so they read on any map; they hide where the game gives no position. The clock moved to the top bar

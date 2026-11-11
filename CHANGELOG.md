@@ -12,6 +12,7 @@
 - Action bars return at combat start without needing a target. Interrupt attribution avoids naming the wrong player from an unrelated recent kick.
 - Turning off Vendor stops its automatic sale and repair too. Junk-sale messages do not treat other money changes as sale proceeds, and bursts of item data do not repeatedly process the full merchant list.
 - Disabled Group Finder automation preserves manual roles. Directly opened low-level quests are skipped, and a different cinematic in a previously visited zone is not treated as already seen.
+- Cinematics play by default. Skipping by place is a separate opt-in setting with a warning that it can skip new scenes; movies are still remembered by their ID.
 - Gold snapshots can distinguish a renamed character and remove stale character entries.
 - Added regression checks and release-package validation; unused upstream oUF developer tools are excluded from the installable package.
 
