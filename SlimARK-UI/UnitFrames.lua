@@ -259,6 +259,62 @@ local function StyleDefensive(element, button)
 	button.Time:SetPoint('CENTER', button, 'CENTER', 0, 0)
 end
 
+-- A typed debuff (poison, disease, curse, magic, bleed) colors the whole health area in the
+-- type's color, with a 2 px edge in the same color. The game colors the textures itself, so it
+-- works in combat too. Two slots on the same place: any typed debuff, and above it one you
+-- can dispel, so with several types on the unit that one's color shows.
+local TINT_TYPES = { Magic = true, Curse = true, Disease = true, Poison = true, Bleed = true }
+local TINT_ALPHA = 0.58
+
+local function AddDebuffTint(self, health, w, h)
+	local level = health:GetFrameLevel()
+	-- The texts stay above both tint layers.
+	health.Texts:SetFrameLevel(level + 3)
+	local function Slot(filter, candidateFilters, offset)
+		local tint = self:CreateAuras({ initialAnchor = 'TOPLEFT', layoutLimit = w })
+		tint:SetAllPoints(health)
+		tint:SetFrameLevel(level + offset)
+		tint:AddSlot(filter, {
+			candidateFilters = candidateFilters,
+			CreateButton = function(_, _, button)
+				button:SetSize(w, h)
+				button:EnableMouse(false)
+				-- A layer of its own: it follows the health area (the player's shrinks while the
+				-- class power shows) and has a set level, whatever the game gives the button.
+				local layer = CreateFrame('Frame', nil, button)
+				layer:SetAllPoints(tint)
+				layer:SetFrameLevel(level + offset)
+				local options = {
+					style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+					showWhenHarmful = true,
+					customDispelColorMap = self.colors.dispel,
+				}
+				local fill = layer:CreateTexture(nil, 'ARTWORK')
+				fill:SetAllPoints()
+				fill:SetColorTexture(1, 1, 1, 1)
+				fill:SetAlpha(TINT_ALPHA)
+				button:AddDispelTypeTexture(fill, options)
+				local thickness = 2 * ns.Px()
+				local function side(p1, p2, width, height)
+					local t = layer:CreateTexture(nil, 'OVERLAY')
+					t:SetColorTexture(1, 1, 1, 1)
+					t:SetPoint(p1)
+					t:SetPoint(p2)
+					if width then t:SetWidth(width) end
+					if height then t:SetHeight(height) end
+					button:AddDispelTypeTexture(t, options)
+				end
+				side('TOPLEFT', 'TOPRIGHT', nil, thickness)
+				side('BOTTOMLEFT', 'BOTTOMRIGHT', nil, thickness)
+				side('TOPLEFT', 'BOTTOMLEFT', thickness, nil)
+				side('TOPRIGHT', 'BOTTOMRIGHT', thickness, nil)
+			end,
+		})
+	end
+	Slot('HARMFUL', { includeDispelTypes = TINT_TYPES }, 1)
+	Slot('HARMFUL|RAID', nil, 2)
+end
+
 local function Style(self, unit)
 	local parentName = self:GetParent() and self:GetParent():GetName()
 	local kind = GROUP_KINDS[parentName]
@@ -349,6 +405,10 @@ local function Style(self, unit)
 		cb:SetPoint('RIGHT', self, 'LEFT', -5, 0)
 	end
 
+	if kind == 'player' and C.features.dispelGlow then
+		AddDebuffTint(self, health, o.w, o.h)
+	end
+
 	if kind == 'player' and C.modules.auras then
 		local a = C.auras.buffs
 		local buffs = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = a.width })
@@ -399,7 +459,7 @@ local function Style(self, unit)
 		local debuffs = self:CreateAuras({ initialAnchor = 'BOTTOMRIGHT', growthX = 'LEFT', growthY = 'UP', layoutLimit = o.w })
 		debuffs:SetSize(o.w, o.debuff)
 		debuffs:SetPoint('BOTTOMRIGHT', health, 'BOTTOMRIGHT', -1, 1)
-		debuffs:SetFrameLevel(health:GetFrameLevel() + 3)
+		debuffs:SetFrameLevel(health:GetFrameLevel() + 4)
 		debuffs.size = o.debuff
 		debuffs.elementSpacing = 1
 		debuffs.disableMouse = true
@@ -412,7 +472,7 @@ local function Style(self, unit)
 		local defensives = self:CreateAuras({ initialAnchor = 'BOTTOMLEFT', growthX = 'RIGHT', growthY = 'UP', layoutLimit = o.w })
 		defensives:SetSize(o.w, o.defensive)
 		defensives:SetPoint('BOTTOMLEFT', health, 'BOTTOMLEFT', 1, 1)
-		defensives:SetFrameLevel(health:GetFrameLevel() + 3)
+		defensives:SetFrameLevel(health:GetFrameLevel() + 4)
 		defensives.size = o.defensive
 		defensives.elementSpacing = 1
 		defensives.disableMouse = true
@@ -422,9 +482,11 @@ local function Style(self, unit)
 		defensives:AddGroup('HELPFUL|BIG_DEFENSIVE', { maxFrameCount = 2 })
 		defensives:AddGroup('HELPFUL|EXTERNAL_DEFENSIVE', { maxFrameCount = 2 })
 
-		-- What you can dispel: the whole frame flashes in the type's color.
+		-- A typed debuff colors the health area. What you can dispel: the whole frame also
+		-- flashes in the type's color.
 		-- The RAID filter gives poison and disease for Retribution.
 		if C.features.dispelGlow then
+			AddDebuffTint(self, health, o.w, o.h)
 			local glow = self:CreateAuras({ initialAnchor = 'TOPLEFT', layoutLimit = o.w })
 			glow:SetAllPoints(self)
 			glow:SetFrameLevel(health:GetFrameLevel() + 5)
@@ -453,7 +515,7 @@ local function Style(self, unit)
 			local hots = self:CreateAuras({ initialAnchor = 'TOPRIGHT', growthX = 'LEFT', growthY = 'DOWN', layoutLimit = o.hotMax * (o.hot + 1) })
 			hots:SetSize(o.hotMax * (o.hot + 1), o.hot)
 			hots:SetPoint('TOPRIGHT', health, 'TOPRIGHT', -1, -o.hotY)
-			hots:SetFrameLevel(health:GetFrameLevel() + 3)
+			hots:SetFrameLevel(health:GetFrameLevel() + 4)
 			hots.size = o.hot
 			hots.elementSpacing = 1
 			hots.disableMouse = true

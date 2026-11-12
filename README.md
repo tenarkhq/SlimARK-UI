@@ -15,7 +15,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
 - **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
-- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
+- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns, frames colored by the debuff type, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
 - **Mythic+ ready:** compact timer panel, keystone slotted for you, new key posted to the party
 - **Group tools:** marker bar, ready check window that uses your missing flask or food, loot rolls in one flat column
 - **Test mode:** see party, raid, Mythic+ or the other spec's layout without a group
@@ -148,6 +148,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - Bold, readable font with a soft gloss on the health bars
 - Health with one decimal, for example 74.6%
 - Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more, each in the color of its resource (runes by spec, holy power gold)
+- The player frame takes the color of a typed debuff on you, in the game's own debuff colors: poison green, disease brown, curse purple, magic blue, and bleed in its own color. The health level stays readable under the color, so you see at once that something should come off
 - Boss frames show current health in the center, so you can call phase changes at a glance
 - Shields (damage absorbs) in light stripes right after the health, on every frame including party, raid and boss frames. Damage takes the striped part first; a shield larger than the missing health is drawn back over the health with a bright line at the edge
 
@@ -167,7 +168,8 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - Role icon on every frame: tank, healer or damage
 - Defensive cooldowns on every frame with the time left, both personal and external ones
 - Debuff icons on every frame
-- The whole frame lights up in the debuff type color (magic, curse, disease, poison) when you can dispel it
+- A typed debuff colors the member's health area (poison green, disease brown, curse purple, magic blue, bleed in its own color), whether or not your class can remove it. Debuffs without a type do not color the frame
+- What you can dispel also lights up the whole frame in the type's color, and with several types on a member its color is the one shown
 - Private auras, the boss debuffs the game keeps from addons, in the middle of the frame above everything. The game draws them itself, with its own icon and countdown
 - Incoming heals as a pale green bar after the health, and heal absorbs (debuffs that eat healing) in dark red stripes at the end of the health
 - Your own HoTs as small icons with the remaining time as a dark swipe
@@ -412,7 +414,7 @@ See your whole layout without a group: no need to gather a raid to check where e
 - **Party, Raid 20, Raid 40 or Mythic+:** made-up players fill the group frames, with mixed classes and roles
 - **Mythic+** also shows the Mythic+ panel with a running key, in place of the quest tracker
 - Target, target of target, focus, pet and boss 1-5 are filled too, with cast bars
-- Everything a frame can show is on screen: class colors, role icons, health with one decimal, shield stripes, debuffs, defensives, the dispel highlight and a dead member
+- Everything a frame can show is on screen: class colors, role icons, health with one decimal, shield stripes, debuffs, defensives, the debuff color with the dispel highlight and a dead member
 - **Healer or DPS and tank layout:** preview either one, whichever spec you play
 - Stays on in Edit Mode, so you can drag the filled frames into place
 - A gold banner under the top bar shows the mode; click it to end. Combat or a reload ends it too

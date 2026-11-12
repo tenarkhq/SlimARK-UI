@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.2.0
+
+- Frames colored by the debuff type: when a typed debuff is on you or on a group member, the health area of the frame takes the type's color with an edge in the same color. The colors are the game's own: poison green, disease brown, curse purple, magic blue, and bleed has its own color too. On the player frame, the party, the raid and the healer grid
+- Every typed debuff colors the frame, whether or not your class can remove it. Debuffs without a type do not
+- What you can dispel keeps its bright frame over the color, and with several types on a member its color is the one shown
+- The health level, the name and the icons stay readable over the color
+- On and off with the existing "Dispel highlight" switch. Test mode shows it on the member with the magic debuff
+
 ## 2.1.4
 
 The real fixes of 2.1.1 are back, with the look of 2.1.0:

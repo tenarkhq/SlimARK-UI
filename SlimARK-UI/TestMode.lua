@@ -170,6 +170,13 @@ local function Mock(kind)
 		f.ui.defensive.time = ns.Text(f.ui.defensive, 15, 'CENTER')
 		f.ui.defensive.time:SetPoint('CENTER')
 		f.ui.dispel = ns.Edge(f, 2, { 0.2, 0.6, 1 }, 0)
+		-- The magic debuff also colors the health area, below the texts and the icons.
+		f.ui.tint = CreateFrame('Frame', nil, health)
+		f.ui.tint:SetAllPoints()
+		f.ui.tint:SetFrameLevel(health:GetFrameLevel() + 1)
+		local fill = f.ui.tint:CreateTexture(nil, 'ARTWORK')
+		fill:SetAllPoints()
+		fill:SetColorTexture(0.2, 0.6, 1, 0.58)
 	end
 	return f
 end
@@ -228,6 +235,7 @@ local function Fill(f, u)
 		f.ui.defensive.tex:SetTexture(SpellIcon(DEFENSIVE))
 		f.ui.defensive.time:SetText('6')
 		f.ui.dispel:SetShown(C.features.dispelGlow and u.magic and not u.dead or false)
+		f.ui.tint:SetShown(C.features.dispelGlow and u.magic and not u.dead or false)
 	end
 	f:Show()
 end
