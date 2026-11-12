@@ -169,7 +169,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 **Frames colored by the debuff type:** the player frame, party and raid frames
 
-![Frames colored by the debuff type](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/841073eeb952c01eec3168e5e6b30e46a3018fa0/assets/feature-debuffcolors.png)
+![Frames colored by the debuff type](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/0e818ce0d488c19253ca9eb24cf44568003b0189/assets/feature-debuffcolors.png)
 
 - Private auras, the boss debuffs the game keeps from addons, in the middle of the frame above everything. The game draws them itself, with its own icon and countdown
 - Incoming heals as a pale green bar after the health, and heal absorbs (debuffs that eat healing) in dark red stripes at the end of the health
@@ -199,7 +199,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 **Cast bars by your interrupt, the cast target, the execute line and aggro**, with the Shaman totem row and the text on joining a group
 
-![Cast bars by your interrupt, cast target, execute line, aggro, totems and the join text](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/841073eeb952c01eec3168e5e6b30e46a3018fa0/assets/feature-combat-2-3.png)
+![Cast bars by your interrupt, cast target, execute line, aggro, totems and the join text](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/0e818ce0d488c19253ca9eb24cf44568003b0189/assets/feature-combat-2-3.png)
 
 **Your target:** a thin frame and two arrows, in a bright and a dark place
 
