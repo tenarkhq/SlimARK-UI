@@ -211,8 +211,7 @@ S.groups = {
 			secs = { { name = 'Deleting items', rows = { T('Confirm button instead of typing DELETE', 'features.easyDelete') } } } },
 		{ id = 'errors', name = 'Error messages', desc = 'Hides the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready. Blizzard already hides the out of energy and cooldown ones. Full bags and every other message stay. Needs a reload.',
 			secs = { { name = 'Error messages', rows = { T('Hide the combat error spam', 'features.errorFilter') } } } },
-		{ id = 'cinematics', name = 'Cinematics', desc = 'Movies are remembered by their ID. Cinematics have no reliable scene ID. Skipping them by place is off by default: it can also skip a new scene played in the same place.',
-			secs = { { name = 'Cinematics', rows = { T('Skip cinematics by place', 'features.skipCinematicsByPlace'), T('Skip seen movies', 'features.skipMovies') } },
+		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
 			{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } } } },
 	} },
 	{ name = 'About', pages = { { id = 'about', name = 'Version and changelog', about = true } } },
@@ -220,6 +219,10 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.1.2', lines = {
+		'Seen cinematics are skipped again by default, as before 2.1.1',
+		'Details, DBM and BigWigs switch back to the SlimARK profile at login again',
+	} },
 	{ version = '2.1.1', lines = {
 		'Settings apply the newly saved values; a failed apply stays open for a retry',
 		'Your selected Details and boss-mod profiles stay selected after login and reload',

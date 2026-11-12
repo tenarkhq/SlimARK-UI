@@ -66,24 +66,6 @@ end
 
 do
 	local ns = skins()
-	ns.CharDB.appliedVersion = ns.version
-	local switches = 0
-	local fail = function() switches = switches + 1 error('Login must not mutate a profile') end
-	Details = { tabela_instancias = {}, GetProfile = fail, ApplyProfile = fail,
-		GetCurrentProfileName = function() return 'Mine' end, always_use_profile_exception = {} }
-	DBM, DBM_UsedProfile, DBM_AllSavedOptions = { ApplyProfile = fail }, 'Mine', { ['SlimARK-UI'] = {} }
-	DBT = { Options = {}, SetOption = fail }
-	BigWigsLoader = { db = { GetCurrentProfile = function() return 'Mine' end, SetProfile = fail } }
-	BigWigs3DB = { profiles = { ['SlimARK-UI'] = {} } }
-	local before = #errors
-	ns.Emit('PLAYER_ENTERING_WORLD', true, false)
-	assert(switches == 0 and #errors == before)
-	assert(Details.always_use_profile_exception.Tester == nil)
-	assert(DBM_UsedProfile == 'Mine')
-end
-
-do
-	local ns = skins()
 	local selected, switches = 'Mine', 0
 	local window = { baseframe = { ClearAllPoints = function() end, SetPoint = function() end },
 		IsEnabled = function() return true end, barras = {}, row_info = {}, automation = {} }

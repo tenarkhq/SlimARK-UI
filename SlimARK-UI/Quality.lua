@@ -1,9 +1,8 @@
 local _, ns = ...
 
--- Cutscenes: a movie you have seen once is skipped on its own next time; movies have an ID.
--- In-game cutscenes have none, and their place does not tell one scene from another (a quest
--- chain plays several in one spot), so they are skipped by place only when the separate
--- features.skipCinematicsByPlace option is on; it is off unless chosen.
+-- Cutscenes: what you have seen once is skipped on its own next time.
+-- Movies are identified by their ID, in-game cutscenes by the map and zone
+-- name, because these have no ID of their own.
 ns.On('PLAY_MOVIE', function(_, movieID)
 	if not ns.DB or not movieID or not ns.C.features.skipMovies then return end
 	if ns.DB.seenMovies[movieID] then
@@ -22,7 +21,7 @@ local function CinematicKey()
 end
 
 ns.On('CINEMATIC_START', function(_, canBeCancelled)
-	if not ns.DB or not ns.C.features.skipCinematicsByPlace then return end
+	if not ns.DB or not ns.C.features.skipCinematics then return end
 	local scene = not canBeCancelled and IsInCinematicScene and IsInCinematicScene()
 	-- We do not touch the vehicle cutscene: it could only be cancelled after leaving the vehicle.
 	if not canBeCancelled and not scene then return end

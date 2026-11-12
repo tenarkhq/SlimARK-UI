@@ -41,15 +41,10 @@ local function Boot(features)
 end
 
 ------------------------------------------------------------------------
--- F13: an in-game cutscene is not skipped because one played in the same place before.
+-- Cutscenes and movies seen before are skipped.
 ------------------------------------------------------------------------
 do
 	Boot()
-	H.fire('CINEMATIC_START', true)
-	H.runTimers(0)
-	H.fire('CINEMATIC_START', true) -- another scene of the quest chain, same spot
-	H.runTimers(0)
-	H.equal(world.stops, 0, 'F13 a second cutscene in the same place plays (default settings)')
 
 	-- Movies have an ID: a seen movie is still skipped.
 	MovieFrame:Show()
@@ -64,13 +59,13 @@ do
 end
 
 do
-	-- The skip by place only as an option chosen on purpose.
-	Boot({ skipCinematicsByPlace = true })
+	-- A cutscene seen before in the same place is skipped (on by default, as in 2.1.0).
+	Boot({})
 	H.fire('CINEMATIC_START', true)
 	H.runTimers(0)
 	H.fire('CINEMATIC_START', true)
 	H.runTimers(0)
-	H.equal(world.stops, 1, 'F13 the skip by place still works when chosen')
+	H.equal(world.stops, 1, 'a cutscene seen before is skipped')
 end
 
 ------------------------------------------------------------------------

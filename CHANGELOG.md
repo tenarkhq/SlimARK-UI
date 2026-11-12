@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.2
+
+- Cinematics you have already seen are skipped again by default, as before 2.1.1. The setting is back as "Skip seen cinematics" on the Cinematics page
+- Details!, DBM and BigWigs switch back to the SlimARK profile at login again, as before 2.1.1
+
 ## 2.1.1
 
 - Settings apply the values just saved, including changes shared with Edit Mode and other addons. Changing the rotation icons' Y or the marker bar placement also clears an older dragged position.

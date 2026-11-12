@@ -80,15 +80,3 @@ do
 	locked = false
 end
 
-do
-	-- F13: the old automatic scene skip must not silently enable the less reliable place option.
-	local ns, s = settings({ ['features.skipCinematics'] = true })
-	assert(ns.C.features.skipCinematicsByPlace == false)
-	assert(s.defaults['features.skipCinematicsByPlace'] == false)
-	assert(SlimARKDB.settings['features.skipCinematics'] == nil)
-	local page = s.pageOf['features.skipCinematicsByPlace']
-	assert(page and page.desc:find('new scene', 1, true), 'The place-based option explains the risk')
-	s.Set('features.skipCinematicsByPlace', true)
-	assert(s.Save() and ns.C.features.skipCinematicsByPlace == true)
-	assert(SlimARKDB.settings['features.skipCinematicsByPlace'] == true)
-end

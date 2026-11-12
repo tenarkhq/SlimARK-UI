@@ -7,7 +7,7 @@ SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown trackin
 
 One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
 
-**2.1.1 fixes:** saving applies your new values, incomplete setup stays available for retry, and a profile you select in another addon stays selected. Group frames, ready check, combat fading and Mythic+ preview transitions have regression checks. The supported clients are Retail 12.1.5, 12.1.7 PTR and the current WoW Forever.
+**2.1.1 fixes:** saving applies your new values, incomplete setup stays available for retry. Group frames, ready check, combat fading and Mythic+ preview transitions have regression checks. The supported clients are Retail 12.1.5, 12.1.7 PTR and the current WoW Forever.
 
 ## Highlights
 
@@ -348,7 +348,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 ![Delete confirmation](assets/feature-delete.png)
 
-- Movies you have already seen are skipped automatically by their ID. Cinematics play by default; the optional "Skip cinematics by place" setting can also skip a new scene in a previously visited place
+- Cinematics and movies you have already seen are skipped automatically
 - Vendor shows two pages at once, can hide what you already own, and marks items you lack the currency or reputation for
 - Automatic repair at every repair vendor, and your junk (grey items) sold at every vendor, with the gold it brought in the chat. Turning off the Vendor module stops both automations
 - NPC conversations stay readable: light text on the dark window

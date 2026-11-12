@@ -319,12 +319,9 @@ local function BigWigsProfile()
 end
 
 local targets = {
-	{ name = 'Details', profile = DetailsProfile, apply = ApplyDetails, style = StyleDetails,
-		selected = function() local d = _G.Details return d and d.GetCurrentProfileName and d:GetCurrentProfileName() == PROFILE end },
-	{ name = 'DBM', profile = DBMProfile, apply = ApplyDBM, style = StyleDBM,
-		selected = function() return _G.DBM and _G.DBM_UsedProfile == PROFILE end },
-	{ name = 'BigWigs', profile = BigWigsProfile, apply = ApplyBigWigs, style = StyleBigWigs,
-		selected = function() local d = _G.BigWigsLoader and _G.BigWigsLoader.db return d and d:GetCurrentProfile() == PROFILE end },
+	{ name = 'Details', profile = DetailsProfile, apply = ApplyDetails, style = StyleDetails },
+	{ name = 'DBM', profile = DBMProfile, apply = ApplyDBM, style = StyleDBM },
+	{ name = 'BigWigs', profile = BigWigsProfile, apply = ApplyBigWigs, style = StyleBigWigs },
 	{ name = 'Chattynator', profile = ChattynatorProfile, apply = ApplyChattynator },
 	{ name = 'BetterBags', module = 'betterbags', profile = function() return ns.BetterBagsProfile() end, apply = function() return ns.ApplyBetterBags() end },
 }
@@ -388,14 +385,15 @@ ns.On('PLAYER_REGEN_ENABLED', function()
 	end
 end)
 
--- Refresh only a SlimARK profile the user has kept selected; never switch on login.
+-- On login the profile is restored if something switched it, and the look is applied again.
+-- We do not touch the positions here, they are in the profile.
 local function KeepSkins()
 	AskForApply()
 	if not ns.CharDB.applied then return end
 	for _, target in ipairs(targets) do
-		if target.style and target.selected then
+		if target.style then
 			Try(function()
-				if target.selected() then target.style() end
+				if target.profile() ~= nil then target.style() end
 			end)
 		end
 	end
