@@ -120,11 +120,16 @@ end)
 
 ns.On('QUEST_DETAIL', function()
 	if not Active() or not cfg.accept then return end
+	-- A quest the game has accepted already is only acknowledged.
 	if QuestGetAutoAccept() then
 		AcknowledgeAutoAcceptQuest()
-	else
-		AcceptQuest()
+		return
 	end
+	-- A grey (trivial) quest is left to you here too, as in the quest lists: an NPC with one quest
+	-- or an item opens its details directly, without a list.
+	local questID = GetQuestID()
+	if questID and questID > 0 and C_QuestLog.IsQuestTrivial(questID) then return end
+	AcceptQuest()
 end)
 
 ns.On('QUEST_ACCEPT_CONFIRM', function()

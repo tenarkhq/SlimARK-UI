@@ -48,21 +48,21 @@ local function Tip(gold, label)
 end
 
 do
-	-- 2.1.2: the 2.1.0 gold tooltip; entries 2.1.1 kept under a GUID go back under realm|name.
-	local function Seed(db)
-		db.gold = { ['Player-1-OTHER'] = { name = 'Alt', realm = 'Realm', class = 'WARRIOR', money = 70, updatedAt = 1 },
-			['Realm|UnknownOldName'] = { money = 100000, class = 'WARRIOR', name = 'UnknownOldName', realm = 'Realm', legacy = true } }
-	end
+	-- The 2.1.0 tooltip, the gold kept under the character's GUID.
 	local ns, gold = Boot()
-	Seed(ns.DB)
+	assert(ns.DB.gold[world.guid].money == 100000 and not ns.DB.gold['Realm|Original'], 'The old name entry moves under the GUID')
+	world.name = 'Renamed'
 	H.fire('PLAYER_MONEY')
-	assert(ns.DB.gold['Realm|Alt'].money == 70 and not ns.DB.gold['Player-1-OTHER'], 'A GUID entry goes back under realm|name')
-	assert(ns.DB.gold['Realm|UnknownOldName'].legacy == nil, 'The 2.1.1 marks are cleared')
-	assert(ns.DB.gold['Realm|Original'].money == 100000)
-	assert(Tip(gold, 'Total') == '200070c', 'Every saved character counts in the total again')
+	assert(ns.DB.gold[world.guid].name == 'Renamed', 'A rename updates the same entry')
+	-- An entry 2.1.1 saved under a GUID and one it marked as legacy: both listed and counted.
+	ns.DB.gold['Player-1-OTHER'] = { name = 'Alt', realm = 'Realm', class = 'WARRIOR', money = 70, updatedAt = 1 }
+	ns.DB.gold['Realm|UnknownOldName'].legacy = true
+	assert(Tip(gold, 'Total') == '200070c', 'Every saved character counts in the total, the renamed one once')
+	assert(Tip(gold, 'Renamed') == '100000c' and Tip(gold, 'Alt') == '70c' and Tip(gold, 'UnknownOldName') == '100000c')
 	for _, line in ipairs(world.tips) do
-		assert(not line[1]:find('Last seen', 1, true) and not line[1]:find('right click', 1, true))
+		assert(not line[1]:find('Last seen', 1, true) and not line[1]:find('right click', 1, true), 'No 2.1.1 tooltip lines')
 	end
+	assert(Tip(gold, 'Original') == nil, 'The old name is not listed twice')
 	assert(world.namespaceReads > 0, 'Retail still provides the key and vault segments')
 	H.noErrors()
 end

@@ -219,6 +219,12 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.1.4', lines = {
+		'Interrupter names: only the kick at that mob counts, in class color again',
+		'Trinket icons: chance buffs are not remembered; item data asked for again',
+		'Gold: a renamed character is counted once',
+		'Auto quest leaves grey quests alone when their details open directly',
+	} },
 	{ version = '2.1.3', lines = {
 		'Auto quest accepts directly opened grey quests again',
 		'Gold tooltip as in 2.1.0: your characters and one total',

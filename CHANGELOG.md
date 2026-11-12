@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.4
+
+The real fixes of 2.1.1 are back, with the look of 2.1.0:
+
+- Interrupter on nameplates: only the kick that went to that mob names a player, so two kicks on two mobs no longer swap names. The name is in class color again in dungeons too, without a question mark
+- Trinket and potion icons: a buff that only happened to come right after a trinket use still shows that once, but is no longer remembered as the trinket's effect. Item data that was not loaded at login is asked for again, so the icon does not stay missing until a reload. No question marks; what SlimARK learned before is kept
+- Gold: kept under the character itself, so a renamed character is listed and counted once. The tooltip looks as before
+- Auto quest: a grey quest is left to you when an NPC opens its details directly too, as in the quest lists
+
 ## 2.1.3
 
 Four more 2.1.1 changes are undone; these work as in 2.1.0 again:

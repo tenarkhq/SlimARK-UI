@@ -386,29 +386,13 @@ local function ClockTooltip(self)
 	GameTooltip:Show()
 end
 
+-- The gold is kept under the character's GUID, so a renamed character keeps one entry and is not
+-- counted twice. The name and realm are kept beside it for the tooltip. Older entries under
+-- 'realm|name' stay in the list until that character logs in again.
 local function CharKey()
+	local guid = UnitGUID('player')
+	if guid and not issecretvalue(guid) then return guid end
 	return (GetRealmName() or '?') .. '|' .. (UnitName('player') or '?')
-end
-
--- 2.1.1 kept the gold under the character's GUID; those entries go back under realm|name.
-local function MigrateGold()
-	if not ns.DB or not ns.DB.gold then return end
-	local moved = {}
-	for key, data in pairs(ns.DB.gold) do
-		if not key:find('|', 1, true) then
-			moved[key] = data
-		else
-			data.name, data.realm, data.legacy, data.updatedAt = nil, nil, nil, nil
-		end
-	end
-	-- Keys are added only after the loop: pairs must not see new keys.
-	for key, data in pairs(moved) do
-		ns.DB.gold[key] = nil
-		if data.realm and data.name then
-			local old = data.realm .. '|' .. data.name
-			ns.DB.gold[old] = ns.DB.gold[old] or { money = data.money, class = data.class }
-		end
-	end
 end
 
 local function UpdateGold()
@@ -416,9 +400,10 @@ local function UpdateGold()
 	local money = GetMoney()
 	sessionMoney = sessionMoney or money
 	if ns.DB then
-		MigrateGold()
 		ns.DB.gold = ns.DB.gold or {}
-		ns.DB.gold[CharKey()] = { money = money, class = select(2, UnitClass('player')) }
+		local name, realm = UnitName('player'), GetRealmName()
+		ns.DB.gold[(realm or '?') .. '|' .. (name or '?')] = nil
+		ns.DB.gold[CharKey()] = { money = money, class = select(2, UnitClass('player')), name = name, realm = realm }
 	end
 	local text = Colored(GOLD, BreakUpLargeNumbers(math.floor(money / 10000)) .. 'g')
 	local delta = math.floor((money - sessionMoney) / 10000)
@@ -434,8 +419,9 @@ local function GoldTooltip(self)
 	local realm = GetRealmName()
 	local total, list = 0, {}
 	for key, data in pairs(ns.DB and ns.DB.gold or {}) do
-		local r, name = key:match('^(.-)|(.+)$')
-		if r == realm then
+		local r, name = data.realm, data.name
+		if not r then r, name = key:match('^(.-)|(.+)$') end
+		if r == realm and name then
 			table.insert(list, { name = name, money = data.money, class = data.class })
 			total = total + data.money
 		end
