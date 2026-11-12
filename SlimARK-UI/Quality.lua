@@ -110,3 +110,53 @@ ns.On('ADDON_LOADED', function(_, name)
 	if name == 'Blizzard_GroupFinder' then HookPremade() end
 end)
 ns.On('PLAYER_LOGIN', HookPremade)
+
+-- Joining a premade group: the activity (the dungeon) in large text for a few seconds, with
+-- the group's title under it as its leader wrote it. The game has no field for the key level
+-- and the title can only be shown, not read, so the level is seen when the title has it.
+local JOINED_SECONDS = 6
+local joined
+
+local function JoinedFrame()
+	if joined then return joined end
+	joined = CreateFrame('Frame', 'SlimARK_Joined', UIParent)
+	joined:SetSize(900, 110)
+	joined:SetScale(ns.Scale())
+	joined:SetPoint('TOP', UIParent, 'TOP', 0, -340)
+	joined:SetFrameStrata('HIGH')
+	joined:Hide()
+	local head = ns.Text(joined, 16, 'CENTER')
+	head:SetPoint('TOP')
+	head:SetText('YOU JOINED')
+	local c = ns.C.colors.classPower
+	head:SetTextColor(c[1], c[2], c[3])
+	joined.Name = ns.Text(joined, 44, 'CENTER')
+	joined.Name:SetPoint('TOP', head, 'BOTTOM', 0, -8)
+	joined.Name:SetWidth(900)
+	joined.Title = ns.Text(joined, 24, 'CENTER')
+	joined.Title:SetPoint('TOP', joined.Name, 'BOTTOM', 0, -8)
+	joined.Title:SetWidth(900)
+	joined.Title:SetTextColor(0.84, 0.84, 0.86)
+	return joined
+end
+
+local joinedShown = 0
+ns.On('LFG_LIST_JOINED_GROUP', function(_, resultID, groupName)
+	if not ns.C.features.joinedText or not C_LFGList or not C_LFGList.GetSearchResultInfo then return end
+	local info = resultID and C_LFGList.GetSearchResultInfo(resultID)
+	local activities = info and info.activityIDs
+	local activity = activities and not issecretvalue(activities) and activities[1]
+	local name = activity and C_LFGList.GetActivityFullName and C_LFGList.GetActivityFullName(activity)
+	-- The title can be a hidden value: it is handed to the text as it is, never tested.
+	local hasTitle = issecretvalue(groupName) or (groupName ~= nil and groupName ~= '')
+	if not name and not hasTitle then return end
+	local frame = JoinedFrame()
+	frame.Name:SetText(name or '')
+	if hasTitle then frame.Title:SetText(groupName) else frame.Title:SetText('') end
+	frame:Show()
+	joinedShown = joinedShown + 1
+	local shown = joinedShown
+	C_Timer.After(JOINED_SECONDS, function()
+		if shown == joinedShown then frame:Hide() end
+	end)
+end)

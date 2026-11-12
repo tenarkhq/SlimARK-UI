@@ -1,9 +1,10 @@
 local _, ns = ...
 local C = ns.C
 
--- Two keystone helpers, both on events only:
--- the Font of Power gets your keystone the moment its window opens, and after a run
--- your new keystone is posted to the party once the game has handed it over.
+-- Three keystone helpers, all on events only:
+-- the Font of Power gets your keystone the moment its window opens, after a run your new
+-- keystone is posted to the party once the game has handed it over, and "!keys" in party or
+-- guild chat is answered with your keystone.
 
 local function FindKeystone()
 	for bag = 0, NUM_BAG_SLOTS or 4 do
@@ -78,6 +79,28 @@ local function Poll(epoch)
 	if waiting then C_Timer.After(1, function() Poll(epoch) end) end
 end
 
+------------------------------------------------------------------------
+-- "!keys" in party or guild chat: your keystone is posted as the answer. In a running key and
+-- in a boss fight the game hides the chat text and blocks addon chat, so nothing happens there.
+------------------------------------------------------------------------
+local ANSWER_GAP = 10
+local answered = {}
+
+local function AnswerKeys(event, text)
+	if not C.features.answerKeys or issecretvalue(text) or type(text) ~= 'string' or Locked() then return end
+	local word = strtrim(text):lower()
+	if word ~= '!keys' and word ~= '!key' then return end
+	local channel = event == 'CHAT_MSG_GUILD' and 'GUILD' or 'PARTY'
+	-- Several players asking at once get one answer.
+	local now = GetTime()
+	if answered[channel] and now - answered[channel] < ANSWER_GAP then return end
+	local _, _, link = FindKeystone()
+	if not link then return end
+	answered[channel] = now
+	local send = C_ChatInfo and C_ChatInfo.SendChatMessage or SendChatMessage
+	send(link, channel)
+end
+
 ns.On('PLAYER_LOGIN', function()
 	-- WoW Forever has no Mythic+.
 	if ns.isForever or not C_ChallengeMode or not C_MythicPlus then return end
@@ -107,5 +130,8 @@ ns.On('PLAYER_LOGIN', function()
 		Send()
 	end)
 	ns.On('PLAYER_REGEN_ENABLED', Send)
+	for _, event in ipairs({ 'CHAT_MSG_PARTY', 'CHAT_MSG_PARTY_LEADER', 'CHAT_MSG_GUILD' }) do
+		ns.On(event, AnswerKeys)
+	end
 	before = Owned()
 end)

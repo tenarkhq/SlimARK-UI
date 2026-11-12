@@ -15,7 +15,7 @@ One command sets up your whole screen: frames, Edit Mode layouts, action bars an
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
 - **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
-- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, interrupter names, defensive cooldowns, frames colored by the debuff type, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
+- **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, cast bars that go dark while your interrupt is on cooldown, the target of every cast, aggro colors and an execute line on the plates, interrupter names, defensive cooldowns, frames colored by the debuff type, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
 - **Mythic+ ready:** compact timer panel, keystone slotted for you, new key posted to the party
 - **Group tools:** marker bar, ready check window that uses your missing flask or food, loot rolls in one flat column
 - **Test mode:** see party, raid, Mythic+ or the other spec's layout without a group
@@ -150,6 +150,9 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - Class power for every class: runes, combo points, holy power, essence, soul shards, chi, arcane charges, icicles, Maelstrom Weapon and more, each in the color of its resource (runes by spec, holy power gold)
 - The player frame takes the color of a typed debuff on you, in the game's own debuff colors: poison green, disease brown, curse purple, magic blue, and bleed in its own color. The health level stays readable under the color, so you see at once that something should come off
 - Boss frames show current health in the center, so you can call phase changes at a glance
+- **Shaman totems:** your totems as icons with the time left in a row above the player frame; drag it in Edit Mode
+- **Quick focus:** Shift + left click on a frame, a nameplate or a mob in the world makes it your focus. Ctrl or Alt can be picked instead. With the modifier held the left click no longer targets or turns the camera in the world
+- **Fade (off by default):** the player frame steps back out of combat without a target, and comes back in combat, with a target, under the mouse or while you cast
 - Shields (damage absorbs) in light stripes right after the health, on every frame including party, raid and boss frames. Damage takes the striped part first; a shield larger than the missing health is drawn back over the health with a bright line at the edge
 
 **Shields:** a damaged target, a full health target with a large shield, a party frame and an enemy plate
@@ -170,6 +173,11 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - Debuff icons on every frame
 - A typed debuff colors the member's health area (poison green, disease brown, curse purple, magic blue, bleed in its own color), whether or not your class can remove it. Debuffs without a type do not color the frame
 - What you can dispel also lights up the whole frame in the type's color, and with several types on a member its color is the one shown
+
+**Frames colored by the debuff type:** the player frame, party and raid frames
+
+![Frames colored by the debuff type](assets/feature-debuffcolors.png)
+
 - Private auras, the boss debuffs the game keeps from addons, in the middle of the frame above everything. The game draws them itself, with its own icon and countdown
 - Incoming heals as a pale green bar after the health, and heal absorbs (debuffs that eat healing) in dark red stripes at the end of the health
 - Your own HoTs as small icons with the remaining time as a dark swipe
@@ -185,12 +193,20 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 - Your target is marked with a thin frame and two arrows, other plates step back
 - The mob's name and its health with one decimal sit inside the plate, not above it
-- Casters are marked before they start casting: mana users, mage type mobs and lieutenants. Every mob the addon has seen casting is remembered by name for later runs
+- Casters are marked before they start casting: mana users, mage type mobs and lieutenants. A mob seen casting is marked from then on, and remembered by name for later. In dungeons and raids the game hides mob names, so there the memory rests and a mob is marked from its first cast
 - Light blue cast bars for normal casts, magenta for the important ones you should interrupt, so they stand apart from red, orange and yellow plates
+- **Cast bars by your interrupt:** while your interrupt is on cooldown the enemy cast bars are dark, so a bright bar always means you can interrupt it now. On the target, focus and boss cast bars too
+- **Who the cast is aimed at:** the target's name in class color under the cast bar, a red YOU when it is you. On the target, focus and boss cast bars the name sits inside the bar
+- **Aggro in a group:** only the wrong case gets the orange warning color. In a tank spec that is a fighting mob that is not on you, in every other spec a mob that is on you
+- **Execute line:** a thin line on the plate where your finisher starts to work (Hammer of Wrath 20%, Soul Reaper 35%, Execute, Kill Shot and more). The percent can be set, and classes without a finisher have no line
 - After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color. In dungeons the game often hides the interrupter from addons; then the party member whose kick went to that mob is named, in class color
 - See which group members target the mob
 - Debuffs you applied are shown above the plate
 - Enemy shields in light stripes, so you see what has to break first
+
+**Cast bars by your interrupt, the cast target, the execute line and aggro**, with the Shaman totem row and the text on joining a group
+
+![Cast bars by your interrupt, cast target, execute line, aggro, totems and the join text](assets/feature-combat-2-3.png)
 
 **Your target:** a thin frame and two arrows, in a bright and a dark place
 
@@ -256,6 +272,8 @@ The game's own floating combat text uses the SlimARK font, so the numbers match 
 - The quest tracker steps aside for the whole key, even if the game tries to bring it back in combat, and returns when the key ends
 - **Keystone:** your keystone goes into the Font of Power the moment you open it
 - After a run your new keystone is posted to the party as a link, as soon as the game allows addon chat again
+- **!keys** in party or guild chat is answered with your keystone. In a running key and in boss fights the game blocks addon chat, so there nothing is sent
+- **Combat log:** logging switches on when a key starts or you enter a raid, with Advanced Combat Logging for the log sites, and off when you leave. A log you started yourself is left alone
 
 ## Marker bar
 
@@ -283,6 +301,7 @@ The game's own floating combat text uses the SlimARK font, so the numbers match 
 
 - Role checks are accepted automatically with your current spec's role
 - One click on a premade group listing signs you up with your spec's role, with no extra confirmation window
+- When you join a group, the dungeon shows in large text for a few seconds, with the group's title under it. The game gives addons no key level, so the level is there when the leader wrote it in the title
 
 # Interface
 

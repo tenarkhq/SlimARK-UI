@@ -60,12 +60,7 @@ local function TargetPlate(kicker)
 	end
 end
 
-local KICKS = {
-	[96231] = true, [1766] = true, [6552] = true, [47528] = true, [2139] = true,
-	[57994] = true, [106839] = true, [78675] = true, [116705] = true, [147362] = true,
-	[187707] = true, [183752] = true, [351338] = true, [15487] = true, [19647] = true,
-	[119910] = true, [132409] = true, [119914] = true, [31935] = true,
-}
+local KICKS = ns.KICKS
 
 local kickWatch = CreateFrame('Frame')
 kickWatch:RegisterUnitEvent('UNIT_SPELLCAST_SUCCEEDED', 'player', 'party1', 'party2', 'party3', 'party4')
@@ -163,6 +158,74 @@ local function UpdateAllTargeters()
 	end
 end
 
+------------------------------------------------------------------------
+-- Aggro on the plate: only in a group, and only the wrong case gets the warning color. For a
+-- tank spec that is a mob fighting the group that is not on you, for every other spec a mob
+-- that is on you. Your own threat on a plate is readable in dungeons; a hidden value colors
+-- nothing.
+------------------------------------------------------------------------
+local function Plain(value)
+	if issecretvalue(value) then return nil end
+	return value
+end
+
+local function OnAnotherTank(unit)
+	if not IsInRaid() then return false end
+	for _, member in ipairs(members) do
+		local status = Plain(UnitThreatSituation(member.unit, unit))
+		if status and status >= 2 then return true end
+	end
+	return false
+end
+
+local function ThreatWarn(unit)
+	if not C.features.plateThreat or not unit or not IsInGroup() then return false end
+	if Plain(UnitIsPlayer(unit)) or Plain(UnitIsFriend('player', unit)) then return false end
+	local status = UnitThreatSituation('player', unit)
+	if issecretvalue(status) then return false end
+	local onMe = (status or 0) >= 2
+	local _, role = ns.SpecInfo()
+	if role ~= 'TANK' then return onMe end
+	if onMe then return false end
+	local fighting = UnitAffectingCombat(unit)
+	if issecretvalue(fighting) then fighting = status ~= nil end
+	return fighting and not OnAnotherTank(unit) or false
+end
+
+local function UpdateThreat(frame)
+	local warn = ThreatWarn(frame.__unit)
+	if warn == (frame.threatWarn or false) then return end
+	frame.threatWarn = warn
+	if frame.Health.ForceUpdate then frame.Health:ForceUpdate() end
+end
+
+local function UpdateAllThreat()
+	for _, frame in ipairs(plateFrames) do
+		if frame:IsVisible() then UpdateThreat(frame) end
+	end
+end
+
+-- The execute line: a thin mark on the health bar where your finisher starts to work. The
+-- setting wins; at 0 the value of your spec or class is used, and without one there is no line.
+local function ExecutePercent()
+	local o = C.plate
+	if not C.features.executeLine then return 0 end
+	if o.execute > 0 then return o.execute end
+	local spec = ns.SpecInfo()
+	return spec and o.executeSpec[spec] or o.executeClass[UnitClassBase('player')] or 0
+end
+
+local function PlaceExecuteLine(frame)
+	local line = frame.ExecuteLine
+	local percent = ExecutePercent()
+	line:SetShown(percent > 0)
+	if percent <= 0 then return end
+	local x = C.plate.w * percent / 100
+	line:ClearAllPoints()
+	line:SetPoint('TOP', frame.Health, 'TOPLEFT', x, 0)
+	line:SetPoint('BOTTOM', frame.Health, 'BOTTOMLEFT', x, 0)
+end
+
 local function PlateStyle(self)
 	local o = C.plate
 	local health = CreateFrame('StatusBar', nil, self)
@@ -177,14 +240,19 @@ local function PlateStyle(self)
 	health.colorClass = true
 	health.colorReaction = true
 	health.PostUpdateColor = function(element)
-		if element.__owner.isCaster then
-			local c = C.colors.caster
-			element:SetStatusBarColor(c[1], c[2], c[3])
-		end
+		local owner = element.__owner
+		local c = owner.threatWarn and C.colors.plateThreat or owner.isCaster and C.colors.caster
+		if c then element:SetStatusBarColor(c[1], c[2], c[3]) end
 	end
 	health.Texts = ns.TextLayer(health)
 	ns.AddShield(health)
 	self.Health = health
+
+	local line = health:CreateTexture(nil, 'OVERLAY', nil, 2)
+	line:SetColorTexture(1, 1, 1, 0.9)
+	line:SetWidth(2 * ns.Px())
+	self.ExecuteLine = line
+	PlaceExecuteLine(self)
 
 	-- The name and the HP in the plate, in one line.
 	local pct = ns.Text(health.Texts, C.plate.font, 'RIGHT')
@@ -197,7 +265,7 @@ local function PlateStyle(self)
 	self:Tag(name, '[name]')
 	self.PlateName = name
 
-	local cb = ns.CreateCastbar(self, o.w, o.castH, true, 14)
+	local cb = ns.CreateCastbar(self, o.w, o.castH, true, 14, true)
 	cb:SetPoint('TOP', health, 'BOTTOM', 0, -3)
 	-- After an interrupt the bar is still visible: Interrupted and the interrupter's name in class color.
 	cb.timeToHold = o.holdTime
@@ -299,11 +367,33 @@ oUF:Factory(function(self)
 	plates:SetAddedCallback(function(frame, _, unit)
 		UpdateCasterMark(frame, unit)
 		UpdateTargeters(frame)
+		UpdateThreat(frame)
 	end)
 	UpdateMembers()
 	ns.On('GROUP_ROSTER_UPDATE', function()
 		UpdateMembers()
 		UpdateAllTargeters()
+		UpdateAllThreat()
+	end)
+	if C.features.plateThreat then
+		-- The mob's own threat list changed: only its plate is looked at.
+		ns.On('UNIT_THREAT_LIST_UPDATE', function(_, unit)
+			for _, frame in ipairs(plateFrames) do
+				if frame.__unit == unit then
+					if frame:IsVisible() then UpdateThreat(frame) end
+					return
+				end
+			end
+		end)
+		ns.On('UNIT_THREAT_SITUATION_UPDATE', function(_, unit)
+			if unit == 'player' then UpdateAllThreat() end
+		end)
+		ns.On('PLAYER_REGEN_ENABLED', UpdateAllThreat)
+	end
+	ns.On('PLAYER_SPECIALIZATION_CHANGED', function(_, unit)
+		if unit ~= 'player' then return end
+		for _, frame in ipairs(plateFrames) do PlaceExecuteLine(frame) end
+		UpdateAllThreat()
 	end)
 	ns.On('UNIT_TARGET', function(_, unit)
 		for _, member in ipairs(members) do

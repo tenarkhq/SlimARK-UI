@@ -67,6 +67,8 @@ ns.C = {
 		healAbsorb = { 0.75, 0.08, 0.08 },
 		-- The frame of the group member a mob hits.
 		aggro = { 1, 0.16, 0.12 },
+		-- A nameplate whose mob is on the wrong player: not on you as a tank, on you otherwise.
+		plateThreat = { 1, 0.55, 0.1 },
 		-- The cooldown bars share these tables, so a color set in /slimark reaches every bar.
 		cdMain = MAIN,
 		cdKick = KICK,
@@ -92,6 +94,10 @@ ns.C = {
 		autoQuest = true, autoKeystone = true, announceKey = true, errorFilter = true,
 		easyDelete = true,
 		privateAuras = true, healPrediction = true, ownHots = true, statusIcons = true, aggro = true,
+		kickReady = true, castTarget = true, plateThreat = true, executeLine = true, totems = true,
+		autoCombatLog = true, answerKeys = true, joinedText = true, quickFocus = true,
+		-- Off unless asked for.
+		playerFade = false,
 	},
 
 	-- The look of Blizzard's own windows (2.0). 'none' until the setup window asks for it,
@@ -105,7 +111,7 @@ ns.C = {
 	},
 
 	units = {
-		player = { x = 720, y = 1160, w = 340, h = 66, font = 20, classPower = 12, heal = { x = 630, y = 1160 } },
+		player = { x = 720, y = 1160, w = 340, h = 66, font = 20, classPower = 12, fadeAlpha = 30, heal = { x = 630, y = 1160 } },
 		target = { x = 1500, y = 1160, w = 340, h = 66, font = 20, heal = { x = 1600, y = 1160 } },
 		targettarget = { x = 1500, y = 1255, w = 170, h = 27, font = 16, heal = { x = 1600, y = 1255 } },
 		pet = { x = 720, y = 1255, w = 170, h = 27, font = 16, heal = { x = 630, y = 1120 } },
@@ -131,7 +137,14 @@ ns.C = {
 		targetDebuffSize = 38,
 	},
 
-	plate = { w = 200, h = 22, casterH = 28, castH = 16, debuff = 24, font = 14, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6, arrowW = 11, arrowH = 16, arrowGap = 4 },
+	plate = { w = 200, h = 22, casterH = 28, castH = 16, debuff = 24, font = 14, targeterFont = 13, holdTime = 1.5, dimAlpha = 0.6, arrowW = 11, arrowH = 16, arrowGap = 4,
+		-- The execute line, in percent of the health. 0: the value of your spec or class below.
+		execute = 0,
+		-- Hammer of Wrath, Soul Reaper, Execute, Kill Shot, Shadow Word: Death, Shadowburn and
+		-- Drain Soul, Touch of Death; Scorch for Fire.
+		executeClass = { PALADIN = 20, DEATHKNIGHT = 35, WARRIOR = 20, HUNTER = 20, PRIEST = 20, WARLOCK = 20, MONK = 15 },
+		executeSpec = { [63] = 30 },
+	},
 
 	cooldowns = {
 		x = 1100, y = 1100, w = 360, rowH = 22, gap = 3, font = 16,
@@ -212,6 +225,12 @@ ns.C = {
 		x = 1216, y = 1028, size = 40, gap = 4, font = 16, trinkets = true, potions = true,
 		heal = { x = 736, y = 1048 },
 	},
+
+	-- Shaman totems: a row above the right end of the player frame.
+	totems = { x = 923, y = 1124, size = 32, gap = 3, heal = { x = 833, y = 1124 } },
+
+	-- The modifier that sets the focus with a left click: SHIFT, CTRL or ALT.
+	quickFocus = { modifier = 'SHIFT' },
 
 	consumables = {
 		x = 1942, y = 1284, size = 40, gap = 3,

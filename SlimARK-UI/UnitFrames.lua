@@ -200,7 +200,110 @@ end
 
 -- Shared castbar. Light blue for an enemy, magenta for a cast the game marks important,
 -- gray for an uninterruptible cast.
-function ns.CreateCastbar(self, width, height, canInterrupt, fontSize)
+-- Every class's interrupt. The nameplates also read it to name who interrupted.
+ns.KICKS = {
+	[96231] = true, [1766] = true, [6552] = true, [47528] = true, [2139] = true,
+	[57994] = true, [106839] = true, [78675] = true, [116705] = true, [147362] = true,
+	[187707] = true, [183752] = true, [351338] = true, [15487] = true, [19647] = true,
+	[119910] = true, [132409] = true, [119914] = true, [31935] = true,
+}
+
+------------------------------------------------------------------------
+-- Your interrupt and the enemy cast bars: while it is on cooldown the bars are dark, so a
+-- bright bar always means "you can interrupt this now". The cooldown state of your own spell
+-- is a plain value in combat too; the important flag of the cast is hidden, so the game picks
+-- between the two colors we hand it.
+------------------------------------------------------------------------
+local KICK_DIM = 0.45
+local enemyBars = {}
+local kickID, kickReady = nil, true
+local kickTimer
+
+local function FindKick()
+	kickID = nil
+	if not (C_SpellBook and C_SpellBook.IsSpellKnownOrInSpellBook) then return end
+	local pet = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Pet
+	for id in pairs(ns.KICKS) do
+		if C_SpellBook.IsSpellKnownOrInSpellBook(id) or (pet and C_SpellBook.IsSpellKnownOrInSpellBook(id, pet)) then
+			kickID = id
+			return
+		end
+	end
+end
+
+-- Without an interrupt of your own the bars stay bright, as before.
+local function KickReady()
+	if not kickID then return true end
+	local info = C_Spell.GetSpellCooldown(kickID)
+	return not (info and info.isActive and not info.isOnGCD)
+end
+
+local function PaintCast(element)
+	if not element.casting then return end
+	local c = element.castColors
+	local texture = element:GetStatusBarTexture()
+	if kickReady then
+		texture:SetVertexColorFromBoolean(element.isImportant, c.important, c.normal)
+	else
+		texture:SetVertexColorFromBoolean(element.isImportant, c.importantDim, c.normalDim)
+	end
+end
+
+local function UpdateKick()
+	local ready = KickReady()
+	if not ready and kickTimer then
+		-- The moment the cooldown ends gives no event of its own.
+		local duration = C_Spell.GetSpellCooldownDuration(kickID, true)
+		if duration then kickTimer:SetCooldownFromDurationObject(duration) end
+	end
+	if ready == kickReady then return end
+	kickReady = ready
+	for _, element in ipairs(enemyBars) do
+		if element:IsShown() then PaintCast(element) end
+	end
+end
+
+local function WatchKick()
+	if kickTimer or not C.features.kickReady then return end
+	kickTimer = CreateFrame('Cooldown', nil, UIParent, 'CooldownFrameTemplate')
+	kickTimer:SetSize(1, 1)
+	kickTimer:SetPoint('TOPLEFT')
+	kickTimer:SetAlpha(0)
+	kickTimer:SetHideCountdownNumbers(true)
+	kickTimer:SetScript('OnCooldownDone', UpdateKick)
+	local function Relearn()
+		FindKick()
+		UpdateKick()
+	end
+	ns.On('SPELLS_CHANGED', Relearn)
+	ns.On('SPELL_UPDATE_COOLDOWN', UpdateKick)
+	Relearn()
+end
+
+-- Who the cast is aimed at. The name and the class are hidden values: they can be shown, not
+-- read, so "it is you" swaps the name for a red YOU through the alpha.
+local function ShowCastTarget(element, unit)
+	local name = element.Target
+	if not name then return end
+	if UnitShouldDisplaySpellTargetName(unit) then
+		local class = UnitSpellTargetClass(unit)
+		local color = class and C_ClassColor.GetClassColor(class)
+		name:SetText(UnitSpellTargetName(unit))
+		if color then name:SetTextColor(color.r, color.g, color.b) else name:SetTextColor(1, 1, 1) end
+		local onMe = PlayerIsSpellTarget(unit)
+		name:SetAlphaFromBoolean(onMe, 0, 1)
+		element.TargetYou:SetAlphaFromBoolean(onMe, 1, 0)
+		if element.TargetArrow then element.TargetArrow:Show() end
+	else
+		name:SetText('')
+		element.TargetYou:SetAlpha(0)
+		if element.TargetArrow then element.TargetArrow:Hide() end
+	end
+end
+
+-- targetBelow: the cast target goes on a line of its own under the bar (nameplates); otherwise
+-- it sits inside the bar, in front of the time.
+function ns.CreateCastbar(self, width, height, canInterrupt, fontSize, targetBelow)
 	local cb = CreateFrame('StatusBar', nil, self)
 	cb:SetSize(width, height)
 	cb:SetStatusBarTexture(TEX)
@@ -227,16 +330,52 @@ function ns.CreateCastbar(self, width, height, canInterrupt, fontSize)
 		local important = ns.Edge(cb, 2, C.colors.important, 3)
 		important:SetAlpha(0)
 		cb.Important = important
-		local normalColor = CreateColor(base[1], base[2], base[3])
 		local i = C.colors.important
-		local importantColor = CreateColor(i[1], i[2], i[3])
-		cb.PostCastStart = function(element, _, spellID)
-			local isImportant = C_Spell.IsSpellImportant(spellID)
-			element:GetStatusBarTexture():SetVertexColorFromBoolean(isImportant, importantColor, normalColor)
-			element.Important:SetAlphaFromBoolean(isImportant, 1, 0)
-			if element.ImportantPlate then
-				element.ImportantPlate:SetAlphaFromBoolean(isImportant, 1, 0)
+		cb.castColors = {
+			normal = CreateColor(base[1], base[2], base[3]),
+			important = CreateColor(i[1], i[2], i[3]),
+			normalDim = CreateColor(base[1] * KICK_DIM, base[2] * KICK_DIM, base[3] * KICK_DIM),
+			importantDim = CreateColor(i[1] * KICK_DIM, i[2] * KICK_DIM, i[3] * KICK_DIM),
+		}
+		table.insert(enemyBars, cb)
+		WatchKick()
+
+		if C.features.castTarget and UnitSpellTargetName and UnitShouldDisplaySpellTargetName and PlayerIsSpellTarget then
+			local size = fontSize or 14
+			local name = ns.Text(cb, size)
+			local you = ns.Text(cb, size)
+			you:SetText('YOU')
+			you:SetTextColor(1, 0.23, 0.19)
+			you:SetAlpha(0)
+			if targetBelow then
+				local arrow = ns.Text(cb, size)
+				arrow:SetText('>')
+				arrow:SetTextColor(0.6, 0.61, 0.65)
+				arrow:SetPoint('TOPLEFT', cb, 'BOTTOMLEFT', 2, -3)
+				arrow:Hide()
+				name:SetPoint('LEFT', arrow, 'RIGHT', 4, 0)
+				you:SetPoint('LEFT', arrow, 'RIGHT', 4, 0)
+				cb.TargetArrow = arrow
+			else
+				name:SetJustifyH('RIGHT')
+				name:SetPoint('RIGHT', cb.Time, 'LEFT', -8, 0)
+				you:SetPoint('RIGHT', name, 'RIGHT')
+				cb.Text:ClearAllPoints()
+				cb.Text:SetPoint('LEFT', 6, 0)
+				cb.Text:SetPoint('RIGHT', name, 'LEFT', -6, 0)
 			end
+			cb.Target, cb.TargetYou = name, you
+		end
+
+		cb.PostCastStart = function(element, unit, spellID)
+			element.isImportant = C_Spell.IsSpellImportant(spellID)
+			element.casting = true
+			PaintCast(element)
+			element.Important:SetAlphaFromBoolean(element.isImportant, 1, 0)
+			if element.ImportantPlate then
+				element.ImportantPlate:SetAlphaFromBoolean(element.isImportant, 1, 0)
+			end
+			ShowCastTarget(element, unit)
 		end
 	end
 
@@ -257,6 +396,84 @@ local function StyleDefensive(element, button)
 	button.Time:SetFont(ns.FONT, 15, 'OUTLINE')
 	button.Time:ClearAllPoints()
 	button.Time:SetPoint('CENTER', button, 'CENTER', 0, 0)
+end
+
+-- Quick focus: the modifier with a left click on a SlimARK frame sets the focus. A frame made
+-- in combat gets it when the fight ends.
+local focusPending = {}
+
+local function AddFocusClick(frame)
+	if not C.features.quickFocus then return end
+	if InCombatLockdown() then
+		focusPending[frame] = true
+		return
+	end
+	frame:SetAttribute(C.quickFocus.modifier:lower() .. '-type1', 'focus')
+end
+
+ns.On('PLAYER_REGEN_ENABLED', function()
+	for frame in pairs(focusPending) do
+		focusPending[frame] = nil
+		AddFocusClick(frame)
+	end
+end)
+
+-- Shaman totems: an icon per totem slot with the time left, in a row of its own that can be
+-- dragged in Edit Mode. A slot is see-through while it is empty; the game fills the icons and
+-- the countdown itself, so it works in combat too.
+local TOTEM_SLOTS = 4
+
+local function CreateTotems(self)
+	local t = C.totems
+	local holder = CreateFrame('Frame', 'SlimARK_Totems', UIParent)
+	holder:SetSize(TOTEM_SLOTS * (t.size + t.gap) - t.gap, t.size)
+	ns.Register(holder, t.x, t.y, { key = 'totems', heal = { x = t.heal.x, y = t.heal.y } })
+	local totems = {}
+	for i = 1, TOTEM_SLOTS do
+		local f = CreateFrame('Frame', nil, holder)
+		f:SetSize(t.size, t.size)
+		f:SetPoint('RIGHT', -(i - 1) * (t.size + t.gap), 0)
+		f:SetAlpha(0)
+		ns.Outline(f)
+		local icon = f:CreateTexture(nil, 'ARTWORK')
+		icon:SetAllPoints()
+		icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+		f.Icon = icon
+		local cd = CreateFrame('Cooldown', nil, f, 'CooldownFrameTemplate')
+		cd:SetAllPoints()
+		cd:SetDrawEdge(false)
+		cd:SetHideCountdownNumbers(false)
+		f.Cooldown = cd
+		totems[i] = f
+	end
+	self.Totems = totems
+end
+
+-- The player frame steps back out of combat: combat, a target, the mouse over it, a cast of
+-- your own or Edit Mode bring it back. No timer runs, the events and the mouse wake it.
+local function AddPlayerFade(self)
+	local function Update(event)
+		local awake = event == 'PLAYER_REGEN_DISABLED' or InCombatLockdown() or UnitAffectingCombat('player')
+			or UnitExists('target') or self:IsMouseOver()
+			or (self.Castbar and self.Castbar:IsShown())
+			or (EditModeManagerFrame and EditModeManagerFrame:IsShown())
+		local alpha = awake and 1 or C.units.player.fadeAlpha / 100
+		if self:GetAlpha() ~= alpha then self:SetAlpha(alpha) end
+	end
+	for _, event in ipairs({ 'PLAYER_REGEN_DISABLED', 'PLAYER_REGEN_ENABLED', 'PLAYER_TARGET_CHANGED', 'PLAYER_ENTERING_WORLD' }) do
+		ns.On(event, Update)
+	end
+	self:HookScript('OnEnter', Update)
+	self:HookScript('OnLeave', Update)
+	if self.Castbar then
+		self.Castbar:HookScript('OnShow', Update)
+		self.Castbar:HookScript('OnHide', Update)
+	end
+	if EditModeManagerFrame then
+		EditModeManagerFrame:HookScript('OnShow', Update)
+		EditModeManagerFrame:HookScript('OnHide', Update)
+	end
+	Update()
 end
 
 -- A typed debuff (poison, disease, curse, magic, bleed) colors the whole health area in the
@@ -408,6 +625,13 @@ local function Style(self, unit)
 	if kind == 'player' and C.features.dispelGlow then
 		AddDebuffTint(self, health, o.w, o.h)
 	end
+	if kind == 'player' and C.features.totems and GetTotemInfo and TotemFrame and UnitClassBase('player') == 'SHAMAN' then
+		CreateTotems(self)
+	end
+	if kind == 'player' and C.features.playerFade then
+		AddPlayerFade(self)
+	end
+	AddFocusClick(self)
 
 	if kind == 'player' and C.modules.auras then
 		local a = C.auras.buffs

@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.3.0
+
+Nameplates and cast bars:
+
+- Cast bars by your interrupt: while your interrupt is on cooldown the enemy cast bars are dark, so a bright bar always means you can interrupt it now. The magenta frame of an important cast and the grey of a cast that cannot be interrupted stay. On nameplates and on the target, focus and boss cast bars
+- Who the cast is aimed at: the target's name in class color under the nameplate cast bar, a red YOU when it is you. On the target, focus and boss cast bars the name sits inside the bar, in front of the time
+- Aggro on the plate, in a group: only the wrong case gets the orange warning color. In a tank spec that is a fighting mob that is not on you, in every other spec a mob that is on you
+- Execute line: a thin line on the plate where your finisher starts to work. Paladin 20%, Death Knight 35%, Warrior, Hunter, Priest and Warlock 20%, Fire Mage 30%, Monk 15%; other classes have no line. The Nameplates page has a percent of your own
+
+Frames:
+
+- Shaman totems: your totems as icons with the time left in a row above the player frame. Drag it in Edit Mode
+- Quick focus: Shift + left click on a mob in the world, on a nameplate or on a SlimARK frame makes it your focus. Ctrl or Alt can be picked on the Quick focus page. With the modifier held the left click no longer targets or turns the camera in the world
+- The player frame can fade out of combat without a target. Off by default, on the Player page
+
+Groups and Mythic+:
+
+- "!keys" in party or guild chat is answered with your keystone. In a running key and in boss fights the game blocks addon chat, so there nothing is sent
+- Combat logging switches on when a key starts or you enter a raid, with Advanced Combat Logging, and off when you leave. A log you started yourself is left alone
+- When you join a premade group, the dungeon shows in large text for a few seconds, with the group's title under it
+
+Good to know:
+
+- Every new part has its own switch in /slimark
+- In dungeons and raids the game hides mob names from addons. The caster mark's memory of names therefore works in the open world only; in an instance a mob is marked as a caster from its first cast, and by its mana or rank as before
+- Test mode shows the cast target on the made-up cast bars
+
 ## 2.2.0
 
 - Frames colored by the debuff type: when a typed debuff is on you or on a group member, the health area of the frame takes the type's color with an edge in the same color. The colors are the game's own: poison green, disease brown, curse purple, magic blue, and bleed has its own color too. On the player frame, the party, the raid and the healer grid

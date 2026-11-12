@@ -92,6 +92,9 @@ local function Castbar(parent, width, color, fontSize)
 	cb.Text:SetPoint('LEFT', 6, 0)
 	cb.Time = ns.Text(cb, fontSize, 'RIGHT')
 	cb.Time:SetPoint('RIGHT', -6, 0)
+	-- Who the cast is aimed at, in front of the time as on the real bars.
+	cb.Target = ns.Text(cb, fontSize, 'RIGHT')
+	cb.Target:SetPoint('RIGHT', cb.Time, 'LEFT', -8, 0)
 	return cb
 end
 
@@ -216,6 +219,9 @@ local function Fill(f, u)
 			f.ui.cast:SetValue(u.castValue or 60)
 			f.ui.cast.Text:SetText(u.cast)
 			f.ui.cast.Time:SetText(u.castTime or '1.2')
+			-- The made-up casts are aimed at you.
+			f.ui.cast.Target:SetText(C.features.castTarget and UnitName('player') or '')
+			f.ui.cast.Target:SetTextColor(ClassColor((select(2, UnitClass('player')))))
 			local c = u.important and C.colors.important or C.colors.enemyCast
 			f.ui.cast:SetStatusBarColor(c[1], c[2], c[3])
 		end

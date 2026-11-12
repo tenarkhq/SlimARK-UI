@@ -254,4 +254,90 @@ do
 	H.check(Typed(Slots((Styled(nil, 'focus')))) == nil, 'tint: the focus frame has none')
 end
 
+------------------------------------------------------------------------
+-- 2.3.0: totems, the player frame fade and the focus click.
+------------------------------------------------------------------------
+do
+	local function Player(class, features, combat)
+		local ns, oUF = Boot({}, 'DAMAGER')
+		for key, value in pairs(features or {}) do ns.C.features[key] = value end
+		_G.UnitClassBase = function() return class end
+		_G.GetTotemInfo = function() end
+		_G.TotemFrame = H.NewFrame('Frame', 'TotemFrame', UIParent)
+		_G.UnitExists = function(unit) return unit == 'target' and _G.hasTarget or false end
+		_G.UnitAffectingCombat = function() return false end
+		_G.hasTarget = false
+		_G.UnitFrame_OnEnter, _G.UnitFrame_OnLeave = function() end, function() end
+		H.combat = combat or false
+		local frame = H.NewFrame('Button', nil, UIParent)
+		frame.colors = { dispel = {} }
+		function frame:IsMouseOver() return self.over or false end
+		oUF.styles['SlimARK-UI'](frame, 'player')
+		return frame, ns
+	end
+	local function Placed(ns, key)
+		for _, item in ipairs(ns.Placed) do if item.key == key then return item end end
+	end
+
+	local frame, ns = Player('SHAMAN')
+	H.check(frame.Totems and #frame.Totems == 4, 'totems: a shaman gets four totem slots')
+	H.check(Placed(ns, 'totems') ~= nil, 'totems: the row can be dragged in Edit Mode')
+	H.check(frame.Totems[1].Icon and frame.Totems[1].Cooldown, 'totems: a slot has an icon and a countdown')
+	H.equal(frame.Totems[1]:GetAlpha(), 0, 'totems: an empty slot is see-through')
+	frame = Player('PALADIN')
+	H.check(frame.Totems == nil, 'totems: other classes get none')
+	frame = Player('SHAMAN', { totems = false })
+	H.check(frame.Totems == nil, 'totems off: none')
+
+	-- The fade is off by default.
+	frame, ns = Player('PALADIN')
+	H.equal(frame:GetAlpha(), 1, 'fade: off by default, the frame stays as it is')
+	frame, ns = Player('PALADIN', { playerFade = true })
+	-- oUF hides the cast bar while nothing is cast.
+	frame.Castbar:Hide()
+	frame.Castbar:GetScript('OnHide')(frame.Castbar)
+	H.equal(frame:GetAlpha(), ns.C.units.player.fadeAlpha / 100, 'fade: out of combat without a target the frame steps back')
+	_G.hasTarget = true
+	H.fire('PLAYER_TARGET_CHANGED')
+	H.equal(frame:GetAlpha(), 1, 'fade: a target brings it back')
+	_G.hasTarget = false
+	H.fire('PLAYER_TARGET_CHANGED')
+	H.fire('PLAYER_REGEN_DISABLED')
+	H.equal(frame:GetAlpha(), 1, 'fade: the start of combat brings it back')
+	H.fire('PLAYER_REGEN_ENABLED')
+	H.check(frame:GetAlpha() < 1, 'fade: after combat it steps back again')
+	frame.over = true
+	frame:GetScript('OnEnter')(frame)
+	H.equal(frame:GetAlpha(), 1, 'fade: the mouse over it brings it back')
+	frame.over = false
+	frame:GetScript('OnLeave')(frame)
+	H.check(frame:GetAlpha() < 1, 'fade: and it steps back when the mouse leaves')
+	frame.Castbar:Show()
+	frame.Castbar:GetScript('OnShow')(frame.Castbar)
+	H.equal(frame:GetAlpha(), 1, 'fade: your own cast brings it back')
+
+	-- The focus click: Shift + left click by default, the chosen modifier otherwise.
+	frame = Player('PALADIN')
+	H.equal(frame:GetAttribute('shift-type1'), 'focus', 'quick focus: Shift + left click on a frame sets the focus')
+	ns = select(2, Player('PALADIN'))
+	do
+		local n, oUF = Boot({}, 'DAMAGER')
+		n.C.quickFocus.modifier = 'ALT'
+		_G.UnitClassBase = function() return 'PALADIN' end
+		local f = H.NewFrame('Button', nil, SlimARK_Party)
+		f.colors = { dispel = {} }
+		oUF.styles['SlimARK-UI'](f, nil)
+		H.equal(f:GetAttribute('alt-type1'), 'focus', 'quick focus: the chosen modifier is used on group frames too')
+		H.check(f:GetAttribute('shift-type1') == nil, 'quick focus: and no other modifier')
+	end
+	frame = Player('PALADIN', { quickFocus = false })
+	H.check(frame:GetAttribute('shift-type1') == nil, 'quick focus off: no focus click')
+	-- A frame made in combat gets the click when the fight ends.
+	frame = Player('PALADIN', nil, true)
+	H.check(frame:GetAttribute('shift-type1') == nil, 'quick focus: nothing is set in combat')
+	H.combat = false
+	H.fire('PLAYER_REGEN_ENABLED')
+	H.equal(frame:GetAttribute('shift-type1'), 'focus', 'quick focus: it is set when combat ends')
+end
+
 H.done()
