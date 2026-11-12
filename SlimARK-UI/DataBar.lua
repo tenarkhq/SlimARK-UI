@@ -387,33 +387,38 @@ local function ClockTooltip(self)
 end
 
 local function CharKey()
-	local guid = UnitGUID('player')
-	if guid and not issecretvalue(guid) then return guid end
+	return (GetRealmName() or '?') .. '|' .. (UnitName('player') or '?')
 end
 
-local function GoldStore()
-	if not ns.DB then return {} end
-	ns.DB.gold = ns.DB.gold or {}
+-- 2.1.1 kept the gold under the character's GUID; those entries go back under realm|name.
+local function MigrateGold()
+	if not ns.DB or not ns.DB.gold then return end
+	local moved = {}
 	for key, data in pairs(ns.DB.gold) do
-		-- Keep old offline balances visible, but their names cannot prove a character's identity
-		-- after a rename. They are excluded from the total until that character next logs in.
-		local realm, name = key:match('^(.-)|(.+)$')
-		if realm then data.realm, data.name, data.legacy = realm, name, true end
+		if not key:find('|', 1, true) then
+			moved[key] = data
+		else
+			data.name, data.realm, data.legacy, data.updatedAt = nil, nil, nil, nil
+		end
 	end
-	return ns.DB.gold
+	-- Keys are added only after the loop: pairs must not see new keys.
+	for key, data in pairs(moved) do
+		ns.DB.gold[key] = nil
+		if data.realm and data.name then
+			local old = data.realm .. '|' .. data.name
+			ns.DB.gold[old] = ns.DB.gold[old] or { money = data.money, class = data.class }
+		end
+	end
 end
 
 local function UpdateGold()
 	if not seg.gold then return end
 	local money = GetMoney()
 	sessionMoney = sessionMoney or money
-	local key = CharKey()
-	if ns.DB and key then
-		local store = GoldStore()
-		local name, realm = UnitName('player'), GetRealmName()
-		store[(realm or '?') .. '|' .. (name or '?')] = nil
-		store[key] = { money = money, class = select(2, UnitClass('player')),
-			name = name, realm = realm, updatedAt = GetServerTime() }
+	if ns.DB then
+		MigrateGold()
+		ns.DB.gold = ns.DB.gold or {}
+		ns.DB.gold[CharKey()] = { money = money, class = select(2, UnitClass('player')) }
 	end
 	local text = Colored(GOLD, BreakUpLargeNumbers(math.floor(money / 10000)) .. 'g')
 	local delta = math.floor((money - sessionMoney) / 10000)
@@ -428,51 +433,25 @@ local function GoldTooltip(self)
 	GameTooltip:AddLine('Gold')
 	local realm = GetRealmName()
 	local total, list = 0, {}
-	for _, data in pairs(GoldStore()) do
-		if data.realm == realm then
-			table.insert(list, data)
-			if not data.legacy then total = total + data.money end
+	for key, data in pairs(ns.DB and ns.DB.gold or {}) do
+		local r, name = key:match('^(.-)|(.+)$')
+		if r == realm then
+			table.insert(list, { name = name, money = data.money, class = data.class })
+			total = total + data.money
 		end
 	end
 	table.sort(list, function(a, b) return a.money > b.money end)
 	for _, c in ipairs(list) do
 		local color = RAID_CLASS_COLORS[c.class] or NORMAL_FONT_COLOR
 		GameTooltip:AddDoubleLine(c.name, GetMoneyString(c.money, true), color.r, color.g, color.b, 1, 1, 1)
-		if c.legacy then
-			GameTooltip:AddLine('Legacy snapshot; last seen unknown; excluded from total', 0.6, 0.6, 0.6)
-		else
-			local stale = GetServerTime() - c.updatedAt > 30 * 86400 and ' (over 30 days old)' or ''
-			GameTooltip:AddLine('Last seen: ' .. date('%Y-%m-%d %H:%M', c.updatedAt) .. stale, 0.6, 0.6, 0.6)
-		end
 	end
-	GameTooltip:AddDoubleLine('Saved realm total', GetMoneyString(total, true), 0.95, 0.72, 0.29, 1, 1, 1)
-	GameTooltip:AddLine('Offline balances are snapshots and may have changed.', 0.6, 0.6, 0.6)
+	GameTooltip:AddDoubleLine('Total', GetMoneyString(total, true), 0.95, 0.72, 0.29, 1, 1, 1)
 	local delta = GetMoney() - (sessionMoney or GetMoney())
 	if delta ~= 0 then
 		GameTooltip:AddDoubleLine('This session', (delta < 0 and '-' or '+') .. GetMoneyString(math.abs(delta), true), 0.6, 0.6, 0.6, 1, 1, 1)
 	end
-	GameTooltip:AddLine('Click: bags; right click: remove saved characters', 0.6, 0.6, 0.6)
+	GameTooltip:AddLine('Click: bags', 0.6, 0.6, 0.6)
 	GameTooltip:Show()
-end
-
-local function GoldClick(self, button)
-	if button ~= 'RightButton' then ToggleAllBags() return end
-	MenuUtil.CreateContextMenu(self, function(_, root)
-		root:CreateTitle('Remove a saved gold snapshot')
-		local current, store, list = CharKey(), GoldStore(), {}
-		for key, data in pairs(store) do
-			if key ~= current then list[#list + 1] = { key = key, data = data } end
-		end
-		table.sort(list, function(a, b) return a.key < b.key end)
-		for _, entry in ipairs(list) do
-			local key = entry.key
-			root:CreateButton(entry.data.name .. ' (' .. entry.data.realm .. ')', function()
-				store[key] = nil
-				GoldTooltip(self)
-			end)
-		end
-		if #list == 0 then root:CreateTitle('No other saved characters') end
-	end)
 end
 
 local function UpdateItemLevel()
@@ -653,7 +632,7 @@ local function Build()
 		seg.clock = s
 	end
 
-	if show.gold then Add(rightChain, 'gold', true, GoldTooltip, GoldClick) end
+	if show.gold then Add(rightChain, 'gold', true, GoldTooltip, function() ToggleAllBags() end) end
 	if show.itemLevel then
 		Add(rightChain, 'itemLevel', true, function(self)
 			Tooltip(self)

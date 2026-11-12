@@ -87,27 +87,21 @@ do
 end
 
 ------------------------------------------------------------------------
--- F16: a grey quest whose details open directly is not accepted.
+-- A quest whose details open directly is accepted, grey or not (as in 2.1.0).
 ------------------------------------------------------------------------
 do
 	Boot()
 	world.trivial = true
 	H.fire('QUEST_DETAIL')
-	H.equal(world.accepted, 0, 'F16 a grey quest opened directly is not accepted')
+	H.equal(world.accepted, 1, 'a grey quest opened directly is accepted')
 
-	world.trivial = false
+	world.trivial, world.autoAccept = false, true
 	H.fire('QUEST_DETAIL')
-	H.equal(world.accepted, 1, 'F16 a normal quest opened directly is accepted')
+	H.check(world.acknowledged == 1 and world.accepted == 1, 'an auto-accepted quest is only acknowledged')
 
-	-- The game accepted it already: only acknowledged, grey or not.
-	world.trivial, world.autoAccept = true, true
+	world.autoAccept, world.shift = false, true
 	H.fire('QUEST_DETAIL')
-	H.check(world.acknowledged == 1 and world.accepted == 1, 'F16 an auto-accepted quest is only acknowledged')
-
-	-- Shift pauses everything.
-	world.trivial, world.autoAccept, world.shift = false, false, true
-	H.fire('QUEST_DETAIL')
-	H.equal(world.accepted, 1, 'F16 Shift still pauses it')
+	H.equal(world.accepted, 1, 'Shift still pauses it')
 end
 
 H.done()

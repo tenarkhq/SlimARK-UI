@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.3
+
+Four more 2.1.1 changes are undone; these work as in 2.1.0 again:
+
+- Auto quest accepts a quest whose details open directly, grey ones too
+- The gold tooltip lists your characters on the realm with one total, and a click opens your bags. Characters 2.1.1 saved in its own way are put back in the list
+- Trinket and potion icons have no question mark, and the effects SlimARK learns are kept again
+- After an interrupt the nameplate shows the interrupter's name without a question mark, as before
+
 ## 2.1.2
 
 - Cinematics you have already seen are skipped again by default, as before 2.1.1. The setting is back as "Skip seen cinematics" on the Cinematics page

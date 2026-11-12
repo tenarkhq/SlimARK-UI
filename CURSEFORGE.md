@@ -178,7 +178,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - The mob's name and its health with one decimal sit inside the plate, not above it
 - Casters are marked before they start casting: mana users, mage type mobs and lieutenants. Every mob the addon has seen casting is remembered by name for later runs
 - Light blue cast bars for normal casts, magenta for the important ones you should interrupt, so they stand apart from red, orange and yellow plates
-- After an interrupt the bar reads "Interrupted" with the interrupter's name when the game provides it, in class color when available. A recent party kick aimed at that nameplate can supply an estimate, marked with "?". If neither is available, no name is shown
+- After an interrupt the bar reads "Interrupted" with the name of the player who did it, in class color. In dungeons the game hides the interrupter from addons; your own interrupts are always named, others wherever the game lets the name through
 - See which group members target the mob
 - Debuffs you applied are shown above the plate
 - Enemy shields in light stripes, so you see what has to break first
@@ -202,7 +202,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 
 - Slim countdown bars with your spec's own important cooldowns, for all 13 classes
 - While a spell's effect is up, like the wings, its bar counts the effect down first with a gold frame, then shows the cooldown
-- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself. A "?" marks an estimate from a name or a recent item use; estimates are not remembered for later fights
+- Active trinket and potion effects: an icon with a gold countdown appears above the cooldown bars while the effect is up, above the player frame for healers. Both trinkets have their own place, the one you use and the one that procs by itself.
 - A bar updates only when its own spell changes, so busy fights cost almost nothing
 - Icon row for your rotation spells, taken from the game's own list for your spec
 - Consumable bar for flasks, potions, food and weapon oils, showing what is missing
@@ -294,7 +294,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 - **Clock:** a click opens the calendar, a right click the stopwatch and alarm. It turns gold when a calendar invite is waiting. The tooltip shows local and realm time
 
 **Right side**
-- **Gold:** your gold and what you earned or spent this session. The tooltip lists dated character snapshots and their saved realm total, with older balances labelled. Renaming a character updates its existing entry. Older snapshots whose character identity is unverified stay visible but are excluded from the total until that character next logs in. A click opens your bags; right click removes an offline or deleted character's snapshot
+- **Gold:** your gold and what you earned or spent this session. The tooltip lists the gold of your characters on the realm and the total; a click opens your bags
 - **Item level** of your equipped gear
 - **Keystone:** your Mythic+ key, for example "Voidscar Arena +12". **A click opens the teleport list:** the dungeons of the current season that you have learned the teleport for (by timing a +10 there), your key's dungeon first, each with its cooldown. One click teleports you, no digging in the spellbook, the action bars or the dungeon journal. Dungeons you have no teleport for are not listed
 - **Great Vault:** how many rewards you unlocked in raids, dungeons and the world, or "ready" when a reward waits. A click opens the vault

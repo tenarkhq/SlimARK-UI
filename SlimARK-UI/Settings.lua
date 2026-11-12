@@ -135,7 +135,7 @@ S.groups = {
 				{ name = 'Colors', rows = { Col('Main', 'colors.cdMain'), Col('Interrupt', 'colors.cdKick'), Col('Defensive', 'colors.cdDefensive'),
 					Col('Immunity', 'colors.cdImmune'), Col('Utility', 'colors.cdUtility'), Col('Bar fill', 'cooldowns.fillColor') } } } },
 		{ id = 'effects', name = 'Trinkets and potions', module = 'modules.effects', keys = { 'effects' },
-			desc = 'Icons with a gold countdown while a trinket or potion effect is up: above the cooldown bars, above the player frame for healers. A question mark marks a temporary estimate; estimates are not remembered.',
+			desc = 'Icons with a gold countdown while a trinket or potion effect is up: above the cooldown bars, above the player frame for healers.',
 			secs = { Pos('effects', true), { name = 'Icons', rows = { R('Icon size', 'effects.size', 20, 80), R('Gap', 'effects.gap', 0, 20), R('Font size', 'effects.font', 8, 30) } },
 				{ name = 'Show', rows = { T('Trinkets', 'effects.trinkets'), T('Potions', 'effects.potions') } } } },
 		{ id = 'consumables', name = 'Consumables', module = 'modules.consumables', keys = { 'consumables' },
@@ -219,6 +219,12 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '2.1.3', lines = {
+		'Auto quest accepts directly opened grey quests again',
+		'Gold tooltip as in 2.1.0: your characters and one total',
+		'Trinket and potion icons without question marks; learned effects kept',
+		'Interrupter names on nameplates without question marks',
+	} },
 	{ version = '2.1.2', lines = {
 		'Seen cinematics are skipped again by default, as before 2.1.1',
 		'Details, DBM and BigWigs switch back to the SlimARK profile at login again',

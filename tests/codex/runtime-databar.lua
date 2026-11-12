@@ -48,34 +48,21 @@ local function Tip(gold, label)
 end
 
 do
-	local ns, gold = Boot()
-	assert(ns.DB.gold[world.guid].money == 100000 and not ns.DB.gold['Realm|Original'], 'The current legacy name is promoted to GUID')
-	assert(ns.DB.gold[world.guid].updatedAt == world.now)
-	world.name = 'Renamed'
-	H.fire('PLAYER_MONEY')
-	assert(ns.DB.gold[world.guid].name == 'Renamed' and Tip(gold, 'Saved realm total') == '100000c',
-		'A rename updates the same snapshot; unidentified legacy aliases are excluded from the total')
-	assert(ns.DB.gold['Realm|UnknownOldName'].money == 100000, 'Old offline information is preserved')
-	local warning, timestamp = false, false
-	for _, line in ipairs(world.tips) do
-		warning = warning or line[1]:find('excluded from total', 1, true) ~= nil
-		timestamp = timestamp or line[1]:find('Last seen: timestamp:', 1, true) ~= nil
+	-- 2.1.2: the 2.1.0 gold tooltip; entries 2.1.1 kept under a GUID go back under realm|name.
+	local function Seed(db)
+		db.gold = { ['Player-1-OTHER'] = { name = 'Alt', realm = 'Realm', class = 'WARRIOR', money = 70, updatedAt = 1 },
+			['Realm|UnknownOldName'] = { money = 100000, class = 'WARRIOR', name = 'UnknownOldName', realm = 'Realm', legacy = true } }
 	end
-	assert(warning and timestamp, 'The tooltip distinguishes unverified and dated snapshots')
-	ns.DB.gold['Player-1-DELETED'] = { name = 'Gone', realm = 'Realm', class = 'WARRIOR', money = 70,
-		updatedAt = world.now - 31 * 86400 }
-	assert(Tip(gold, 'Saved realm total') == '100070c', 'Old snapshots are not silently set to zero')
-	local stale = false
-	for _, line in ipairs(world.tips) do stale = stale or line[1]:find('over 30 days old', 1, true) ~= nil end
-	assert(stale, 'Stale information is labelled')
-	gold:GetScript('OnClick')(gold, 'RightButton')
-	assert(not world.menu['Renamed (Realm)'], 'The live character is not offered for removal')
-	assert(world.menu['Gone (Realm)'], 'An offline/deleted character has a removal action')
-	world.menu['Gone (Realm)']()
-	assert(not ns.DB.gold['Player-1-DELETED'] and Tip(gold, 'Saved realm total') == '100000c')
-	world.realm = 'OtherRealm'
+	local ns, gold = Boot()
+	Seed(ns.DB)
 	H.fire('PLAYER_MONEY')
-	assert(ns.DB.gold[world.guid].realm == 'OtherRealm' and Tip(gold, 'Saved realm total') == '100000c')
+	assert(ns.DB.gold['Realm|Alt'].money == 70 and not ns.DB.gold['Player-1-OTHER'], 'A GUID entry goes back under realm|name')
+	assert(ns.DB.gold['Realm|UnknownOldName'].legacy == nil, 'The 2.1.1 marks are cleared')
+	assert(ns.DB.gold['Realm|Original'].money == 100000)
+	assert(Tip(gold, 'Total') == '200070c', 'Every saved character counts in the total again')
+	for _, line in ipairs(world.tips) do
+		assert(not line[1]:find('Last seen', 1, true) and not line[1]:find('right click', 1, true))
+	end
 	assert(world.namespaceReads > 0, 'Retail still provides the key and vault segments')
 	H.noErrors()
 end
