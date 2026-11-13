@@ -96,6 +96,10 @@ ns.C = {
 		privateAuras = true, healPrediction = true, ownHots = true, statusIcons = true, aggro = true,
 		kickReady = true, castTarget = true, plateThreat = true, executeLine = true, totems = true,
 		autoCombatLog = true, answerKeys = true, joinedText = true, quickFocus = true,
+		-- 3.0 Mythic+: current pull (2), join teleport (3), BR and Lust on the panel and in raids (5),
+		-- run summary (6), splits (7), season table (8), loot (9), party keys (10), time in combat (15).
+		mplusPull = true, joinTeleport = true, mplusBrLust = true, raidBrLust = true, runSummary = true,
+		mplusSplits = true, keystoneSeason = true, runLoot = true, partyKeys = true, mplusCombat = true,
 		-- Off unless asked for.
 		playerFade = false,
 	},
@@ -255,6 +259,9 @@ ns.C = {
 
 	-- useButtons: a button on each missing row uses the item from your bags.
 	readycheck = { x = 1115, y = 380, useButtons = true },
+
+	-- 3.0 (6, 9): the run summary window at the end of a key, x, y is its top left corner.
+	runsummary = { x = 950, y = 440 },
 
 	details = {
 		right = 2548, bottom = 1588, w = 300, h = 230, gap = 6,

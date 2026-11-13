@@ -140,6 +140,80 @@ local function JoinedFrame()
 	return joined
 end
 
+-- 3.0 (3): a teleport button under the text when you know the dungeon's teleport. It is a secure
+-- spell button, so it is made, changed and shown out of combat only, and it sits on UIParent (not
+-- on the text) so hiding the text never touches it. While it shows, the text stays longer; the
+-- click, combat, entering an instance and leaving the group take it away.
+local TELEPORT_SECONDS = 30
+local teleport
+
+local function HideTeleport()
+	if teleport and not InCombatLockdown() then teleport:Hide() end
+end
+
+local function TeleportButton()
+	if teleport then return teleport end
+	teleport = CreateFrame('Button', 'SlimARK_JoinedTeleport', UIParent, 'SecureActionButtonTemplate')
+	teleport:SetSize(440, 40)
+	teleport:SetFrameStrata('HIGH')
+	teleport:RegisterForClicks('AnyUp')
+	-- Acts on the release it is registered for, whatever the "cast on key down" setting says.
+	teleport:SetAttribute('useOnKeyDown', false)
+	teleport:SetAttribute('type', 'spell')
+	local c = ns.C.colors.classPower
+	local bg = teleport:CreateTexture(nil, 'BACKGROUND')
+	bg:SetAllPoints()
+	bg:SetColorTexture(c[1], c[2], c[3], 1)
+	ns.Outline(teleport)
+	local hl = teleport:CreateTexture(nil, 'HIGHLIGHT')
+	hl:SetAllPoints()
+	hl:SetColorTexture(1, 1, 1, 0.18)
+	-- Dark text on the gold button, without the outline of the other texts.
+	teleport.text = teleport:CreateFontString(nil, 'OVERLAY')
+	teleport.text:SetFont(ns.FONT, 19, '')
+	teleport.text:SetTextColor(0.1, 0.1, 0.1)
+	teleport.text:SetPoint('CENTER')
+	teleport:HookScript('PostClick', HideTeleport)
+	teleport:Hide()
+	-- Entering combat: the button goes while that is still allowed (this event comes before the lockdown).
+	ns.On('PLAYER_REGEN_DISABLED', function() if teleport:IsShown() then teleport:Hide() end end)
+	ns.On('GROUP_LEFT', HideTeleport)
+	ns.On('PLAYER_ENTERING_WORLD', function()
+		if IsInInstance() then HideTeleport() end
+	end)
+	return teleport
+end
+
+-- The instance map of the activity, matched to a learned teleport. Any hidden value stops it quietly.
+local function JoinedTeleport(activity)
+	if ns.isForever or not ns.C.features.joinTeleport or not activity or not ns.TeleportForInstance
+		or not C_LFGList.GetActivityInfoTable then return end
+	local ok, spellID, challengeID = pcall(function()
+		local info = C_LFGList.GetActivityInfoTable(activity)
+		local mapID = info and info.mapID
+		if mapID == nil or issecretvalue(mapID) then return end
+		return ns.TeleportForInstance(mapID)
+	end)
+	if ok then return spellID, challengeID end
+end
+
+local function ShowTeleport(activity)
+	local spellID, challengeID = JoinedTeleport(activity)
+	if not spellID or InCombatLockdown() then
+		HideTeleport()
+		return false
+	end
+	local b = TeleportButton()
+	b:SetAttribute('spell', spellID)
+	local dungeon = C_ChallengeMode and C_ChallengeMode.GetMapUIInfo and C_ChallengeMode.GetMapUIInfo(challengeID)
+	b.text:SetText('Teleport to ' .. (dungeon or 'the dungeon'))
+	b:SetScale(ns.Scale())
+	b:ClearAllPoints()
+	b:SetPoint('TOP', UIParent, 'TOP', 0, -470)
+	b:Show()
+	return true
+end
+
 local joinedShown = 0
 ns.On('LFG_LIST_JOINED_GROUP', function(_, resultID, groupName)
 	if not ns.C.features.joinedText or not C_LFGList or not C_LFGList.GetSearchResultInfo then return end
@@ -156,7 +230,11 @@ ns.On('LFG_LIST_JOINED_GROUP', function(_, resultID, groupName)
 	frame:Show()
 	joinedShown = joinedShown + 1
 	local shown = joinedShown
-	C_Timer.After(JOINED_SECONDS, function()
-		if shown == joinedShown then frame:Hide() end
+	local seconds = ShowTeleport(activity) and TELEPORT_SECONDS or JOINED_SECONDS
+	C_Timer.After(seconds, function()
+		if shown == joinedShown then
+			frame:Hide()
+			HideTeleport()
+		end
 	end)
 end)

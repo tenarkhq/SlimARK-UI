@@ -113,6 +113,16 @@ function ns.HasTeleports()
 	return #Entries() > 0
 end
 
+-- 3.0 (3): the learned teleport of a dungeon by its instance map ID, the one the Group Finder
+-- names. Returns the spell and the challenge map ID, or nothing.
+function ns.TeleportForInstance(instanceMapID)
+	if not instanceMapID or issecretvalue(instanceMapID) or not C_ChallengeMode or not C_ChallengeMode.GetMapUIInfo then return end
+	for challengeID, spellID in pairs(TELEPORTS) do
+		local _, _, _, _, _, mapID = C_ChallengeMode.GetMapUIInfo(challengeID)
+		if mapID == instanceMapID and Known(spellID) then return spellID, challengeID end
+	end
+end
+
 local function CooldownText(spellID)
 	local info = C_Spell.GetSpellCooldown(spellID)
 	if not info or issecretvalue(info.startTime) or issecretvalue(info.duration) then return '' end

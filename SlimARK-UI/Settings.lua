@@ -149,7 +149,18 @@ S.groups = {
 		{ id = 'consumables', name = 'Consumables', module = 'modules.consumables', keys = { 'consumables' },
 			secs = { Pos('consumables'), { name = 'Icons', rows = { R('Icon size', 'consumables.size', 20, 80), R('Gap', 'consumables.gap', 0, 20) } } } },
 		{ id = 'mythicplus', name = 'Mythic+ panel', module = 'modules.mythicplus', desc = 'Compact panel in place of the quest tracker while a key runs. It sits left of the quest tracker position (Interface: Quest tracker); drag it in Edit Mode to move it.',
-			secs = {} },
+			secs = {
+				-- 3.0: time in combat (15), battle res and Bloodlust (5), current pull (2), splits (7).
+				{ name = 'Panel rows', rows = { T('Time in combat under the timer', 'features.mplusCombat'),
+					T('Battle res charges and Bloodlust', 'features.mplusBrLust'), T('Current pull on the forces bar', 'features.mplusPull'),
+					T('Personal best split per boss', 'features.mplusSplits') } },
+				-- 3.0 (5): the same row in raid boss fights.
+				{ name = 'Raid', rows = { T('Battle res and Bloodlust above the boss frames in raid fights', 'features.raidBrLust') } },
+				-- 3.0: the run summary (6) with its loot (9).
+				{ name = 'Run summary', rows = { T('Run summary window at the end of a key', 'features.runSummary'),
+					T('Loot in the run summary', 'features.runLoot'),
+					Btn('Show the last runs', function() if ns.ShowRunHistory then ns.ShowRunHistory() end end) } },
+			} },
 	} },
 	{ name = 'Interface', pages = {
 		{ id = 'databar', name = 'Top bar', module = 'modules.databar', desc = 'A flat bar on the top row of the screen. With it on, the minimap, the buffs, the quest tracker and the other top elements move down by its height. Click the keystone for the dungeon teleports you have learned.',
@@ -213,10 +224,15 @@ S.groups = {
 			secs = { { name = 'Auto quest', rows = { T('Auto quest', 'features.autoQuest'), T('Accept quests', 'autoquest.accept'),
 				T('Turn in quests', 'autoquest.turnIn'), T('Pick the only talk option', 'autoquest.gossip') } } } },
 		{ id = 'groupfinder', name = 'Group Finder', secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup'),
-				T('Show the dungeon in large text when you join a group', 'features.joinedText') } } } },
+				T('Show the dungeon in large text when you join a group', 'features.joinedText'),
+				-- 3.0 (3): the teleport button under that text.
+				T('Teleport button under it when you know the dungeon\'s teleport', 'features.joinTeleport') } } } },
 		{ id = 'keystone', name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again. "!keys" in party or guild chat is answered with your keystone, outside a running key and boss fights.',
 			secs = { { name = 'Keystone', rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey'),
-				T('Answer !keys in party and guild chat', 'features.answerKeys') } } } },
+				T('Answer !keys in party and guild chat', 'features.answerKeys') } },
+				-- 3.0: the top bar's keystone tooltip, season table and affixes (8) and the party's keys (10).
+				{ name = 'Keystone tooltip', rows = { T('Season best and this week\'s affixes', 'features.keystoneSeason'),
+					T('Party keys (from addons that share them)', 'features.partyKeys') } } } },
 		{ id = 'combatlog', name = 'Combat log', desc = 'Combat logging switches on when a Mythic+ key starts or you enter a raid, and off when you leave, with Advanced Combat Logging on for the log sites. A log you started yourself with /combatlog is left alone.',
 			secs = { { name = 'Combat log', rows = { T('Log Mythic+ runs and raids', 'features.autoCombatLog') } } } },
 		{ id = 'quickfocus', name = 'Quick focus', desc = 'The modifier with a left click sets your focus: on a mob in the world, on a nameplate and on the SlimARK frames. With the modifier held the left click no longer targets or turns the camera in the world. Needs a reload.',

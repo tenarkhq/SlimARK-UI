@@ -31,6 +31,7 @@ Minimap.lua
 Tracker.lua
 MythicPlus.lua
 Keystone.lua
+RunSummary.lua
 CombatLog.lua
 QuickFocus.lua
 ErrorFilter.lua

@@ -409,6 +409,9 @@ function ns.SetTestMode(mode)
 		if was == 'off' then state.layout = ns.healer and 'heal' or 'dps' end
 		if ns.MythicPlusPreview then ns.MythicPlusPreview(mode == 'mplus') end
 	end
+	-- 3.0 (5, 6): the raid battle res row and the run summary, with made-up data.
+	if ns.RaidBrezPreview then ns.RaidBrezPreview(mode == 'raid20' or mode == 'raid40') end
+	if ns.RunSummaryPreview then ns.RunSummaryPreview(mode == 'mplus') end
 	Refresh()
 end
 

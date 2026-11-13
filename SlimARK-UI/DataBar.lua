@@ -461,7 +461,13 @@ end
 
 local function KeystoneTooltip(self)
 	Tooltip(self)
-	GameTooltip:AddLine('Mythic+ keystone')
+	-- 3.0 (8, 10): your keystone as the title, then the season table, this week's affixes and the
+	-- party's keys from Keystone.lua.
+	local mapID = C_MythicPlus.GetOwnedKeystoneChallengeMapID()
+	local level = C_MythicPlus.GetOwnedKeystoneLevel()
+	local name = mapID and mapID > 0 and level and level > 0 and C_ChallengeMode.GetMapUIInfo(mapID)
+	GameTooltip:AddLine(name and (name .. ' +' .. level) or 'Mythic+ keystone')
+	if ns.AddKeystoneTooltip then ns.AddKeystoneTooltip(GameTooltip, self) end
 	if ns.HasTeleports and ns.HasTeleports() then
 		GameTooltip:AddLine('Click: teleport to a dungeon of the season', 0.6, 0.6, 0.6)
 	else
