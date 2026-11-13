@@ -69,6 +69,11 @@ ns.C = {
 		aggro = { 1, 0.16, 0.12 },
 		-- A nameplate whose mob is on the wrong player: not on you as a tank, on you otherwise.
 		plateThreat = { 1, 0.55, 0.1 },
+		-- 3.0 part B (11, 13, 4): the focus plate's mark, the purge row's two kinds, a ready kick.
+		focusMark = { 0.25, 0.84, 0.78 },
+		purgeMagic = { 0.2, 0.6, 1 },
+		purgeEnrage = { 1, 0.48, 0.1 },
+		kickReady = { 0.49, 0.86, 0.54 },
 		-- The cooldown bars share these tables, so a color set in /slimark reaches every bar.
 		cdMain = MAIN,
 		cdKick = KICK,
@@ -96,6 +101,12 @@ ns.C = {
 		privateAuras = true, healPrediction = true, ownHots = true, statusIcons = true, aggro = true,
 		kickReady = true, castTarget = true, plateThreat = true, executeLine = true, totems = true,
 		autoCombatLog = true, answerKeys = true, joinedText = true, quickFocus = true,
+		-- 3.0 part B: 1 cast list and YOU mark, 2 forces %, 4 kick strip, 11 focus mark, 12 focus
+		-- sound, 13 purge rows, 14 plate marks, 16 GCD line, 17 spender marks, 22 buff reminder,
+		-- 24 raid sort, 58 arena frames.
+		castList = true, castYou = true, plateForces = true, kickStrip = true, focusMark = true,
+		focusSound = true, platePurge = true, targetPurge = true, plateMarks = true, gcdLine = true,
+		spenderTicks = true, buffReminder = true, raidSort = true, arenaFrames = true,
 		-- Off unless asked for.
 		playerFade = false,
 	},
@@ -228,6 +239,32 @@ ns.C = {
 
 	-- Shaman totems: a row above the right end of the player frame.
 	totems = { x = 923, y = 1124, size = 32, gap = 3, heal = { x = 833, y = 1124 } },
+
+	-- 1: the enemy cast column above the focus frame. x, y is its top left; the rows stack up
+	-- from its bottom, at most max of them.
+	castlist = { x = 1500, y = 896, w = 300, rowH = 24, gap = 3, font = 15, max = 5, heal = { x = 1600, y = 896 } },
+
+	-- 22: missing buffs before the pull, above the cooldown bars (above the player frame for healers).
+	buffreminder = { x = 1100, y = 1048, size = 40, gap = 4, font = 15, heal = { x = 640, y = 1000 } },
+
+	-- 17: spender marks on the player power bar, by spec ID: the resource and the cost of the spec's
+	-- main spender. A spec without an entry (pips, mana or a changing cost) gets no marks.
+	spenders = {
+		[250] = { 'RUNIC_POWER', 40 }, -- Blood: Death Strike
+		[251] = { 'RUNIC_POWER', 30 }, -- Frost: Frost Strike
+		[252] = { 'RUNIC_POWER', 30 }, -- Unholy: Death Coil
+		[577] = { 'FURY', 40 }, -- Havoc: Chaos Strike
+		[581] = { 'FURY', 30 }, -- Vengeance: Soul Cleave
+		[103] = { 'ENERGY', 25 }, -- Feral: Ferocious Bite
+		[104] = { 'RAGE', 40 }, -- Guardian: Ironfur
+		[259] = { 'ENERGY', 35 }, -- Assassination: Envenom
+		[260] = { 'ENERGY', 35 }, -- Outlaw: Dispatch
+		[261] = { 'ENERGY', 35 }, -- Subtlety: Eviscerate
+		[262] = { 'MAELSTROM', 60 }, -- Elemental: Earth Shock
+		[71] = { 'RAGE', 30 }, -- Arms: Mortal Strike
+		[72] = { 'RAGE', 80 }, -- Fury: Rampage
+		[73] = { 'RAGE', 35 }, -- Protection: Ignore Pain
+	},
 
 	-- The modifier that sets the focus with a left click: SHIFT, CTRL or ALT.
 	quickFocus = { modifier = 'SHIFT' },

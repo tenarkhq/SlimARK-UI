@@ -226,6 +226,82 @@ local function PlaceExecuteLine(frame)
 	line:SetPoint('BOTTOM', frame.Health, 'BOTTOMLEFT', x, 0)
 end
 
+------------------------------------------------------------------------
+-- 3.0 part B on the plate: 2 the enemy forces % under it in a key, 11 a turquoise mark on the focus
+-- plate, 13 the buffs you can purge or soothe (UnitFrames.lua), 14 a mark before the name.
+------------------------------------------------------------------------
+-- 14: the mark, its color and its letter's color. A quest mob wins over rare, rare over elite.
+local MARKS = {
+	quest = { '!', { 1, 0.82, 0 }, { 0.14, 0.11, 0 } },
+	rare = { 'R', { 0.79, 0.8, 0.84 }, { 0.11, 0.11, 0.13 } },
+	elite = { 'E', { 0.9, 0.65, 0.16 }, { 0.14, 0.09, 0 } },
+}
+local CLASSIFICATION = { rare = 'rare', rareelite = 'rare', elite = 'elite', worldboss = 'elite' }
+
+local function MarkOf(unit)
+	if C_QuestLog and C_QuestLog.UnitIsRelatedToActiveQuest then
+		local quest = C_QuestLog.UnitIsRelatedToActiveQuest(unit)
+		if not issecretvalue(quest) and quest == true then return MARKS.quest end
+	end
+	local class = UnitClassification(unit)
+	if not class or issecretvalue(class) then return nil end
+	local kind = CLASSIFICATION[class]
+	return kind and MARKS[kind]
+end
+
+local function UpdateMark(frame)
+	local mark = frame.PlateMark
+	if not mark then return end
+	local m = frame.__unit and MarkOf(frame.__unit)
+	local name = frame.PlateName
+	name:ClearAllPoints()
+	if m then
+		mark.bg:SetColorTexture(m[2][1], m[2][2], m[2][3], 1)
+		mark.text:SetText(m[1])
+		mark.text:SetTextColor(m[3][1], m[3][2], m[3][3])
+		mark:Show()
+		name:SetPoint('LEFT', mark, 'RIGHT', 3, 0)
+	else
+		mark:Hide()
+		name:SetPoint('LEFT', 4, 0)
+	end
+	name:SetPoint('RIGHT', frame.PlatePct, 'LEFT', -4, 0)
+end
+
+-- 2: the share of the enemy forces the mob gives, only while a key runs. The game hides the
+-- value in a key; the text goes to the plate as it is.
+local function KeyRunning()
+	if ns.isForever or not C_ChallengeMode or not C_ChallengeMode.IsChallengeModeActive then return false end
+	return C_ChallengeMode.IsChallengeModeActive() and true or false
+end
+
+local function UpdateForces(frame)
+	local text = frame.Forces
+	if not text then return end
+	local unit = frame.__unit
+	if not unit or not KeyRunning() or not (C_ScenarioInfo and C_ScenarioInfo.GetUnitCriteriaProgressValues) then
+		text:SetText('')
+		return
+	end
+	local _, _, label = C_ScenarioInfo.GetUnitCriteriaProgressValues(unit)
+	-- type() is the existence test a hidden value allows; a mob that gives nothing returns nothing.
+	if type(label) == 'nil' then text:SetText('') else text:SetText(label) end
+end
+
+-- 11: the focus plate is found through the game's own plate of the focus, no unit comparison.
+local focusPlate
+local function UpdateFocusMark()
+	if focusPlate and focusPlate.FocusMark then focusPlate.FocusMark:Hide() end
+	focusPlate = nil
+	if not C_NamePlate or not C_NamePlate.GetNamePlateForUnit then return end
+	local ok, plate = pcall(C_NamePlate.GetNamePlateForUnit, 'focus')
+	local frame = ok and plate and plate.unitFrame
+	if frame and frame.FocusMark then
+		frame.FocusMark:Show()
+		focusPlate = frame
+	end
+end
+
 local function PlateStyle(self)
 	local o = C.plate
 	local health = CreateFrame('StatusBar', nil, self)
@@ -258,12 +334,56 @@ local function PlateStyle(self)
 	local pct = ns.Text(health.Texts, C.plate.font, 'RIGHT')
 	pct:SetPoint('RIGHT', -4, 0)
 	self:Tag(pct, '[slim:pct1]')
+	self.PlatePct = pct
 
 	local name = ns.Text(health.Texts, C.plate.font, 'LEFT')
 	name:SetPoint('LEFT', 4, 0)
 	name:SetPoint('RIGHT', pct, 'LEFT', -4, 0)
 	self:Tag(name, '[name]')
 	self.PlateName = name
+
+	-- 14: quest, rare or elite before the name.
+	if C.features.plateMarks then
+		local mark = CreateFrame('Frame', nil, health.Texts)
+		mark:SetSize(o.font, o.font)
+		mark:SetPoint('LEFT', 3, 0)
+		mark.bg = mark:CreateTexture(nil, 'ARTWORK')
+		mark.bg:SetAllPoints()
+		mark.text = mark:CreateFontString(nil, 'OVERLAY')
+		mark.text:SetFont(ns.FONT, o.font - 3, '')
+		mark.text:SetPoint('CENTER', 1, 0)
+		mark:Hide()
+		self.PlateMark = mark
+	end
+
+	-- 2: the forces % under the plate on the right; the cast bar covers that place while it shows.
+	if C.features.plateForces and not ns.isForever then
+		local forces = ns.Text(health.Texts, o.targeterFont - 1, 'RIGHT')
+		forces:SetTextColor(0.79, 0.8, 0.82)
+		forces:SetPoint('TOPRIGHT', health, 'BOTTOMRIGHT', 0, -3)
+		self.Forces = forces
+	end
+
+	-- 11: the turquoise strip with an F left of the focus plate.
+	if C.features.focusMark then
+		local c = C.colors.focusMark
+		local mark = CreateFrame('Frame', nil, self)
+		mark:SetPoint('TOPRIGHT', health, 'TOPLEFT', -3, 0)
+		mark:SetPoint('BOTTOMRIGHT', health, 'BOTTOMLEFT', -3, 0)
+		mark:SetWidth(9)
+		mark:SetFrameLevel(self:GetFrameLevel() + 12)
+		ns.Outline(mark)
+		local fill = mark:CreateTexture(nil, 'ARTWORK')
+		fill:SetAllPoints()
+		fill:SetColorTexture(c[1], c[2], c[3], 1)
+		local letter = mark:CreateFontString(nil, 'OVERLAY')
+		letter:SetFont(ns.FONT, 9, '')
+		letter:SetTextColor(0.02, 0.14, 0.13)
+		letter:SetPoint('CENTER', 1, 0)
+		letter:SetText('F')
+		mark:Hide()
+		self.FocusMark = mark
+	end
 
 	local cb = ns.CreateCastbar(self, o.w, o.castH, true, 14, true)
 	cb:SetPoint('TOP', health, 'BOTTOM', 0, -3)
@@ -303,6 +423,11 @@ local function PlateStyle(self)
 	cb.ImportantPlate = ns.Edge(cb, 3, C.colors.important, 2, health)
 	cb.ImportantPlate:SetFrameLevel(cb:GetFrameLevel() + 12)
 	cb.ImportantPlate:SetAlpha(0)
+	if self.Forces then
+		local forces = self.Forces
+		cb:HookScript('OnShow', function() forces:SetAlpha(0) end)
+		cb:HookScript('OnHide', function() forces:SetAlpha(1) end)
+	end
 
 	local debuffs = self:CreateAuras({ initialAnchor = 'BOTTOMLEFT', growthX = 'RIGHT', growthY = 'UP', layoutLimit = o.w })
 	debuffs:SetSize(o.w, o.debuff)
@@ -313,6 +438,12 @@ local function PlateStyle(self)
 	debuffs.showDuration = true
 	debuffs.PostCreateButton = ns.StyleAuraButton
 	debuffs:AddGroup('HARMFUL|PLAYER', { maxFrameCount = 6 })
+
+	-- 13: what you can purge or soothe, at the top right (your debuffs stay at the top left).
+	if C.features.platePurge then
+		local purge = ns.AddPurgeRow(self, o.debuff, 3, false)
+		if purge then purge:SetPoint('BOTTOMRIGHT', health, 'TOPRIGHT', 0, 4) end
+	end
 
 	local raidIcon = health:CreateTexture(nil, 'OVERLAY')
 	raidIcon:SetSize(24, 24)
@@ -359,6 +490,91 @@ end
 
 oUF:RegisterStyle('SlimARKPlate', PlateStyle)
 
+-- Test mode: a made-up plate in the middle of the screen with the 3.0 parts that are switched on:
+-- the elite mark, the purge row, the focus mark and the forces %.
+local testPlate
+local function TestPlate(on)
+	if not on then
+		if testPlate then testPlate:Hide() end
+		return
+	end
+	local o = C.plate
+	if not testPlate then
+		local f = CreateFrame('Frame', nil, UIParent)
+		f:SetFrameStrata('MEDIUM')
+		f:SetSize(o.w, o.h)
+		local health = CreateFrame('StatusBar', nil, f)
+		health:SetStatusBarTexture(ns.TEX)
+		health:SetAllPoints()
+		health:SetMinMaxValues(0, 100)
+		health:SetValue(72.4)
+		health:SetStatusBarColor(0.78, 0.18, 0.2)
+		ns.Outline(health)
+		ns.Track(health)
+		ns.Gloss(health)
+		local texts = ns.TextLayer(health)
+		local pct = ns.Text(texts, o.font, 'RIGHT')
+		pct:SetPoint('RIGHT', -4, 0)
+		pct:SetText('72.4%')
+		local mark = CreateFrame('Frame', nil, texts)
+		mark:SetSize(o.font, o.font)
+		mark:SetPoint('LEFT', 3, 0)
+		local bg = mark:CreateTexture(nil, 'ARTWORK')
+		bg:SetAllPoints()
+		local e = MARKS.elite
+		bg:SetColorTexture(e[2][1], e[2][2], e[2][3], 1)
+		local letter = mark:CreateFontString(nil, 'OVERLAY')
+		letter:SetFont(ns.FONT, o.font - 3, '')
+		letter:SetPoint('CENTER', 1, 0)
+		letter:SetTextColor(e[3][1], e[3][2], e[3][3])
+		letter:SetText(e[1])
+		f.mark = mark
+		local name = ns.Text(texts, o.font)
+		name:SetText('Voidbound Ritualist')
+		f.name = name
+		local forces = ns.Text(texts, o.targeterFont - 1, 'RIGHT')
+		forces:SetTextColor(0.79, 0.8, 0.82)
+		forces:SetPoint('TOPRIGHT', health, 'BOTTOMRIGHT', 0, -3)
+		forces:SetText('3.12%')
+		f.forces = forces
+		local focus = CreateFrame('Frame', nil, f)
+		focus:SetPoint('TOPRIGHT', health, 'TOPLEFT', -3, 0)
+		focus:SetPoint('BOTTOMRIGHT', health, 'BOTTOMLEFT', -3, 0)
+		focus:SetWidth(9)
+		ns.Outline(focus)
+		local fill = focus:CreateTexture(nil, 'ARTWORK')
+		fill:SetAllPoints()
+		local c = C.colors.focusMark
+		fill:SetColorTexture(c[1], c[2], c[3], 1)
+		f.focus = focus
+		f.purge = {}
+		for i, color in ipairs({ C.colors.purgeMagic, C.colors.purgeEnrage }) do
+			local icon = CreateFrame('Frame', nil, f)
+			icon:SetSize(o.debuff, o.debuff)
+			icon:SetPoint('BOTTOMRIGHT', health, 'TOPRIGHT', -(i - 1) * (o.debuff + 2), 4)
+			ns.Outline(icon)
+			local tex = icon:CreateTexture(nil, 'ARTWORK')
+			tex:SetAllPoints()
+			tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+			tex:SetTexture(C_Spell and C_Spell.GetSpellTexture and C_Spell.GetSpellTexture(i == 1 and 17 or 18499) or 134400)
+			ns.Edge(icon, 2, color, 0)
+			f.purge[i] = icon
+		end
+		testPlate = f
+	end
+	local f = testPlate
+	f:SetScale(ns.Scale())
+	f:ClearAllPoints()
+	f:SetPoint('TOPLEFT', UIParent, 'TOPLEFT', ns.FitX(1180), -ns.FitY(620))
+	f.mark:SetShown(C.features.plateMarks)
+	f.name:ClearAllPoints()
+	if C.features.plateMarks then f.name:SetPoint('LEFT', f.mark, 'RIGHT', 3, 0) else f.name:SetPoint('LEFT', 4, 0) end
+	f.forces:SetShown(C.features.plateForces and not ns.isForever)
+	f.focus:SetShown(C.features.focusMark)
+	for _, icon in ipairs(f.purge) do icon:SetShown(C.features.platePurge) end
+	f:Show()
+end
+
 oUF:Factory(function(self)
 	if not C.modules.nameplates then return end
 	self:SetActiveStyle('SlimARKPlate')
@@ -368,7 +584,39 @@ oUF:Factory(function(self)
 		UpdateCasterMark(frame, unit)
 		UpdateTargeters(frame)
 		UpdateThreat(frame)
+		UpdateMark(frame)
+		UpdateForces(frame)
+		if C.features.focusMark then UpdateFocusMark() end
 	end)
+	-- 3.0 part B: the plate marks follow the quest log, the forces the key, the focus mark the focus.
+	if C.features.plateMarks then
+		local queued = false
+		local function Quests()
+			if queued then return end
+			queued = true
+			C_Timer.After(0.2, function()
+				queued = false
+				for _, frame in ipairs(plateFrames) do
+					if frame:IsVisible() then UpdateMark(frame) end
+				end
+			end)
+		end
+		ns.On('QUEST_LOG_UPDATE', Quests)
+		ns.On('UNIT_QUEST_LOG_CHANGED', function(_, unit) if unit == 'player' then Quests() end end)
+	end
+	if C.features.plateForces and not ns.isForever then
+		local function All()
+			for _, frame in ipairs(plateFrames) do
+				if frame:IsVisible() then UpdateForces(frame) end
+			end
+		end
+		ns.On('CHALLENGE_MODE_START', All)
+		ns.On('CHALLENGE_MODE_COMPLETED', All)
+		ns.On('CHALLENGE_MODE_RESET', All)
+	end
+	if C.features.focusMark then ns.On('PLAYER_FOCUS_CHANGED', UpdateFocusMark) end
+	ns.TestParts = ns.TestParts or {}
+	table.insert(ns.TestParts, TestPlate)
 	UpdateMembers()
 	ns.On('GROUP_ROSTER_UPDATE', function()
 		UpdateMembers()

@@ -24,6 +24,17 @@ end
 for _, tag in ipairs({ 'slim:cur', 'slim:pct', 'slim:pct1', 'slim:hp' }) do
 	Tags.Events[tag] = 'UNIT_HEALTH UNIT_MAXHEALTH UNIT_CONNECTION'
 end
+-- 58: the arena enemy's spec after the name ("Name · Frost"), known before the gates open too.
+Tags.Methods['slim:arenaspec'] = function(u)
+	local index = tonumber((u or ''):match('^arena(%d)$'))
+	if not index or not GetArenaOpponentSpec or not GetSpecializationInfoByID then return end
+	local spec = GetArenaOpponentSpec(index)
+	if not spec or issecretvalue(spec) or spec == 0 then return end
+	local _, name = GetSpecializationInfoByID(spec)
+	if not name then return end
+	return UnitExists(u) and (' · ' .. name) or name
+end
+Tags.Events['slim:arenaspec'] = 'ARENA_PREP_OPPONENT_SPECIALIZATIONS ARENA_OPPONENT_UPDATE'
 
 function ns.StyleAuraButton(element, button)
 	if button.Icon then button.Icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) end
@@ -280,6 +291,22 @@ local function WatchKick()
 	Relearn()
 end
 
+-- An enemy cast bar of any kind takes the plate colors: light blue, magenta when the game marks
+-- the cast important, both darker while your interrupt is on cooldown. The cast list (CastList.lua)
+-- uses it for its rows; PaintCast colors a bar whose .casting and .isImportant are set.
+function ns.EnemyCastBar(bar)
+	local base, i = C.colors.enemyCast, C.colors.important
+	bar.castColors = {
+		normal = CreateColor(base[1], base[2], base[3]),
+		important = CreateColor(i[1], i[2], i[3]),
+		normalDim = CreateColor(base[1] * KICK_DIM, base[2] * KICK_DIM, base[3] * KICK_DIM),
+		importantDim = CreateColor(i[1] * KICK_DIM, i[2] * KICK_DIM, i[3] * KICK_DIM),
+	}
+	table.insert(enemyBars, bar)
+	WatchKick()
+end
+ns.PaintCast = PaintCast
+
 -- Who the cast is aimed at. The name and the class are hidden values: they can be shown, not
 -- read, so "it is you" swaps the name for a red YOU through the alpha.
 local function ShowCastTarget(element, unit)
@@ -287,7 +314,8 @@ local function ShowCastTarget(element, unit)
 	if not name then return end
 	if UnitShouldDisplaySpellTargetName(unit) then
 		local class = UnitSpellTargetClass(unit)
-		local color = class and C_ClassColor.GetClassColor(class)
+		-- The class is a hidden value: type() is the only test it allows.
+		local color = type(class) ~= 'nil' and C_ClassColor.GetClassColor(class)
 		name:SetText(UnitSpellTargetName(unit))
 		if color then name:SetTextColor(color.r, color.g, color.b) else name:SetTextColor(1, 1, 1) end
 		local onMe = PlayerIsSpellTarget(unit)
@@ -330,15 +358,7 @@ function ns.CreateCastbar(self, width, height, canInterrupt, fontSize, targetBel
 		local important = ns.Edge(cb, 2, C.colors.important, 3)
 		important:SetAlpha(0)
 		cb.Important = important
-		local i = C.colors.important
-		cb.castColors = {
-			normal = CreateColor(base[1], base[2], base[3]),
-			important = CreateColor(i[1], i[2], i[3]),
-			normalDim = CreateColor(base[1] * KICK_DIM, base[2] * KICK_DIM, base[3] * KICK_DIM),
-			importantDim = CreateColor(i[1] * KICK_DIM, i[2] * KICK_DIM, i[3] * KICK_DIM),
-		}
-		table.insert(enemyBars, cb)
-		WatchKick()
+		ns.EnemyCastBar(cb)
 
 		if C.features.castTarget and UnitSpellTargetName and UnitShouldDisplaySpellTargetName and PlayerIsSpellTarget then
 			local size = fontSize or 14
@@ -532,10 +552,227 @@ local function AddDebuffTint(self, health, w, h)
 	Slot('HARMFUL|RAID', nil, 2)
 end
 
+------------------------------------------------------------------------
+-- 13: the enemy's buffs you can purge or soothe, in a row of their own: a magic buff with a blue
+-- edge, an enrage with an orange one. The game picks the buffs (its DISPELLABLE filter) and colors
+-- the edge from the buff's type itself, also where that type is hidden from addons: the color curve
+-- is evaluated by the game. Used on the nameplates and the target frame.
+------------------------------------------------------------------------
+local purgeColors, purgeCurve
+-- The game's dispel type numbers on the curve: 1 is magic, 9 is enrage.
+local MAGIC_TYPE, ENRAGE_TYPE = 1, 9
+
+local function PurgeColors()
+	if purgeColors then return purgeColors, purgeCurve end
+	local m, e = C.colors.purgeMagic, C.colors.purgeEnrage
+	local magic, enrage = CreateColor(m[1], m[2], m[3], 1), CreateColor(e[1], e[2], e[3], 1)
+	purgeColors = { Magic = magic, Enrage = enrage, None = magic }
+	if C_CurveUtil and C_CurveUtil.CreateColorCurve and Enum.LuaCurveType then
+		purgeCurve = C_CurveUtil.CreateColorCurve()
+		purgeCurve:SetType(Enum.LuaCurveType.Step)
+		purgeCurve:AddPoint(0, magic)
+		purgeCurve:AddPoint(MAGIC_TYPE, magic)
+		purgeCurve:AddPoint(ENRAGE_TYPE, enrage)
+		purgeCurve:AddPoint(ENRAGE_TYPE + 1, magic)
+	end
+	return purgeColors, purgeCurve
+end
+
+-- size: icon size; max: how many; mouse: tooltips on hover.
+function ns.AddPurgeRow(frame, size, max, mouse)
+	local filters = AuraUtil and AuraUtil.AuraFilters
+	if not (filters and filters.Helpful and filters.Dispellable) then return end
+	local width = max * (size + 2)
+	local row = frame:CreateAuras({ initialAnchor = 'BOTTOMRIGHT', growthX = 'LEFT', growthY = 'UP', layoutLimit = width })
+	row:SetSize(width, size)
+	row.size = size
+	row.elementSpacing = 2
+	row.disableMouse = not mouse
+	row.disableCooldown = true
+	row.PostCreateButton = function(element, button)
+		ns.StyleAuraButton(element, button)
+		local colors, curve = PurgeColors()
+		local options = {
+			style = Enum.CustomAuraButtonDispelTypeTextureStyle.PreserveAsset,
+			showWhenHelpful = true,
+			-- Every buff here can be purged or soothed: its edge shows even where the type is hidden.
+			showWithoutDispelType = true,
+			customDispelColorMap = colors,
+			customDispelColorCurve = curve,
+		}
+		local thickness = 2 * ns.Px()
+		local function side(p1, p2, w, h)
+			local t = button:CreateTexture(nil, 'OVERLAY', nil, 2)
+			t:SetColorTexture(1, 1, 1, 1)
+			t:SetPoint(p1)
+			t:SetPoint(p2)
+			if w then t:SetWidth(w) end
+			if h then t:SetHeight(h) end
+			button:AddDispelTypeTexture(t, options)
+		end
+		side('TOPLEFT', 'TOPRIGHT', nil, thickness)
+		side('BOTTOMLEFT', 'BOTTOMRIGHT', nil, thickness)
+		side('TOPLEFT', 'BOTTOMLEFT', thickness, nil)
+		side('TOPRIGHT', 'BOTTOMRIGHT', thickness, nil)
+	end
+	row:AddGroup(filters.Helpful .. '|' .. filters.Dispellable, { maxFrameCount = max })
+	return row
+end
+
+------------------------------------------------------------------------
+-- 16: a 3 px line under your cast bar that runs down with the global cooldown. The game's GCD
+-- spell gives the cooldown as a duration object; whether it runs is a plain value.
+------------------------------------------------------------------------
+local GCD_SPELL = 61304
+
+local function AddGcdLine(self, castbar, width)
+	local line = CreateFrame('StatusBar', nil, self)
+	line:SetStatusBarTexture(TEX)
+	line:SetStatusBarColor(0.95, 0.95, 0.96)
+	line:SetSize(width, 3)
+	line:SetPoint('TOPLEFT', castbar, 'BOTTOMLEFT', 0, -2)
+	ns.Outline(line)
+	ns.Track(line)
+	line:Hide()
+	local function Update()
+		if line.test then return end
+		local info = C_Spell.GetSpellCooldown(GCD_SPELL)
+		local duration = info and info.isActive and C_Spell.GetSpellCooldownDuration(GCD_SPELL)
+		if duration then
+			line:SetTimerDuration(duration, Enum.StatusBarInterpolation.Immediate, Enum.StatusBarTimerDirection.RemainingTime)
+			line:Show()
+		else
+			line:Hide()
+		end
+	end
+	ns.On('SPELL_UPDATE_COOLDOWN', Update)
+	self.GcdLine = line
+	-- Test mode: a line half run down.
+	ns.TestParts = ns.TestParts or {}
+	table.insert(ns.TestParts, function(on)
+		line.test = on or nil
+		if on then
+			line:SetMinMaxValues(0, 1)
+			line:SetValue(0.42)
+			line:Show()
+		else
+			Update()
+		end
+	end)
+end
+
+------------------------------------------------------------------------
+-- 17: marks on your power bar at each multiple of your spec's spender cost (Config.lua
+-- spenders), while the bar shows that resource. Your own maximum power is a plain value.
+------------------------------------------------------------------------
+local MAX_TICKS = 6
+
+local function AddSpenderTicks(self, width)
+	local power = self.Power
+	local ticks = {}
+	local function Place()
+		for _, tick in ipairs(ticks) do tick:Hide() end
+		local spec = ns.SpecInfo()
+		local entry = spec and C.spenders[spec]
+		if not entry then return end
+		local _, token = UnitPowerType('player')
+		if token ~= entry[1] then return end
+		local max = UnitPowerMax('player')
+		if not max or issecretvalue(max) or max <= 0 then return end
+		local cost, n = entry[2], 0
+		local value = cost
+		while value < max and n < MAX_TICKS do
+			n = n + 1
+			local tick = ticks[n]
+			if not tick then
+				tick = power:CreateTexture(nil, 'OVERLAY', nil, 3)
+				tick:SetColorTexture(1, 1, 1, 0.9)
+				tick:SetWidth(2 * ns.Px())
+				ticks[n] = tick
+			end
+			local x = width * value / max
+			tick:ClearAllPoints()
+			tick:SetPoint('TOP', power, 'TOPLEFT', x, 0)
+			tick:SetPoint('BOTTOM', power, 'BOTTOMLEFT', x, 0)
+			tick:Show()
+			value = value + cost
+		end
+	end
+	local watch = CreateFrame('Frame')
+	watch:RegisterUnitEvent('UNIT_MAXPOWER', 'player')
+	watch:RegisterUnitEvent('UNIT_DISPLAYPOWER', 'player')
+	watch:RegisterUnitEvent('PLAYER_SPECIALIZATION_CHANGED', 'player')
+	watch:RegisterEvent('PLAYER_ENTERING_WORLD')
+	watch:SetScript('OnEvent', Place)
+	self.SpenderTicks = ticks
+	Place()
+end
+
+-- 24: the raid frames in the order you, tanks, healers, damage. The secure header sorts by a list
+-- of names; the list is written out of combat only, so a member who joins during a fight shows
+-- when it ends.
+local ROLE_ORDER = { 'TANK', 'HEALER', 'DAMAGER', 'NONE' }
+local sortHeader, sortPending, sortQueued = nil, false, false
+
+local function SortRaid()
+	sortQueued = false
+	if not sortHeader then return end
+	if InCombatLockdown() then
+		sortPending = true
+		return
+	end
+	sortPending = false
+	if not IsInRaid() then return end
+	local me = UnitInRaid('player')
+	if issecretvalue(me) then return end
+	local first
+	local byRole = { TANK = {}, HEALER = {}, DAMAGER = {}, NONE = {} }
+	for i = 1, GetNumGroupMembers() do
+		local name, _, _, _, _, _, _, _, _, _, _, role = GetRaidRosterInfo(i)
+		if issecretvalue(name) or issecretvalue(role) then return end
+		if name then
+			if i == me then
+				first = name
+			else
+				table.insert(byRole[byRole[role] and role or 'NONE'], name)
+			end
+		end
+	end
+	local list = { first }
+	for _, role in ipairs(ROLE_ORDER) do
+		for _, name in ipairs(byRole[role]) do list[#list + 1] = name end
+	end
+	-- A name list works only without a group filter.
+	sortHeader:SetAttribute('groupFilter', nil)
+	sortHeader:SetAttribute('groupBy', nil)
+	sortHeader:SetAttribute('groupingOrder', nil)
+	sortHeader:SetAttribute('sortMethod', 'NAMELIST')
+	sortHeader:SetAttribute('nameList', table.concat(list, ','))
+end
+
+-- A roster change comes in bursts: one sort on the next frame.
+local function QueueSort()
+	if sortQueued then return end
+	sortQueued = true
+	C_Timer.After(0, SortRaid)
+end
+
+local function WatchRaidSort(header)
+	sortHeader = header
+	ns.On('GROUP_ROSTER_UPDATE', QueueSort)
+	ns.On('PLAYER_ROLES_ASSIGNED', QueueSort)
+	ns.On('PLAYER_REGEN_ENABLED', function()
+		if sortPending then SortRaid() end
+	end)
+	QueueSort()
+end
+
 local function Style(self, unit)
 	local parentName = self:GetParent() and self:GetParent():GetName()
+	-- 58: an arena enemy has the boss frame's look and place.
+	local arena = (unit or ''):match('^arena%d') ~= nil
 	local kind = GROUP_KINDS[parentName]
-		or ((unit or ''):match('^boss') and 'boss')
+		or (((unit or ''):match('^boss') or arena) and 'boss')
 		or unit
 	local o = C.units[kind]
 	if not o then return end
@@ -573,7 +810,7 @@ local function Style(self, unit)
 	if kind == 'boss' then
 		name:SetPoint('TOPLEFT', 5, -3)
 		name:SetPoint('RIGHT', -5, 0)
-		self:Tag(name, '[name]')
+		self:Tag(name, arena and '[name][slim:arenaspec]' or '[name]')
 		local current = ns.Text(health.Texts, 24, 'CENTER')
 		current:SetPoint('CENTER', 0, -5)
 		self:Tag(current, '[dead][slim:cur]')
@@ -614,6 +851,7 @@ local function Style(self, unit)
 	if kind == 'player' or kind == 'target' then
 		local cb = ns.CreateCastbar(self, o.w, 24, kind == 'target', 17)
 		cb:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', 0, -4)
+		if kind == 'player' and C.features.gcdLine and C_Spell and C_Spell.GetSpellCooldownDuration then AddGcdLine(self, cb, o.w) end
 	elseif kind == 'focus' then
 		local cb = ns.CreateCastbar(self, o.w, 24, true, 17)
 		cb:SetPoint('TOPLEFT', self, 'BOTTOMLEFT', 0, -4)
@@ -630,6 +868,14 @@ local function Style(self, unit)
 	end
 	if kind == 'player' and C.features.playerFade then
 		AddPlayerFade(self)
+	end
+	-- 17: spender marks; 1: the red YOU while a cast is aimed at you (CastList.lua).
+	if kind == 'player' and C.features.spenderTicks then AddSpenderTicks(self, o.w) end
+	if kind == 'player' and C.features.castYou and ns.AddYouMark then ns.AddYouMark(self) end
+	-- 13: what you can purge or soothe on the target, above its right end.
+	if kind == 'target' and C.features.targetPurge then
+		local row = ns.AddPurgeRow(self, 30, 4, true)
+		if row then row:SetPoint('BOTTOMRIGHT', self, 'TOPRIGHT', 0, 6) end
 	end
 	AddFocusClick(self)
 
@@ -828,6 +1074,9 @@ local function Style(self, unit)
 			role:SetPoint('TOPLEFT', 3, -3)
 			self.GroupRoleIndicator = role
 		end
+
+		-- 4: the member's interrupt at the bottom of the frame (Kicks.lua).
+		if C.features.kickStrip and ns.AddKickStrip then ns.AddKickStrip(self, kind) end
 	end
 end
 
@@ -854,6 +1103,20 @@ oUF:Factory(function(self)
 				ns.Register(frame, b.x, b.y, { owner = first, after = previous, gap = b.gap })
 			end
 			previous = frame
+		end
+
+		-- 58: arena enemies in the boss frames' place, moved together with them in Edit Mode.
+		if C.features.arenaFrames and GetNumArenaOpponentSpecs then
+			previous = nil
+			for i = 1, 5 do
+				local frame = self:Spawn('arena' .. i, 'SlimARK_Arena' .. i)
+				if i == 1 then
+					ns.Register(frame, b.x, b.y, { owner = first, w = b.w, h = 5 * (b.h + b.gap) - b.gap, side = 'RIGHT' })
+				else
+					ns.Register(frame, b.x, b.y, { owner = first, after = previous, gap = b.gap })
+				end
+				previous = frame
+			end
 		end
 	end
 
@@ -897,6 +1160,7 @@ oUF:Factory(function(self)
 			'oUF-initialConfigFunction', init(r))
 		ns.AddGroupHeader(raid, false, RAID_SHOWN)
 		ns.Register(raid, r.x, r.y, { key = 'raid', w = 5 * (r.w + r.gap) - r.gap, h = 8 * (r.h + r.gap) - r.gap, forHealer = false, side = 'LEFT' })
+		if C.features.raidSort then WatchRaidSort(raid) end
 	end
 
 	if M.grid then

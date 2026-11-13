@@ -37,6 +37,8 @@ local function Member(i)
 		debuff = i % 4 == 2,
 		defensive = i % 6 == 1,
 		dead = i % 13 == 12,
+		-- 3.0 (4): the seconds left on the member's interrupt, nil when it is ready.
+		kick = i % 3 == 1 and 9 or nil,
 	}
 end
 
@@ -180,6 +182,16 @@ local function Mock(kind)
 		local fill = f.ui.tint:CreateTexture(nil, 'ARTWORK')
 		fill:SetAllPoints()
 		fill:SetColorTexture(0.2, 0.6, 1, 0.58)
+		-- 3.0 (4): the interrupt strip at the bottom, the seconds beside it.
+		local height = kind == 'party' and 6 or 4
+		f.ui.kick = Bar(f)
+		f.ui.kick:SetMinMaxValues(0, 1)
+		f.ui.kick:SetPoint('BOTTOMLEFT')
+		f.ui.kick:SetPoint('BOTTOMRIGHT')
+		f.ui.kick:SetHeight(height)
+		f.ui.kick:SetFrameLevel(f:GetFrameLevel() + 12)
+		f.ui.kick.time = ns.Text(f.ui.kick, kind == 'party' and 13 or 11, 'RIGHT')
+		f.ui.kick.time:SetPoint('BOTTOMRIGHT', f, 'BOTTOMRIGHT', -4, height + 2)
 	end
 	return f
 end
@@ -242,6 +254,13 @@ local function Fill(f, u)
 		f.ui.defensive.time:SetText('6')
 		f.ui.dispel:SetShown(C.features.dispelGlow and u.magic and not u.dead or false)
 		f.ui.tint:SetShown(C.features.dispelGlow and u.magic and not u.dead or false)
+		-- 3.0 (4): healers have no interrupt; white and filling with seconds, or green and ready.
+		local kick = f.ui.kick
+		kick:SetShown(C.features.kickStrip and u.role ~= 'HEALER' and not u.dead or false)
+		local ready = C.colors.kickReady
+		if u.kick then kick:SetStatusBarColor(1, 1, 1) else kick:SetStatusBarColor(ready[1], ready[2], ready[3]) end
+		kick:SetValue(u.kick and 0.35 or 1)
+		kick.time:SetText(u.kick and tostring(u.kick) or '')
 	end
 	f:Show()
 end
@@ -319,13 +338,21 @@ local function Roster(count, withYou)
 	return list
 end
 
+-- 3.0: the parts that show made-up data on the real elements (cast list, YOU mark, GCD line,
+-- buff reminder, a test nameplate). Each module adds a function to ns.TestParts: true shows, false hides.
+local function TestParts(on)
+	for _, fn in ipairs(ns.TestParts or {}) do fn(on) end
+end
+
 local function HideAll()
 	for _, f in pairs(mocks) do f:Hide() end
+	TestParts(false)
 end
 
 local function Draw()
 	HideAll()
 	if state.mode == 'off' then return end
+	TestParts(true)
 	local M = C.modules
 	if M.unitframes then
 		OnFrame('target', 'target', SlimARK_target, { name = 'Training Dummy', hostile = true, hp = 58.3, cast = 'Shadow Bolt' })
