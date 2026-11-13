@@ -6,19 +6,72 @@ SlimARK-UI replaces the default unit frames, nameplates, buffs, cooldown trackin
 
 One command sets up your whole screen: frames, Edit Mode layouts, action bars and the skins of your other addons. A settings panel lets you change every element afterwards.
 
-**2.1.1 fixes:** saving applies your new values, incomplete setup stays available for retry. Group frames, ready check, combat fading and Mythic+ preview transitions have regression checks. The supported clients are Retail 12.1.5, 12.1.7 PTR and the current WoW Forever.
+**New in 3.0:** a run summary for every key, an enemy casts list, interrupt strips on group frames, a keystone tooltip with your season and your party's keys, alts on the top bar, premade group details and a lot more. Every new part has its own switch. The details are below.
 
 ## Highlights
 
 - **New in 2.0, Blizzard windows in the SlimARK look:** character sheet, spellbook, Group Finder, Great Vault, map, mail, merchant, Auction House and every other game window, flat and dark. Your choice at the first login: Original or SlimARK
 - **Two layouts that switch with your spec:** DPS and tank around the center of the screen, healers with a grid of group frames right above the action bars
 - **Fits every screen:** 1080p, 1440p, ultrawide and 4K, with sharp one pixel borders everywhere
-- **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault and an auto quest switch, in one flat line
+- **Top bar:** micro menu, durability, FPS, queue time, gold, item level, your keystone with one-click dungeon teleports, the Great Vault, your alts and an auto quest switch, in one flat line; every element has its own switch
 - **Readable in a fight:** health with one decimal, shields as stripes, casters marked before they cast, cast bars that go dark while your interrupt is on cooldown, the target of every cast, aggro colors and an execute line on the plates, interrupter names, defensive cooldowns, frames colored by the debuff type, dispel highlights, boss debuffs, incoming heals and aggro on every group frame
-- **Mythic+ ready:** compact timer panel, keystone slotted for you, new key posted to the party
+- **Mythic+ ready:** compact timer panel with time in combat, battle res, Bloodlust and your best time per boss, a run summary with the loot at the end, keystone slotted for you, new key posted to the party
 - **Group tools:** marker bar, ready check window that uses your missing flask or food, loot rolls in one flat column
 - **Test mode:** see party, raid, Mythic+ or the other spec's layout without a group
 - **Your old setup stays:** new profiles and Edit Mode layouts are created next to yours, nothing is overwritten
+
+## New in 3.0
+
+Every part below has its own switch in `/slimark`. A part that is switched off does nothing and costs nothing.
+
+**Mythic+**
+
+- **Run summary** at the end of a key: time against the limit, time in combat and its share of the run, deaths, score change, and damage, healing, interrupts and deaths for each member, with the loot of the run marked when it is an upgrade for you. The last 20 runs open from the Mythic+ page
+- **Mythic+ panel:** time in combat with its share of the run, battle res charges and the next one, Bloodlust ready or Sated, your best time per boss for that dungeon and key level, and the current pull as a lighter part of the forces bar
+- **Keystone tooltip:** your best level and score in every dungeon of the season, this week's affixes and the keys of your party (when their addon shares it: SlimARK, BigWigs, Details! and others do)
+- **Teleport button** when you join a premade group, if you know the dungeon's teleport
+- In raid boss fights the battle res and Bloodlust row sits above the boss frames
+
+![Mythic+ panel, joining a group, keystone tooltip and run summary](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-mplus.png)
+
+**Nameplates and combat**
+
+- **Enemy casts list:** up to 5 casts of mobs with a nameplate in one column, who each one is aimed at and the time left; a red **YOU** on your frame while a cast is aimed at you
+- **On the nameplates:** enemy forces in percent during a key, a turquoise focus mark (and a short sound when your focus starts casting), buffs you can purge or soothe (blue magic, orange enrage), and a mark for quest mobs, rares and elites
+- **Interrupt strips** on party, raid and healer frames: green while the member's interrupt is ready, filling after a kick that landed
+- **GCD line** under your cast bar and **spender marks** on your power bar
+- **Buff reminder** in instances, out of combat: a missing class buff, weapon enchant or poison, shaman shield or pet
+- Raid frames sorted (you, tanks, healers, damage) and arena enemy frames
+
+![Enemy casts list, nameplate marks, interrupt strips and buff reminder](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-combat.png)
+
+**Top bar**
+
+Every element has its own switch. Of the new ones only Alts is on by default.
+
+- **Alts:** item level, keystone, Great Vault, score and gold of each of your characters, crests on hover
+- Spec and loadout, friends and guild, addon CPU, this week in the Great Vault, quiet mode, and a thin XP or reputation line that takes no room (no XP at max level, no line without a watched faction)
+
+![Top bar with the new elements](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-topbar.png)
+
+**Groups and items**
+
+- **Ready check** shows the flask and class buffs of your group
+- **Premade groups:** the leader's score in color, member classes and applicant specs, a minimum score filter, sorting by score, your applications in a small window and a short sound when a group invites you
+- **Auto accept** invites from friends and guild, summons and resurrections, each on its own switch
+- **Item level and BoE or warbound marks** in Blizzard's bags, bank, merchant and loot window (with BetterBags the bags and bank are left to it)
+- Faster auto loot, guild bank repair, shift-click for a full stack, a chat line when you enter a dungeon short of potions or food
+
+![Ready check, premade groups, applications and bag marks](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-group.png)
+
+**Interface and system**
+
+- New pages: **Profiles** (export and import as text, a profile per character), **Macros** (focus kick, mouseover dispel, healthstone and potion), **Game settings**, **Quiet mode** and **Other**
+- Blizzard's boss timeline placed by `/slimark apply`, Blizzard's damage meter in the SlimARK look
+- **AFK screen**, battleground timers for Arathi Basin, Battle for Gilneas and Deepwind Gorge
+- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare
+
+![Macros, game settings, profiles, quiet mode, rare alert, AFK screen and arena frames](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-system.png)
 
 ## Quick start
 
