@@ -152,13 +152,20 @@ S.groups = {
 			secs = {} },
 	} },
 	{ name = 'Interface', pages = {
-		{ id = 'databar', name = 'Top bar', module = 'modules.databar', desc = 'A flat bar on the top row of the screen. With it on, the minimap, the buffs, the quest tracker and the other top elements move down by its height. Click the keystone for the dungeon teleports you have learned.',
+		{ id = 'databar', name = 'Top bar', module = 'modules.databar', desc = 'A flat bar on the top row of the screen. With it on, the minimap, the buffs, the quest tracker and the other top elements move down by its height. Click the keystone for the dungeon teleports you have learned. Hover Alts for all your characters, then a name for its crests. Spec, loadout, loot spec and gear set change out of combat only.',
 			secs = { { name = 'Bar', rows = { R('Height', 'databar.h', 18, 40), R('Font size', 'databar.font', 10, 24), R('Icon size', 'databar.iconSize', 14, 36) } },
 				{ name = 'Left side', rows = { T('Micro menu', 'databar.show.micro'), T('Durability', 'databar.show.durability'), T('FPS', 'databar.show.fps'),
-					T('Latency', 'databar.show.latency'), T('Queue time', 'databar.show.queue'), T('Tracked currencies', 'databar.show.currency') } },
+					T('Latency', 'databar.show.latency'), T('Queue time', 'databar.show.queue'), T('Tracked currencies', 'databar.show.currency'),
+					-- 3.0 (36, 29)
+					T('Friends and guild online', 'databar.show.friends'), T('Spec and loadout', 'databar.show.spec') } },
 				{ name = 'Middle and right side', rows = { T('Clock', 'databar.show.clock'), T('Gold', 'databar.show.gold'), T('Item level', 'databar.show.itemLevel'),
 					T('Keystone and teleports', 'databar.show.keystone'), T('Great Vault', 'databar.show.vault'), T('Auto quest switch', 'databar.show.autoQuest'),
-					T('Addon icons', 'databar.show.addons') } } } },
+					T('Addon icons', 'databar.show.addons'),
+					-- 3.0 (31, 52)
+					T('Alts', 'databar.show.alts'), T('Quiet mode switch', 'databar.show.quiet') } },
+				-- 3.0 (35, 36, 32, 30)
+				{ name = 'Extras', rows = { T('XP and reputation line on the bottom edge', 'databar.show.xp'), T('Addon CPU in the FPS tooltip', 'databar.addonCPU'),
+					T('This week in the Great Vault tooltip', 'databar.vaultWeek'), T('Loadout reminder on entering a dungeon', 'loadout.reminder') } } } },
 		{ id = 'actionbars', name = 'Action bars', module = 'modules.actionbars', apply = true, desc = 'Button size and padding are written into the SlimARK-UI Edit Mode layouts.',
 			secs = { { name = 'Buttons', rows = { R('Button size', 'layout.bars.size', 28, 72), R('Padding', 'layout.bars.padding', 0, 10) } },
 				{ name = 'Look', rows = { T('Flat button states and gold proc edge', 'actionbars.flat'), T('Red, blue or grey icon when it cannot be used', 'actionbars.tint'),
@@ -168,7 +175,11 @@ S.groups = {
 				{ name = 'Fade', rows = { T('Fade the upper bars out of combat', 'actionbars.fade'), R('Faded opacity (%)', 'actionbars.fadeAlpha', 0, 100) } } } },
 		{ id = 'tooltip', name = 'Tooltip', module = 'modules.tooltip',
 			desc = 'Flat tooltip with the class, reaction or item quality color as a stripe on top and a thin health bar. Players show their Mythic+ rating (with Raider.IO installed, Raider.IO\'s lines show it), item level and target; the item level is asked for out of combat only.',
-			secs = { { name = 'Place', rows = { Choice('Place', 'tooltip.anchor', { { 'fixed', 'Fixed, above the Details windows' }, { 'cursor', 'Next to the mouse' } }) } } } },
+			secs = { { name = 'Place', rows = { Choice('Place', 'tooltip.anchor', { { 'fixed', 'Fixed, above the Details windows' }, { 'cursor', 'Next to the mouse' } }) } },
+				-- 3.0 (33, 42): these work with the flat tooltip on or off.
+				{ name = 'Tooltip extras', rows = { T('Upgrade track and crests to max', 'tooltipExtras.upgrade'), T('Spell and item ID', 'tooltipExtras.ids'),
+					T('Count in bags', 'tooltipExtras.bagCount'), T('Already known', 'tooltipExtras.known'), T('Mount of a player', 'tooltipExtras.mount'),
+					T('Hide the tooltip in combat', 'tooltipExtras.hideCombat') } } } },
 		{ id = 'loot', name = 'Loot and pop-ups', module = 'modules.loot', keys = { 'loot' },
 			desc = 'Loot rolls and the loot won, achievement, money and new mount, pet or toy pop-ups in one column left of your character. Drag it in Edit Mode.',
 			secs = { Pos('loot'), { name = 'Rows', rows = { R('Width', 'loot.w', 240, 600), R('Row height', 'loot.rowH', 36, 80), R('Font size', 'loot.font', 10, 24) } },
@@ -180,7 +191,9 @@ S.groups = {
 		{ id = 'tracker', name = 'Quest tracker', module = 'modules.tracker', apply = true, desc = 'Position and size are written into the SlimARK-UI Edit Mode layouts. X is the right edge.',
 			secs = { Pos('tracker'), { name = 'Tracker', rows = { R('Height', 'tracker.height', 400, 1200, 10), R('Text size', 'tracker.textSize', 12, 20) } } } },
 		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair'), T('Sell junk (grey items)', 'features.autoSellJunk') } } } },
-		{ id = 'character', name = 'Character sheet', module = 'modules.character', desc = 'Item level, gems, enchants and what is missing on each item.', secs = {} },
+		{ id = 'character', name = 'Character sheet', module = 'modules.character', desc = 'Item level, gems, enchants and what is missing on each item.',
+			-- 3.0 (33, 34)
+			secs = { { name = 'More', rows = { T('Upgrade track on the slots', 'charsheet.upgrade'), T('The same marks on the inspect window', 'charsheet.inspect') } } } },
 		{ id = 'blizzwindows', name = 'Blizzard windows',
 			desc = 'The look of Blizzard\'s own windows. Original leaves them alone. SlimARK makes them flat and dark with a thin black edge and the SlimARK font; each window is dressed the first time you open it. The switches pick the windows SlimARK dresses. With BetterFriendlist its window is dressed in place of the friends list; with BetterBags the bags keep the BetterBags skin.',
 			secs = { { name = 'Look', rows = { { t = 'choice', label = 'Look', path = 'blizz.look', rerender = true, options = { { 'original', 'Original' }, { 'slimark', 'SlimARK' } } } } },

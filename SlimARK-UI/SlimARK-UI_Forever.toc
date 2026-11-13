@@ -26,6 +26,9 @@ Character.lua
 Consumables.lua
 ActionBars.lua
 DataBar.lua
+# 3.0 (31, 29, 30): Alts, spec and loadout, loadout reminder
+Alts.lua
+Talents.lua
 Teleports.lua
 Minimap.lua
 Tracker.lua

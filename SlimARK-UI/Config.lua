@@ -247,6 +247,21 @@ ns.C = {
 	-- anchor: 'fixed' puts the tooltip's bottom right corner above the Details windows, 'cursor' next to the mouse.
 	tooltip = { anchor = 'fixed' },
 
+	-- 3.0 (33, 42): the upgrade track with the crests to max in item tooltips; spell and item ID, count in
+	-- bags, "Already known", the mount a player rides, no tooltip in combat. Each off unless asked for.
+	tooltipExtras = { upgrade = false, ids = false, bagCount = false, known = false, mount = false, hideCombat = false },
+
+	-- 3.0 (33): this season's crests, Adventurer to Myth (currency IDs), and the crests one upgrade step
+	-- costs. A new season needs new IDs here.
+	upgrade = { crests = { 3442, 3443, 3444, 3445, 3446 }, crestsPerStep = 20 },
+
+	-- 3.0 (33, 34): the upgrade track on the character sheet slots, the character sheet marks on the inspect window.
+	charsheet = { upgrade = false, inspect = false },
+
+	-- 3.0 (30): on entering a dungeon, the loadout you used there last time if it is not the current one.
+	-- x, y: the top left corner of the small window.
+	loadout = { reminder = false, x = 1130, y = 300 },
+
 	-- The column of loot rolls and pop-ups: x, y is its top left, the rows stack up from its bottom.
 	loot = { x = 640, y = 480, w = 380, rowH = 50, gap = 4, font = 16, alerts = true },
 
@@ -277,7 +292,11 @@ ns.C = {
 	databar = {
 		h = 26, font = 15, iconSize = 22,
 		show = { micro = true, durability = true, fps = true, latency = true, queue = true, currency = true,
-			clock = true, gold = true, itemLevel = true, keystone = true, vault = true, autoQuest = true, addons = true },
+			clock = true, gold = true, itemLevel = true, keystone = true, vault = true, autoQuest = true, addons = true,
+			-- 3.0 (29, 31, 35, 36, 52): spec and loadout, Alts, the XP/rep line, friends and guild, the quiet switch. Only Alts is on.
+			spec = false, alts = true, xp = false, friends = false, quiet = false },
+		-- 3.0 (36, 32): addon CPU in the FPS tooltip, this week's data in the Great Vault tooltip.
+		addonCPU = false, vaultWeek = false,
 	},
 
 	-- Talks to quest NPCs: accepts, turns in, picks the only gossip option. Holding Shift pauses it.
