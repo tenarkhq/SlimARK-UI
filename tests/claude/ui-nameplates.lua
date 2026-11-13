@@ -50,6 +50,8 @@ local function Boot(tweak)
 		return target == b
 	end
 	_G.C_Secrets = { CanCompareUnitTokens = function() return world.comparable end }
+	-- 3.0: the plate marks read the classification and the quest link of the mob.
+	_G.UnitClassification = function(unit) return world.classification and world.classification[unit] or 'normal' end
 	_G.UnitNameFromGUID = function(guid) return world.guidNames[guid] end
 	_G.GetPlayerInfoByGUID = function(guid) return nil, world.guidClasses[guid] end
 	_G.C_ClassColor = { GetClassColor = function(class) return { r = 0.1, g = 0.2, b = 0.3, class = class } end }

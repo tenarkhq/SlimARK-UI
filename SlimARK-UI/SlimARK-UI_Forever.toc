@@ -19,6 +19,10 @@ Settings.lua
 Role.lua
 UnitFrames.lua
 NamePlates.lua
+# 3.0 part B: enemy cast list, interrupt strips, buff reminder
+CastList.lua
+Kicks.lua
+BuffReminder.lua
 Cooldowns.lua
 ActiveEffects.lua
 Vendor.lua

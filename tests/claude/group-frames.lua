@@ -36,6 +36,9 @@ local function Boot(modules, role, inCombat)
 		GetSpecialization = function() return 1 end,
 		GetSpecializationInfo = function() return 71, nil, nil, nil, spec end,
 	}
+	-- 3.0: the spender marks read your resource and its maximum.
+	_G.UnitPowerType = function() return 1, 'RAGE' end
+	_G.UnitPowerMax = function() return 100 end
 	_G.PartyFrame = H.NewFrame('Frame', 'PartyFrame', UIParent)
 	_G.CompactRaidFrameContainer = H.NewFrame('Frame', 'CompactRaidFrameContainer', UIParent)
 	_G.CompactPartyFrame = nil
