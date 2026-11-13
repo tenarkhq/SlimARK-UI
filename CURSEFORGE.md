@@ -66,10 +66,10 @@ Every element has its own switch. Of the new ones Alts, the addon CPU and the XP
 
 **Interface and system**
 
-- New pages: **Profiles** (export and import as text, a profile per character), **Macros** (focus kick, mouseover dispel, healthstone and potion), **Game settings**, **Quiet mode** and **Other**
+- New settings: **Profiles** (export and import as text, a profile per character), **macros** (focus kick, mouseover dispel, healthstone and potion), **game settings**, **quiet mode** and more
 - Blizzard's boss timeline placed by `/slimark apply`, Blizzard's damage meter in the SlimARK look
 - **AFK screen**, battleground timers for Arathi Basin, Battle for Gilneas and Deepwind Gorge
-- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare
+- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare; click it to target the rare
 
 ![Macros, game settings, profiles, quiet mode, rare alert, AFK screen and arena frames](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-system.png)
 
@@ -118,7 +118,7 @@ New in 2.0. The game's own windows can take the SlimARK look: flat and dark, a t
 - **BetterFriendlist:** its window is dressed in place of the friends list
 - **BetterBags:** the bags keep the BetterBags skin; without BetterBags Blizzard's bags get the SlimARK look
 
-![Blizzard windows settings page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/5744a891f1e29b81f075161ddf24290e89f43120/assets/feature-blizzwindows-page.png)
+![Blizzard windows settings page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/cf7722cc06041ee7a84cc4b1a31798cf54b5fdaa/assets/feature-blizzwindows-page.png)
 
 **Character sheet.** The SlimARK item level, gem and enchant marks stay on the slots.
 
@@ -458,9 +458,11 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 
 Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end), or open Options → AddOns → SlimARK-UI.
 
-![Settings panel](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-settings.png)
+![Settings panel](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/cf7722cc06041ee7a84cc4b1a31798cf54b5fdaa/assets/feature-settings.png)
 
-- Every element has its own page in a list on the left: test mode, Blizzard windows, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, deleting items, error messages and quality of life features
+- The groups are tabs at the top: General, Unit frames, Group, Combat, Interface, Addon skins, Quality of life and About. The list on the left holds the pages of the chosen group, so every page is one or two clicks away
+- Drag the bottom right corner to make the window bigger or smaller. It opens at 1280 × 800 and keeps the size and the place you gave it
+- Each section of a page is a card. In a wide window the cards stand in two columns, and a long list such as the Blizzard windows switches takes the whole width
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Where a feature has two ways to work, like the tooltip place or the marker bar place, you pick one on its page
 - Every page can be reset to the SlimARK defaults on its own
@@ -472,7 +474,7 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 
 See your whole layout without a group: no need to gather a raid to check where everything sits. Open `/slimark` → General → Test mode, or type `/slimark test`.
 
-![Test mode page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-testmode-page.png)
+![Test mode page](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/cf7722cc06041ee7a84cc4b1a31798cf54b5fdaa/assets/feature-testmode-page.png)
 
 ![Test mode with a 20 player raid](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/7b4f46811b01936c71260a4c6060930ed1344b70/assets/feature-testmode.png)
 
