@@ -266,3 +266,148 @@ ns.On('PLAYER_LOGIN', function()
 	if GameTooltip_SetDefaultAnchor then hooksecurefunc('GameTooltip_SetDefaultAnchor', Anchor) end
 	ns.On('INSPECT_READY', OnInspect)
 end)
+
+------------------------------------------------------------------------
+-- 3.0 extras (33, 42). Each has its own switch and works with the flat skin above on or off; a
+-- switch that is off hooks nothing. Everything is read while the tooltip is being filled.
+------------------------------------------------------------------------
+local extra = C.tooltipExtras
+local KNOWN_RED = { 0.9, 0.3, 0.3 }
+
+-- 33: the upgrade track in place of Blizzard's "Upgrade Level" line, with the crests to max.
+-- When a value cannot be read, Blizzard's own line stays.
+local function OnUpgradeLine(tip)
+	if (tip.IsForbidden and tip:IsForbidden()) or not tip.GetProcessingTooltipInfo then return end
+	local info = tip:GetProcessingTooltipInfo()
+	local data = info and info.tooltipData
+	if not data then return end
+	local link
+	if Readable(data.guid) and data.guid ~= '' and C_Item.GetItemLinkByGUID then
+		link = C_Item.GetItemLinkByGUID(data.guid)
+	elseif Readable(data.hyperlink) then
+		link = data.hyperlink
+	end
+	local up = ns.UpgradeTrack and ns.UpgradeTrack(link)
+	if not up then return end
+	local right
+	if up.left == 0 then
+		right = 'max'
+	elseif up.crests then
+		right = ('%d left · %d %s'):format(up.left, up.crests, up.crest)
+	else
+		right = up.left .. ' left'
+	end
+	tip:AddDoubleLine(('Upgrade: %s %d/%d'):format(up.track, up.rank, up.max), right, 1, 1, 1, LABEL[1], LABEL[2], LABEL[3])
+	return true
+end
+
+-- 42: a mount, toy or pet item you already have. Blizzard says so itself for some; then not twice.
+local function IsKnown(id)
+	if C_MountJournal and C_MountJournal.GetMountFromItem then
+		local mountID = C_MountJournal.GetMountFromItem(id)
+		if Readable(mountID) and mountID and mountID > 0 then
+			return select(11, C_MountJournal.GetMountInfoByID(mountID)) == true
+		end
+	end
+	if C_ToyBox and C_ToyBox.GetToyInfo and C_ToyBox.GetToyInfo(id) then
+		return PlayerHasToy and PlayerHasToy(id) == true or false
+	end
+	if C_PetJournal and C_PetJournal.GetPetInfoByItemID then
+		local species = select(13, C_PetJournal.GetPetInfoByItemID(id))
+		if Readable(species) and species then
+			local owned = C_PetJournal.GetNumCollectedInfo(species)
+			return Readable(owned) and (owned or 0) > 0
+		end
+	end
+	return false
+end
+
+local function SaysKnown(data)
+	local known = ITEM_SPELL_KNOWN
+	if not known then return false end
+	for _, line in ipairs(data.lines or {}) do
+		if Readable(line.leftText) and line.leftText == known then return true end
+	end
+	return false
+end
+
+local function OnItemExtras(tip, data)
+	if tip ~= GameTooltip and tip ~= ItemRefTooltip then return end
+	local id = data and data.id
+	if not Readable(id) or type(id) ~= 'number' then return end
+	if extra.ids then
+		local spellID
+		if C_Item.GetItemSpell then spellID = select(2, C_Item.GetItemSpell(id)) end
+		local spell = Readable(spellID) and spellID or '-'
+		tip:AddDoubleLine('Spell ID / Item ID', spell .. ' / ' .. id, LABEL[1], LABEL[2], LABEL[3], 1, 1, 1)
+	end
+	if extra.bagCount and C_Item.GetItemCount then
+		local count = C_Item.GetItemCount(id)
+		if Readable(count) and count > 0 then
+			tip:AddDoubleLine('In bags', tostring(count), LABEL[1], LABEL[2], LABEL[3], 1, 1, 1)
+		end
+	end
+	if extra.known and IsKnown(id) and not SaysKnown(data) then
+		tip:AddLine(ITEM_SPELL_KNOWN or 'Already known', KNOWN_RED[1], KNOWN_RED[2], KNOWN_RED[3])
+	end
+end
+
+-- Spells and auras. An aura's spell ID is secret in combat; then there is no line.
+local function OnSpellExtras(tip, data)
+	if tip ~= GameTooltip and tip ~= ItemRefTooltip then return end
+	local id = data and data.id
+	if not Readable(id) or type(id) ~= 'number' then return end
+	tip:AddDoubleLine('Spell ID', tostring(id), LABEL[1], LABEL[2], LABEL[3], 1, 1, 1)
+end
+
+-- 42: the mount a player rides, from the mount aura. Auras are not read in combat or while the game
+-- keeps them secret (a running key, boss fights, PvP).
+local function MountName(unit)
+	if not (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex and C_MountJournal and C_MountJournal.GetMountFromSpell) then return end
+	for i = 1, 40 do
+		local ok, aura = pcall(C_UnitAuras.GetAuraDataByIndex, unit, i, 'HELPFUL')
+		if not ok or not aura then return end
+		local spellID = aura.spellId
+		if Readable(spellID) then
+			local mountID = C_MountJournal.GetMountFromSpell(spellID)
+			if Readable(mountID) and mountID and mountID > 0 then
+				local name = C_MountJournal.GetMountInfoByID(mountID)
+				if Readable(name) and name then return name end
+			end
+		end
+	end
+end
+
+local function OnUnitExtras(tip)
+	if tip ~= GameTooltip or InCombatLockdown() then return end
+	if C_Secrets and C_Secrets.ShouldAurasBeSecret and C_Secrets.ShouldAurasBeSecret() then return end
+	local _, unit = tip:GetUnit()
+	if not Readable(unit) or not unit or not UnitIsPlayer(unit) then return end
+	local name = MountName(unit)
+	if name then tip:AddDoubleLine('Mount', name, LABEL[1], LABEL[2], LABEL[3], 1, 1, 1) end
+end
+
+ns.On('PLAYER_LOGIN', function()
+	local P = TooltipDataProcessor
+	local types = Enum.TooltipDataType or {}
+	if P and P.AddLinePreCall and extra.upgrade and not ns.isForever then
+		P.AddLinePreCall(Enum.TooltipDataLineType.ItemUpgradeLevel, OnUpgradeLine)
+	end
+	-- A tooltip type an older client lacks is skipped.
+	local function Post(kind, fn)
+		if P and P.AddTooltipPostCall and kind then P.AddTooltipPostCall(kind, fn) end
+	end
+	if extra.ids or extra.bagCount or extra.known then Post(types.Item, OnItemExtras) end
+	if extra.ids then
+		Post(types.Spell, OnSpellExtras)
+		Post(types.UnitAura, OnSpellExtras)
+	end
+	if extra.mount then Post(types.Unit, OnUnitExtras) end
+	-- 42: no tooltip in combat; one already open goes when the fight starts.
+	if extra.hideCombat then
+		GameTooltip:HookScript('OnShow', function(self)
+			if InCombatLockdown() then self:Hide() end
+		end)
+		ns.On('PLAYER_REGEN_DISABLED', function() GameTooltip:Hide() end)
+	end
+end)
