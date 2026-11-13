@@ -98,6 +98,11 @@ ns.C = {
 		autoCombatLog = true, answerKeys = true, joinedText = true, quickFocus = true,
 		-- Off unless asked for.
 		playerFade = false,
+		-- 3.0: Blizzard's boss timeline placed (19), Blizzard's damage meter dressed and placed (20),
+		-- AFK screen (57), battleground timers (58).
+		encounterLayout = true, damageMeter = true, afkScreen = true, bgTimers = true,
+		-- 3.0, off unless asked for: world map coordinates (45), rare alert (46), screenshots (53).
+		mapCoords = false, rareAlert = false, shotKey = false, shotKill = false, shotAchievement = false,
 	},
 
 	-- The look of Blizzard's own windows (2.0). 'none' until the setup window asks for it,
@@ -272,6 +277,13 @@ ns.C = {
 		gap = 3, fontSize = 16,
 	},
 
+	-- 3.0 (58): battleground timers in the place of the boss frames (a battleground has none).
+	-- x, y: the top left corner of the column; the bars stack downward.
+	bgtimers = { x = 1920, y = 430, w = 270, h = 24, gap = 3, font = 15 },
+
+	-- 3.0 (46): the rare alert text at the top middle, under the top bar. time: seconds on screen.
+	rareAlert = { y = 96, w = 520, font = 17, time = 5 },
+
 	-- The top bar sits on the top pixel row over the whole width. With it on, everything placed
 	-- at the top of the screen (minimap, buffs, quest tracker, ...) moves down by its height.
 	databar = {
@@ -356,5 +368,15 @@ ns.C = {
 			{ 'VehicleLeaveButton', nil, 'BOTTOM', 700, 1115 },
 		},
 		cooldownIcons = { Essential = 46, Utility = 36, BuffIcon = 36 },
+		-- 3.0 (19): Blizzard's boss timeline across the top middle, above the character and under the
+		-- top bar, its three warning rows under it. Written only with features.encounterLayout.
+		-- { index, point, x, y, unit }: unit is how many layout pixels one unit of Blizzard's frame takes,
+		-- it sets the frame's overall size.
+		encounter = {
+			{ 'Timeline', 'TOP', 1280, 150, 1.2 },
+			{ 'CriticalWarnings', 'TOP', 1280, 318, 1.1 },
+			{ 'MediumWarnings', 'TOP', 1280, 378, 1.1 },
+			{ 'NormalWarnings', 'TOP', 1280, 424, 1.1 },
+		},
 	},
 }

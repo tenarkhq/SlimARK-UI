@@ -404,3 +404,101 @@ ns.On('PLAYER_LOGIN', RegisterBigWigsStyle)
 ns.On('PLAYER_ENTERING_WORLD', function(_, isLogin, isReload)
 	if isLogin or isReload then C_Timer.After(3, KeepSkins) end
 end)
+
+------------------------------------------------------------------------
+-- 3.0 (20): Blizzard's damage meter in the SlimARK look. Its place and size go into Edit Mode with
+-- /slimark apply (EditMode.lua); here only the look: flat bars with the SlimARK texture and font on
+-- a dark track, a flat header and background with a black edge. Nothing is touched until the meter
+-- is shown for the first time. Names and amounts can be secret in combat: they are never read, only
+-- the fonts and textures of the rows change.
+------------------------------------------------------------------------
+local dressed = setmetatable({}, { __mode = 'k' })
+
+local function MeterFont(fs, size)
+	if not (fs and fs.SetFont) then return end
+	fs:SetFont(ns.FONT, size, 'OUTLINE')
+	fs:SetShadowOffset(0, 0)
+end
+
+-- Blizzard shows the shadow art behind each bar again on every style change; it stays hidden.
+local function HideBarShadow(entry)
+	local bar = entry.StatusBar
+	for _, region in ipairs(bar and bar.BackgroundRegions or {}) do region:SetAlpha(0) end
+end
+
+local function DressEntry(entry)
+	if not entry or dressed[entry] or not entry.StatusBar then return end
+	dressed[entry] = true
+	local bar = entry.StatusBar
+	bar:SetStatusBarTexture(ns.SOFT)
+	local track = bar:CreateTexture(nil, 'BACKGROUND', nil, -7)
+	track:SetAllPoints()
+	local c = C.colors.track
+	track:SetColorTexture(c[1], c[2], c[3], 0.85)
+	local size = math.floor(C.details.fontSize * ns.Scale() + 0.5)
+	MeterFont(bar.Name, size)
+	MeterFont(bar.Value, size)
+	local icon = entry.Icon and entry.Icon.Icon
+	if icon then icon:SetTexCoord(0.08, 0.92, 0.08, 0.92) end
+	HideBarShadow(entry)
+	for _, method in ipairs({ 'UpdateBackground', 'UpdateStyle' }) do
+		if entry[method] then hooksecurefunc(entry, method, HideBarShadow) end
+	end
+end
+
+-- Rows come and go with the scroll list: every row it hands out is dressed once.
+local function DressList(scrollBox)
+	if not scrollBox or dressed[scrollBox] then return end
+	dressed[scrollBox] = true
+	if scrollBox.ForEachFrame then scrollBox:ForEachFrame(DressEntry) end
+	if ScrollUtil and ScrollUtil.AddAcquiredFrameCallback then
+		ScrollUtil.AddAcquiredFrameCallback(scrollBox, function(_, entry) DressEntry(entry) end, ns)
+	end
+end
+
+local function DressWindow(window)
+	if not window or dressed[window] then return end
+	dressed[window] = true
+	local s = ns.Scale()
+	local header = window.Header
+	if header then header:SetColorTexture(0.086, 0.09, 0.11, 0.95) end
+	local box = window.MinimizeContainer
+	if box and box.Background then box.Background:SetColorTexture(0, 0, 0, 0.6) end
+	ns.Outline(window)
+	local headSize = math.floor(15 * s + 0.5)
+	MeterFont(window.SessionTimer, headSize)
+	MeterFont(window.DamageMeterTypeDropdown and window.DamageMeterTypeDropdown.TypeName, headSize)
+	MeterFont(window.SessionDropdown and window.SessionDropdown.SessionName, headSize)
+	MeterFont(box and box.NotActive, headSize)
+	DressList(box and box.ScrollBox)
+	DressEntry(box and box.LocalPlayerEntry)
+	-- The spell breakdown of a player opens beside the window.
+	local source = box and box.SourceWindow
+	if source then
+		if source.Background then source.Background:SetColorTexture(0, 0, 0, 0.75) end
+		DressList(source.ScrollBox)
+	end
+end
+
+local function DressMeter()
+	local meter = _G.DamageMeter
+	if dressed[meter] then return end
+	dressed[meter] = true
+	if meter.ForEachSessionWindow then meter:ForEachSessionWindow(DressWindow) end
+	-- The second and third windows are made when the player opens them.
+	if meter.SetupSessionWindow then
+		hooksecurefunc(meter, 'SetupSessionWindow', function(_, _, data)
+			DressWindow(data and data.sessionWindow)
+		end)
+	end
+end
+
+ns.On('PLAYER_LOGIN', function()
+	local meter = _G.DamageMeter
+	if not C.features.damageMeter or not meter or not C_DamageMeter then return end
+	if meter:IsShown() then
+		DressMeter()
+	else
+		meter:HookScript('OnShow', DressMeter)
+	end
+end)

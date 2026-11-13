@@ -51,4 +51,14 @@ BlizzSkin.lua
 BlizzWindows.lua
 CombatText.lua
 DeleteConfirm.lua
+# 3.0: profiles, macros, game settings, quiet mode, screenshots, AFK screen, rare alert, map coordinates, battleground timers
+Profiles.lua
+Macros.lua
+CVars.lua
+Quiet.lua
+Screenshots.lua
+AFK.lua
+RareAlert.lua
+MapCoords.lua
+BGTimers.lua
 SettingsPanel.lua
