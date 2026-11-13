@@ -32,7 +32,7 @@ Every part below has its own switch in `/slimark`. A part that is switched off d
 - **Teleport button** when you join a premade group, if you know the dungeon's teleport
 - In raid boss fights the battle res and Bloodlust row sits above the boss frames
 
-![Mythic+ panel, joining a group, keystone tooltip and run summary](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-mplus.png)
+![Mythic+ panel, joining a group, keystone tooltip and run summary](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/43cac98c3ec07ea2a504d7224a5d32ce3f7c8d5e/assets/feature-3-0-mplus.png)
 
 **Nameplates and combat**
 
@@ -47,7 +47,7 @@ Every part below has its own switch in `/slimark`. A part that is switched off d
 
 **Top bar**
 
-Every element has its own switch. Of the new ones only Alts is on by default.
+Every element has its own switch. Of the new ones Alts, the addon CPU and the XP or reputation line are on by default.
 
 - **Alts:** item level, keystone, Great Vault, score and gold of each of your characters, crests on hover
 - Spec and loadout, friends and guild, addon CPU, this week in the Great Vault, quiet mode, and a thin XP or reputation line that takes no room (no XP at max level, no line without a watched faction)
