@@ -480,6 +480,8 @@ local function UpdateKeystone()
 end
 
 local function KeystoneTooltip(self)
+	-- While the teleport list is open the tooltip would only cover it.
+	if ns.TeleportsShown and ns.TeleportsShown() then return end
 	Tooltip(self)
 	-- 3.0 (8, 10): your keystone as the title, then the season table, this week's affixes and the
 	-- party's keys from Keystone.lua.

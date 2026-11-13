@@ -597,6 +597,26 @@ do
 	H.noErrors()
 end
 
+-- 3.0.1: a click on the keystone opens the teleport list and hides the keystone tooltip, which
+-- would cover it.
+do
+	local ns = BootJoin()
+	C_ChallengeMode.GetMapTable = function() return { 585 } end
+	C_Spell = { GetSpellTexture = function() return 1 end, GetSpellCooldown = function() end }
+	local bar = H.NewFrame('Frame', nil, UIParent)
+	local key = H.NewFrame('Button', nil, bar)
+	GameTooltip = H.NewFrame('GameTooltip', 'GameTooltip', UIParent)
+	function GameTooltip:IsOwned(owner) return owner == key end
+	GameTooltip:Show()
+	H.check(not ns.TeleportsShown(), 'teleport list: closed at first')
+	ns.ToggleTeleports(key, bar)
+	H.check(ns.TeleportsShown(), 'teleport list: a click opens it')
+	H.check(not GameTooltip:IsShown(), 'teleport list: the keystone tooltip goes away')
+	ns.ToggleTeleports(key, bar)
+	H.check(not ns.TeleportsShown(), 'teleport list: a second click closes it')
+	H.noErrors()
+end
+
 ------------------------------------------------------------------------
 -- The keystone tooltip: season table (8) and party keys (10).
 ------------------------------------------------------------------------

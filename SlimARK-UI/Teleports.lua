@@ -232,7 +232,13 @@ function ns.ToggleTeleports(anchor, bar)
 	menu:ClearAllPoints()
 	menu:SetPoint('TOPLEFT', bar, 'BOTTOMLEFT', x, -2)
 	anchorFrame = anchor
+	-- The keystone tooltip would cover the list.
+	if GameTooltip:IsOwned(anchor) then GameTooltip:Hide() end
 	menu:Show()
+end
+
+function ns.TeleportsShown()
+	return menu ~= nil and menu:IsShown()
 end
 
 -- Entering combat closes it while that is still allowed; a click elsewhere closes it too.
