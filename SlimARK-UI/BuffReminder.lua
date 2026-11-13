@@ -40,9 +40,11 @@ local icons = {}
 local watch, queued = nil, false
 local testing = false
 
+-- A spell in the player's own spell bank (the pet's does not count).
 local function Known(id)
-	if IsPlayerSpell then return IsPlayerSpell(id) end
-	return C_SpellBook and C_SpellBook.IsSpellKnown and C_SpellBook.IsSpellKnown(id) or false
+	if not (C_SpellBook and C_SpellBook.IsSpellKnown) then return false end
+	local bank = Enum.SpellBookSpellBank and Enum.SpellBookSpellBank.Player
+	return C_SpellBook.IsSpellKnown(id, bank) == true
 end
 
 local function HasAura(ids)

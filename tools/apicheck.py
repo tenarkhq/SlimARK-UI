@@ -50,6 +50,12 @@ ALLOWED = {
     'GameTooltipTextLeft1': 'made at run time from GameTooltip\'s $parentTextLeft1 template',
     'GameTooltipTextLeft2': 'made at run time from GameTooltip\'s $parentTextLeft2 template',
     'ITEM_SPELL_TRIGGER_ONUSE': 'a GlobalStrings constant; the mirror has no GlobalStrings.lua',
+    # Engine functions Blizzard's own UI never calls, so the mirror cannot show them. Each one ships
+    # in maintained 12.1.5 addons (EllesmereUI, ElvUI_WindTools), and SlimARK checks it exists first.
+    'GetGuildRosterInfo': 'engine function; shipped by EllesmereUI and ElvUI_WindTools for 12.1.5; DataBar.lua checks it exists',
+    'GetMacroIndexByName': 'engine function; shipped by EllesmereUI for 12.1.5; Macros.lua builds macros only out of combat',
+    'MuteSoundFile': 'engine function; shipped by EllesmereUI and ElvUI_WindTools for 12.1.5; Quiet.lua checks it exists',
+    'UnmuteSoundFile': 'engine function; shipped by EllesmereUI and ElvUI_WindTools for 12.1.5; Quiet.lua checks it exists',
 }
 OWN = re.compile(r'^(SlimARK|SLASH_SLIMARK|LibStub$)')
 

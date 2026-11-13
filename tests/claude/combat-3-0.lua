@@ -77,8 +77,12 @@ local function Boot(tweak, extra)
 	_G.C_SpecializationInfo = {
 		GetSpecialization = function() return 1 end,
 		GetSpecializationInfo = function() return world.spec, nil, nil, nil, world.role or 'DAMAGER' end,
+		GetInspectSpecialization = function(unit) return world.inspect[unit] or 0 end,
 	}
-	_G.C_SpellBook = { IsSpellKnownOrInSpellBook = function(id) return world.known[id] or false end }
+	_G.C_SpellBook = {
+		IsSpellKnownOrInSpellBook = function(id) return world.known[id] or false end,
+		IsSpellKnown = function(id) return world.known[id] or false end,
+	}
 	_G.C_Spell = {
 		IsSpellImportant = function() return world.important end,
 		GetSpellCooldown = function(id) return world.cooldown[id] end,
@@ -112,7 +116,6 @@ local function Boot(tweak, extra)
 	_G.UnitIsDead = function() return false end
 	_G.UnitIsDeadOrGhost = function() return false end
 	_G.UnitGroupRolesAssigned = function(unit) return world.roles[unit] or 'NONE' end
-	_G.GetInspectSpecialization = function(unit) return world.inspect[unit] or 0 end
 	_G.GetSpecializationInfoByID = function(id)
 		local specs = { [259] = { 'Assassination', 'ROGUE' }, [64] = { 'Frost', 'MAGE' }, [62] = { 'Arcane', 'MAGE' } }
 		local s = specs[id]
@@ -165,7 +168,6 @@ local function Boot(tweak, extra)
 			return { combatSpells = list }
 		end,
 	}
-	_G.IsPlayerSpell = function(id) return world.known[id] or false end
 	_G.C_UnitAuras = { GetPlayerAuraBySpellID = function(id) return world.auras[id] end }
 	_G.C_PaperDollInfo = { GetTemporaryEnchantmentInfo = function() return world.enchant end }
 	_G.GetInventoryItemID = function() return world.mainHand end

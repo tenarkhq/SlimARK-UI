@@ -70,7 +70,7 @@ local function BootPanel(features)
 	UnitCanAttack = function(_, unit) return world.plates[unit] ~= nil end
 	UnitIsDead = function() return false end
 	GetInstanceInfo = function() return 'Somewhere', world.kind end
-	IsEncounterInProgress = function() return world.encounter == true end
+	C_InstanceEncounter = { IsEncounterInProgress = function() return world.encounter == true end }
 	ObjectiveTrackerFrame = H.NewFrame('Frame')
 	SlimARK_MythicPlus, SlimARK_RaidBrez = nil, nil
 	ns.Register = function() end
@@ -633,7 +633,7 @@ local function BootKeys(features)
 	}
 	IsInGroup = function() return world.group end
 	IsInRaid = function() return false end
-	IsEncounterInProgress = function() return world.encounter == true end
+	C_InstanceEncounter = { IsEncounterInProgress = function() return world.encounter == true end }
 	UnitName = function(unit) return ({ player = 'Aril', party1 = 'Brakk', party2 = 'Lumi' })[unit] end
 	GetUnitName = function(unit) return ({ party1 = 'Brakk-OtherRealm', party2 = 'Lumi' })[unit] end
 	UnitExists = function(unit) return unit == 'party1' or unit == 'party2' end

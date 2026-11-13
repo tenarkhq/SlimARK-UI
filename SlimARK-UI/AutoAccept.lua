@@ -109,7 +109,7 @@ local function TakeRes()
 end
 
 local function OnRes(_, reviver)
-	if InCombatLockdown() or (IsEncounterInProgress and IsEncounterInProgress()) then return end
+	if InCombatLockdown() or ns.InEncounter() then return end
 	if Readable(reviver) and Fighting(reviver) then return end
 	-- After many deaths the game holds the answer back for a while: the same wait here.
 	local delay = GetCorpseRecoveryDelay and GetCorpseRecoveryDelay() or 0

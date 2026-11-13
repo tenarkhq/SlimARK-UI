@@ -552,7 +552,7 @@ local function BootAccept(features)
 	_G.UnitAffectingCombat = function(unit) return world.fighting[unit] == true end
 	_G.UnitIsDeadOrGhost = function() return world.dead end
 	_G.AcceptResurrect = function() world.res = world.res + 1 end
-	_G.IsEncounterInProgress = function() return world.encounter end
+	_G.C_InstanceEncounter = { IsEncounterInProgress = function() return world.encounter end }
 	_G.GetCorpseRecoveryDelay = function() return world.delay end
 	_G.Enum.SummonReason = { Scenario = 2 }
 	H.load('Config.lua')

@@ -32,6 +32,12 @@ end
 -- the rest stays in the middle. Read from the real screen size, nothing to choose.
 local BASE_W, BASE_H = 2560, 1600
 
+-- 12.1: the encounter state lives in C_InstanceEncounter; the old global is a deprecated fallback.
+function ns.InEncounter()
+	local inProgress = C_InstanceEncounter and C_InstanceEncounter.IsEncounterInProgress
+	return inProgress ~= nil and inProgress() == true
+end
+
 function ns.Fit()
 	local width, height = GetPhysicalScreenSize()
 	return math.min(width / BASE_W, height / BASE_H)

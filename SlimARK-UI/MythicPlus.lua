@@ -747,7 +747,7 @@ ns.On('PLAYER_LOGIN', function()
 		ns.On('ENCOUNTER_START', function() RaidShow(InRaid()) end)
 		ns.On('ENCOUNTER_END', function() RaidShow(false) end)
 		ns.On('PLAYER_ENTERING_WORLD', function()
-			RaidShow(InRaid() and IsEncounterInProgress and IsEncounterInProgress() or false)
+			RaidShow(InRaid() and ns.InEncounter())
 		end)
 	end
 end)

@@ -204,9 +204,9 @@ local function ReadRoster()
 			member.petGUID = UnitExists(pet) and Plain(UnitGUID(pet)) or nil
 			if guid == playerGUID then
 				member.spec = ns.SpecInfo() or member.spec
-			elseif not fight and GetInspectSpecialization then
+			elseif not fight and C_SpecializationInfo and C_SpecializationInfo.GetInspectSpecialization then
 				-- The game's cached inspect data; 0 while it has none.
-				local spec = Plain(GetInspectSpecialization(unit))
+				local spec = Plain(C_SpecializationInfo.GetInspectSpecialization(unit))
 				if spec and KICK_CD[spec] ~= nil then member.spec = spec end
 			end
 		end

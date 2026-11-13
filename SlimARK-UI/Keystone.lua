@@ -208,7 +208,7 @@ end
 local function Busy()
 	if Locked() then return true end
 	if C_ChallengeMode.IsChallengeModeActive and C_ChallengeMode.IsChallengeModeActive() then return true end
-	return IsEncounterInProgress ~= nil and IsEncounterInProgress() == true
+	return ns.InEncounter()
 end
 
 local function SendAddon(message)
