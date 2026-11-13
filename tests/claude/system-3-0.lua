@@ -260,9 +260,17 @@ do
 		end
 	end
 	H.equal(#bad, 0, 'schema: every row has a known type, a label and a value to show')
-	for _, id in ipairs({ 'profiles', 'macros', 'gamesettings', 'quiet', 'other' }) do
+	-- The macro maker and quiet mode are sections of the Quality of life pages Combat helpers and Less noise.
+	for _, id in ipairs({ 'profiles', 'combathelpers', 'gamesettings', 'lessnoise', 'other' }) do
 		H.check(pages[id] ~= nil, 'schema: the ' .. id .. ' page is there')
 	end
+	local function Section(id, name)
+		for _, sec in ipairs(pages[id] and pages[id].secs or {}) do
+			if sec.name == name then return sec end
+		end
+	end
+	H.check(Section('combathelpers', 'Macros') and Section('combathelpers', 'Save as'), 'schema: the macro maker is on Combat helpers')
+	H.check(Section('lessnoise', 'Quiet mode') and Section('lessnoise', 'Muted sounds'), 'schema: quiet mode is on Less noise')
 	local wanted = {
 		['features.encounterLayout'] = true, ['features.damageMeter'] = true, ['features.afkScreen'] = true,
 		['features.bgTimers'] = true, ['features.mapCoords'] = false, ['features.rareAlert'] = false,

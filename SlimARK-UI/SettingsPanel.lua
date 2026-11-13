@@ -1,11 +1,16 @@
 local _, ns = ...
 local S = ns.Settings
 
--- The /slimark panel: sections listed on the left, the chosen one's settings on the
--- right, search in the header, save and resets in the footer. Values are in
--- real pixels, like Config.lua. Changes apply after the reload that saving does.
-local W, H, NAV, BAR = 980, 640, 210, 46
+-- The /slimark panel: the groups as tabs under the header, the chosen group's pages listed
+-- on the left, the chosen page's sections as cards on the right, search in the header, save
+-- and resets in the footer. The corner grip resizes it; its size and place are kept for the
+-- account. Values are in real pixels, like Config.lua. Changes apply after the reload that
+-- saving does.
+local W, H, NAV, BAR, TAB = 1280, 800, 210, 46, 34
+local MIN_W, MIN_H = 980, 640
 local PAD = 22
+-- Cards go into two columns from this width of the page on.
+local TWO_COLUMNS, GAP, CARD_PAD, CARD_TOP = 820, 12, 12, 32
 local GOLD = { 0.95, 0.72, 0.29 }
 local TEXT = { 0.95, 0.95, 0.96 }
 local SOFT = { 0.84, 0.84, 0.86 }
@@ -20,6 +25,11 @@ local HAIR = { 0.17, 0.18, 0.21 }
 local panel, navScroll, navChild, mainScroll, mainChild, stateText, saveButton, searchBox
 local current = 'party'
 local query = ''
+local tabs = {}
+-- The page last open in each group: its tab opens that one again.
+local lastPage = {}
+-- While the corner grip is held the page is not laid out again; letting it go does that.
+local sizing, relayout = false, false
 
 local function Fill(frame, color, alpha, layer, sublevel)
 	local t = frame:CreateTexture(nil, layer or 'BACKGROUND', nil, sublevel or 0)
@@ -227,26 +237,43 @@ local function GroupLabel(parent)
 	return fs
 end
 
+-- The tab of the shown group is gold with a gold line under it; during a search none is.
+local function RenderTabs(selected)
+	for _, tab in ipairs(tabs) do
+		local on = tab.group == selected
+		local color = on and GOLD or MUTED
+		tab.text:SetTextColor(color[1], color[2], color[3])
+		tab.line:SetShown(on)
+	end
+end
+
+-- Without a search the list holds the pages of the current page's group, with one the
+-- matching pages of every group under their group's name.
 RenderNav = function()
 	ReleaseAll({ 'nav', 'navgroup' })
 	local y = -8
 	local width = NAV - 1
+	local selected = query == '' and FindPage(current).group or nil
 	for _, group in ipairs(S.groups) do
 		local shown = {}
-		for _, page in ipairs(group.pages) do
-			if PageMatches(page) then table.insert(shown, page) end
+		if not selected or group.name == selected then
+			for _, page in ipairs(group.pages) do
+				if PageMatches(page) then table.insert(shown, page) end
+			end
 		end
 		if #shown > 0 then
-			local label = Acquire('navgroup', navChild, function(p)
-				local f = CreateFrame('Frame', nil, p)
-				f:SetSize(width, 22)
-				f.text = GroupLabel(f)
-				f.text:SetPoint('BOTTOMLEFT', 16, 4)
-				return f
-			end)
-			label:SetPoint('TOPLEFT', 0, y)
-			label.text:SetText(group.name:upper())
-			y = y - 22
+			if not selected then
+				local label = Acquire('navgroup', navChild, function(p)
+					local f = CreateFrame('Frame', nil, p)
+					f:SetSize(width, 22)
+					f.text = GroupLabel(f)
+					f.text:SetPoint('BOTTOMLEFT', 16, 4)
+					return f
+				end)
+				label:SetPoint('TOPLEFT', 0, y)
+				label.text:SetText(group.name:upper())
+				y = y - 22
+			end
 			for _, page in ipairs(shown) do
 				local b = Acquire('nav', navChild, NavButton)
 				b:SetPoint('TOPLEFT', 0, y)
@@ -266,6 +293,19 @@ RenderNav = function()
 	end
 	navChild:SetHeight(-y + 8)
 	navScroll:UpdateThumb()
+	RenderTabs(selected)
+end
+
+-- A tab opens the page last open in its group, its first page before that, and ends a search.
+local function OpenGroup(group)
+	current = lastPage[group.name] or group.pages[1].id
+	if query ~= '' then
+		query = ''
+		searchBox:SetText('')
+	end
+	mainScroll:ScrollTo(0)
+	RenderNav()
+	RenderMain()
 end
 
 -- Rows of the settings page.
@@ -576,6 +616,19 @@ local function Paragraph(parent)
 	return fs
 end
 
+-- One section of a page: a card with a thin edge, its title in small gold capitals, its rows inside.
+local function Card(parent)
+	local f = CreateFrame('Frame', nil, parent)
+	Fill(f, HAIR)
+	local fill = f:CreateTexture(nil, 'BACKGROUND', nil, 1)
+	fill:SetColorTexture(PANEL2[1], PANEL2[2], PANEL2[3], 1)
+	fill:SetPoint('TOPLEFT', 1, -1)
+	fill:SetPoint('BOTTOMRIGHT', -1, 1)
+	f.title = Text(f, 11, GOLD)
+	f.title:SetPoint('TOPLEFT', CARD_PAD, -13)
+	return f
+end
+
 local header = {}
 local function PageHeader()
 	if header.title then return end
@@ -660,13 +713,52 @@ local function RenderAbout(width)
 end
 
 local KINDS = { 'range', 'toggle', 'color', 'button', 'choice', 'section', 'para', 'aboutkey', 'aboutval', 'abouthead', 'aboutbar', 'aboutline',
-	'textbox' } -- 3.0
+	'textbox', 'card' } -- 3.0
+
+-- The width of the page inside its margins: the panel without the list.
+local function PageWidth()
+	return panel:GetWidth() - NAV - 2 * PAD
+end
+
+-- One card: the section's text, then its rows one under the other. Returns the card's height.
+local function RenderCard(card, sec, rows, width)
+	card.title:SetText(sec.name:upper())
+	local y = -CARD_TOP
+	if sec.desc then
+		local p = Acquire('para', card, Paragraph)
+		p:SetPoint('TOPLEFT', CARD_PAD, y)
+		p:SetWidth(width - 2 * CARD_PAD)
+		p:SetText(sec.desc)
+		y = y - (p:GetStringHeight() + 8)
+	end
+	for _, data in ipairs(rows) do
+		local row = Acquire(data.t, card, MAKERS[data.t])
+		row:SetPoint('TOPLEFT', CARD_PAD, y)
+		row:SetWidth(width - 2 * CARD_PAD)
+		row.data = data
+		if data.t == 'range' then
+			row.slider:SetMinMaxValues(data.min, data.max)
+			row.slider:SetValueStep(data.step)
+		end
+		if data.t ~= 'button' and data.t ~= 'choice' then row.label:SetText(data.label) end
+		row:Refresh()
+		-- A row that does nothing in the current state is grey and cannot be clicked.
+		local off = data.dim and data.dim() or false
+		row:SetAlpha(off and 0.4 or 1)
+		if row.switch then row.switch:SetEnabled(not off) end
+		y = y - ROW_H
+	end
+	local height = -y + 6
+	card:SetHeight(height)
+	return height
+end
 
 RenderMain = function()
 	PageHeader()
 	ReleaseAll(KINDS)
-	local width = (mainScroll:GetWidth() > 0 and mainScroll:GetWidth() or (W - NAV)) - 2 * PAD
+	local width = PageWidth()
 	local page = FindPage(current)
+	lastPage[page.group] = page.id
 	header.title:ClearAllPoints()
 	header.group:ClearAllPoints()
 	header.reset:ClearAllPoints()
@@ -711,49 +803,79 @@ RenderMain = function()
 		y = y - 38 - 16
 	end
 
-	local colW = (width - 26) / 2
+	-- Every section is a card. With room for it they go into two columns, each card under the
+	-- shorter one, in the page's order. A page with a text box keeps one column: the box needs the width.
+	local sections, wide = {}, false
 	for _, sec in ipairs(page.secs or {}) do
 		local rows = {}
 		for _, row in ipairs(sec.rows) do
+			if row.t == 'textbox' then wide = true end
 			-- 3.0: hidden rows are settings this client does not have.
 			if (not row.path or S.defaults[row.path] ~= nil) and RowMatches(page, sec, row) and not (row.hidden and row.hidden()) then
 				table.insert(rows, row)
 			end
 		end
-		if #rows > 0 then
-			local h = Acquire('section', mainChild, SectionHeader)
-			h:SetPoint('TOPLEFT', PAD, y)
-			h:SetWidth(width)
-			h.text:SetText(sec.name:upper())
-			y = y - 32
-			-- Two columns; a row of choice buttons takes a whole line.
-			local slot = 0
-			for _, data in ipairs(rows) do
-				local full = data.t == 'choice' or data.t == 'textbox'
-				if full and slot % 2 == 1 then slot = slot + 1 end
-				local col = slot % 2
-				local line = math.floor(slot / 2)
-				local row = Acquire(data.t, mainChild, MAKERS[data.t])
-				row:SetPoint('TOPLEFT', PAD + col * (colW + 26), y - line * (ROW_H + 6))
-				row:SetWidth(full and width or colW)
-				row.data = data
-				if data.t == 'range' then
-					row.slider:SetMinMaxValues(data.min, data.max)
-					row.slider:SetValueStep(data.step)
-				end
-				if data.t ~= 'button' and data.t ~= 'choice' then row.label:SetText(data.label) end
-				row:Refresh()
-				-- A row that does nothing in the current state is grey and cannot be clicked.
-				local off = data.dim and data.dim() or false
-				row:SetAlpha(off and 0.4 or 1)
-				if row.switch then row.switch:SetEnabled(not off) end
-				slot = slot + (full and 2 or 1)
-			end
-			y = y - math.ceil(slot / 2) * (ROW_H + 6) - 14
-		end
+		if #rows > 0 then table.insert(sections, { sec = sec, rows = rows }) end
 	end
+	local columns = (not wide and width >= TWO_COLUMNS) and 2 or 1
+	local cardW = columns == 2 and math.floor((width - GAP) / 2) or width
+	local tops, bottom = { y, y }, y
+	for _, section in ipairs(sections) do
+		local col = (columns == 2 and tops[2] > tops[1]) and 2 or 1
+		local card = Acquire('card', mainChild, Card)
+		card:SetPoint('TOPLEFT', PAD + (col - 1) * (cardW + GAP), tops[col])
+		card:SetWidth(cardW)
+		local height = RenderCard(card, section.sec, section.rows, cardW)
+		bottom = math.min(bottom, tops[col] - height)
+		tops[col] = tops[col] - height - GAP
+	end
+	y = bottom
 	mainChild:SetHeight(-y + PAD)
 	mainScroll:ScrollTo(mainScroll:GetVerticalScroll())
+end
+
+-- The screen in the panel's units: its scale makes one unit max(fit, 0.8) physical pixels.
+local function ScreenSize()
+	local width, height = GetPhysicalScreenSize()
+	local unit = math.max(ns.Fit(), 0.8)
+	return math.floor(width / unit), math.floor(height / unit)
+end
+
+local function Clamp(value, low, high)
+	return math.max(low, math.min(high, value))
+end
+
+-- The last size and place, kept for the account; never larger than the screen.
+local function Place()
+	local sw, sh = ScreenSize()
+	local saved = ns.DB and ns.DB.settingsWindow or {}
+	local w = math.min(math.max(tonumber(saved.w) or W, MIN_W), sw)
+	local h = math.min(math.max(tonumber(saved.h) or H, MIN_H), sh)
+	if panel.SetResizeBounds then panel:SetResizeBounds(math.min(MIN_W, sw), math.min(MIN_H, sh), sw, sh) end
+	panel:SetSize(w, h)
+	panel:ClearAllPoints()
+	local x, y = tonumber(saved.x), tonumber(saved.y)
+	if x and y then
+		panel:SetPoint('TOPLEFT', UIParent, 'BOTTOMLEFT', Clamp(x, 0, sw - w), Clamp(y, h, sh))
+	else
+		panel:SetPoint('CENTER')
+	end
+end
+
+local function Remember()
+	if not ns.DB then return end
+	local left, top = panel:GetLeft(), panel:GetTop()
+	ns.DB.settingsWindow = { w = math.floor(panel:GetWidth() + 0.5), h = math.floor(panel:GetHeight() + 0.5),
+		x = left and math.floor(left + 0.5), y = top and math.floor(top + 0.5) }
+end
+
+-- The grip let go (or the panel closed while it was held): keep the size, lay the page out once.
+local function StopSizing()
+	if not sizing then return end
+	sizing = false
+	panel:StopMovingOrSizing()
+	Remember()
+	RenderMain()
 end
 
 local function Build()
@@ -765,12 +887,23 @@ local function Build()
 	panel:SetFrameStrata('DIALOG')
 	panel:SetToplevel(true)
 	panel:SetMovable(true)
+	if panel.SetResizable then panel:SetResizable(true) end
 	panel:SetClampedToScreen(true)
 	panel:EnableMouse(true)
 	panel:Hide()
 	Fill(panel, PANEL, 0.98)
 	ns.Outline(panel)
 	tinsert(UISpecialFrames, 'SlimARK_Settings')
+	-- A size set outside the grip (opening, a smaller screen) lays the page out again once, a frame later.
+	panel:SetScript('OnSizeChanged', function()
+		if sizing or relayout then return end
+		relayout = true
+		C_Timer.After(0, function()
+			relayout = false
+			if panel:IsShown() and not sizing then RenderMain() end
+		end)
+	end)
+	panel:SetScript('OnHide', StopSizing)
 
 	-- Header: name, version, search, close. Dragging it moves the panel.
 	local head = CreateFrame('Frame', nil, panel)
@@ -786,7 +919,10 @@ local function Build()
 	head:EnableMouse(true)
 	head:RegisterForDrag('LeftButton')
 	head:SetScript('OnDragStart', function() panel:StartMoving() end)
-	head:SetScript('OnDragStop', function() panel:StopMovingOrSizing() end)
+	head:SetScript('OnDragStop', function()
+		panel:StopMovingOrSizing()
+		Remember()
+	end)
 
 	local brand = Text(head, 19, TEXT)
 	brand:SetPoint('LEFT', 16, 0)
@@ -874,9 +1010,73 @@ local function Build()
 		RenderState()
 	end)
 
+	-- The grip: three short gold lines in the bottom right corner. Dragging it resizes the panel.
+	if panel.StartSizing then
+		local grip = CreateFrame('Button', nil, panel)
+		grip:SetSize(16, 16)
+		grip:SetPoint('BOTTOMRIGHT', -2, 2)
+		grip:SetFrameLevel(saveButton:GetFrameLevel() + 2)
+		-- Only the corner with the lines takes the mouse, clear of the save button beside it.
+		grip:SetHitRectInsets(6, 0, 6, 0)
+		if grip.CreateLine then
+			for i = 1, 3 do
+				local line = grip:CreateLine(nil, 'OVERLAY')
+				line:SetColorTexture(GOLD[1], GOLD[2], GOLD[3], 1)
+				line:SetThickness(1.5)
+				line:SetStartPoint('BOTTOMRIGHT', grip, -4 * i, 0)
+				line:SetEndPoint('BOTTOMRIGHT', grip, 0, 4 * i)
+			end
+		end
+		grip:SetScript('OnMouseDown', function()
+			sizing = true
+			panel:StartSizing('BOTTOMRIGHT', true)
+		end)
+		grip:SetScript('OnMouseUp', StopSizing)
+	end
+
+	-- Tabs: one per group with its page count. They sit under the header, over the list and the page.
+	local tabRow = CreateFrame('Frame', nil, panel)
+	tabRow:SetPoint('TOPLEFT', 0, -BAR)
+	tabRow:SetPoint('TOPRIGHT', 0, -BAR)
+	tabRow:SetHeight(TAB)
+	Fill(tabRow, PANEL2)
+	local tabLine = tabRow:CreateTexture(nil, 'ARTWORK')
+	tabLine:SetColorTexture(HAIR[1], HAIR[2], HAIR[3], 1)
+	tabLine:SetHeight(1)
+	tabLine:SetPoint('BOTTOMLEFT')
+	tabLine:SetPoint('BOTTOMRIGHT')
+	local x = 12
+	for _, group in ipairs(S.groups) do
+		local tab = CreateFrame('Button', nil, tabRow)
+		tab.group = group.name
+		tab.text = Text(tab, 14, MUTED)
+		tab.text:SetPoint('LEFT', 12, 0)
+		tab.text:SetText(group.name)
+		local width = tab.text:GetUnboundedStringWidth() + 24
+		-- About is a single page: no count.
+		if not group.pages[1].about then
+			tab.count = Text(tab, 12, GREY)
+			tab.count:SetPoint('BOTTOMLEFT', tab.text, 'BOTTOMRIGHT', 4, 0)
+			tab.count:SetText(tostring(#group.pages))
+			width = width + 4 + tab.count:GetUnboundedStringWidth()
+		end
+		width = math.ceil(width)
+		tab.line = tab:CreateTexture(nil, 'ARTWORK')
+		tab.line:SetColorTexture(GOLD[1], GOLD[2], GOLD[3], 1)
+		tab.line:SetHeight(2)
+		tab.line:SetPoint('BOTTOMLEFT')
+		tab.line:SetPoint('BOTTOMRIGHT')
+		Fill(tab, { 1, 1, 1 }, 0.04, 'HIGHLIGHT')
+		tab:SetSize(width, TAB - 1)
+		tab:SetPoint('TOPLEFT', x, 0)
+		tab:SetScript('OnClick', function() OpenGroup(group) end)
+		x = x + width + 2
+		table.insert(tabs, tab)
+	end
+
 	-- Body: the list on the left, the page on the right.
 	local navFrame = CreateFrame('Frame', nil, panel)
-	navFrame:SetPoint('TOPLEFT', 0, -BAR)
+	navFrame:SetPoint('TOPLEFT', 0, -(BAR + TAB))
 	navFrame:SetPoint('BOTTOMLEFT', 0, BAR)
 	navFrame:SetWidth(NAV)
 	Fill(navFrame, NAVBG)
@@ -890,14 +1090,16 @@ local function Build()
 	navScroll:SetPoint('BOTTOMRIGHT', -1, 0)
 
 	mainScroll, mainChild = MakeScroll(panel)
-	mainScroll:SetPoint('TOPLEFT', NAV, -BAR)
+	mainScroll:SetPoint('TOPLEFT', NAV, -(BAR + TAB))
 	mainScroll:SetPoint('BOTTOMRIGHT', 0, BAR)
 	mainChild:SetWidth(W - NAV)
 end
 
--- Opens the panel, or closes it when open. pageID opens that page.
+-- Opens the panel, or closes it when open. pageID opens that page; an old page's id opens
+-- the page it moved into.
 function ns.OpenSettings(pageID)
 	if not panel then Build() end
+	pageID = pageID and S.moved[pageID] or pageID
 	if pageID and FindPage(pageID) then
 		current = pageID
 	elseif panel:IsShown() then
@@ -905,6 +1107,7 @@ function ns.OpenSettings(pageID)
 		return
 	end
 	panel:SetScale(ns.Scale() / ns.Fit() * math.max(ns.Fit(), 0.8))
+	if not panel:IsShown() then Place() end
 	panel:Show()
 	RenderNav()
 	RenderMain()

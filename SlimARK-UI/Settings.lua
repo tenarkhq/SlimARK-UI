@@ -57,7 +57,8 @@ end
 
 -- Pages by group. module: the page's on/off switch. keys: Edit Mode keys whose dragged
 -- position a changed X or Y replaces. apply: saving runs /slimark apply, because these
--- values are written into Blizzard's Edit Mode or another addon's profile.
+-- values are written into Blizzard's Edit Mode or another addon's profile. desc: the text
+-- under the page title, or on a section the text above its rows.
 S.groups = {
 	{ name = 'General', pages = {
 		{ id = 'modules', name = 'Modules', desc = 'Switch whole modules on or off. A module that is off leaves the Blizzard frame in place. Buffs and debuffs belong to the player frame, they need Unit frames on.',
@@ -304,46 +305,56 @@ S.groups = {
 			secs = { { name = 'Window', rows = { R('X', 'chat.x', 0, 2560), R('Bottom edge', 'chat.bottom', 0, 1600), R('Width', 'chat.w', 200, 1200), R('Height', 'chat.h', 100, 800), R('Font size', 'chat.fontSize', 8, 28) } },
 				{ name = 'Tabs', rows = { T('Flat SlimARK tabs and edit box', 'chat.flatTabs'), T('Tab color as a stripe on top', 'chat.tabStripe'), R('Tab font size', 'chat.tabFont', 8, 24) } } } },
 	} },
+	-- The old small pages are sections here: each keeps its name as the title of its first section and
+	-- its text above that section's rows. Their old page ids open the new page (S.moved).
 	{ name = 'Quality of life', pages = {
-		{ id = 'autoquest', name = 'Auto quest', desc = 'Accepts and turns in quests, finished ones first. It stops when you have to choose a reward or pay gold, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone. Hold Shift at an NPC to pause it. The top bar has an on/off switch.',
-			secs = { { name = 'Auto quest', rows = { T('Auto quest', 'features.autoQuest'), T('Accept quests', 'autoquest.accept'),
-				T('Turn in quests', 'autoquest.turnIn'), T('Pick the only talk option', 'autoquest.gossip') } } } },
-		{ id = 'groupfinder', name = 'Group Finder', secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup'),
-				T('Show the dungeon in large text when you join a group', 'features.joinedText'),
-				-- 3.0 (3): the teleport button under that text.
-				T('Teleport button under it when you know the dungeon\'s teleport', 'features.joinTeleport') } } } },
-		-- 3.0 (25, 26)
-		{ id = 'premade', name = 'Premade groups', desc = 'Premade group rows show the leader\'s Mythic+ score in its color and a class colored mark under each member (Blizzard colors the Dungeons category itself); applicants show their spec. Above the Dungeons list: a minimum leader score and a sort by score. Not in combat in a dungeon, in a running key or a boss fight. Your applications show in a small window beside the Group Finder.',
-			secs = { { name = 'Rows', rows = { T('Leader score, member classes, applicant spec', 'features.premadeInfo'), T('Minimum leader score and sort by score', 'features.premadeFilter') } },
-				{ name = 'Applications', rows = { T('Applications beside the Group Finder', 'features.applications'), T('Short sound when a group invites you', 'features.inviteSound') } } } },
-		-- 3.0 (28)
-		{ id = 'autoaccept', name = 'Auto accept', desc = 'Accepted on their own, out of combat: group invites from friends and guild members, summons and resurrections. A summon in combat is taken when the fight ends; an invite that would take you out of a queue is left to you.',
-			secs = { { name = 'Auto accept', rows = { T('Group invites from friends and guild', 'features.acceptInvites'), T('Summons', 'features.acceptSummons'),
-				T('Resurrections', 'features.acceptRes') } } } },
-		{ id = 'keystone', name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again. "!keys" in party or guild chat is answered with your keystone, outside a running key and boss fights.',
-			secs = { { name = 'Keystone', rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey'),
-				T('Answer !keys in party and guild chat', 'features.answerKeys') } },
+		{ id = 'automation', name = 'Automation',
+			secs = { { name = 'Auto quest', desc = 'Accepts and turns in quests, finished ones first. It stops when you have to choose a reward or pay gold, and leaves vendors, flight masters, innkeepers, trainers, banks and the transmogrifier alone. Hold Shift at an NPC to pause it. The top bar has an on/off switch.',
+					rows = { T('Auto quest', 'features.autoQuest'), T('Accept quests', 'autoquest.accept'),
+						T('Turn in quests', 'autoquest.turnIn'), T('Pick the only talk option', 'autoquest.gossip') } },
+				-- 3.0 (28)
+				{ name = 'Auto accept', desc = 'Accepted on their own, out of combat: group invites from friends and guild members, summons and resurrections. A summon in combat is taken when the fight ends; an invite that would take you out of a queue is left to you.',
+					rows = { T('Group invites from friends and guild', 'features.acceptInvites'), T('Summons', 'features.acceptSummons'),
+						T('Resurrections', 'features.acceptRes') } },
+				{ name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again. "!keys" in party or guild chat is answered with your keystone, outside a running key and boss fights.',
+					rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey'),
+						T('Answer !keys in party and guild chat', 'features.answerKeys') } },
 				-- 3.0: the top bar's keystone tooltip, season table and affixes (8) and the party's keys (10).
 				{ name = 'Keystone tooltip', rows = { T('Season best and this week\'s affixes', 'features.keystoneSeason'),
 					T('Party keys (from addons that share them)', 'features.partyKeys') } } } },
-		{ id = 'combatlog', name = 'Combat log', desc = 'Combat logging switches on when a Mythic+ key starts or you enter a raid, and off when you leave, with Advanced Combat Logging on for the log sites. A log you started yourself with /combatlog is left alone.',
-			secs = { { name = 'Combat log', rows = { T('Log Mythic+ runs and raids', 'features.autoCombatLog') } } } },
-		{ id = 'quickfocus', name = 'Quick focus', desc = 'The modifier with a left click sets your focus: on a mob in the world, on a nameplate and on the SlimARK frames. With the modifier held the left click no longer targets or turns the camera in the world. Needs a reload.',
-			secs = { { name = 'Quick focus', rows = { T('Modifier + left click sets the focus', 'features.quickFocus'),
-				Choice('Modifier', 'quickFocus.modifier', { { 'SHIFT', 'Shift' }, { 'CTRL', 'Ctrl' }, { 'ALT', 'Alt' } }) } } } },
-		{ id = 'delete', name = 'Deleting items', desc = 'Destroying a good item asks for a click on Confirm, with the item shown, instead of typing DELETE.',
-			secs = { { name = 'Deleting items', rows = { T('Confirm button instead of typing DELETE', 'features.easyDelete') } } } },
-		{ id = 'errors', name = 'Error messages', desc = 'Hides the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready. Blizzard already hides the out of energy and cooldown ones. Full bags and every other message stay. Needs a reload.',
-			secs = { { name = 'Error messages', rows = { T('Hide the combat error spam', 'features.errorFilter') } } } },
-		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
-			{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } } } },
-		-- 3.0 (49): macro maker.
-		{ id = 'macros', name = 'Macros', noReset = true,
-			desc = 'Makes a macro, or brings it up to date when it is there: your interrupt on your focus, your dispel on the frame under the mouse, your healthstone and a healing potion from your bags. Out of combat only. Drag them from the macro window (/macro) to your bars.',
-			secs = { { name = 'Save as', rows = { { t = 'choice', label = 'Save new macros as character or account macros',
+		{ id = 'groupfinder', name = 'Group Finder',
+			secs = { { name = 'Group Finder', rows = { T('Accept role checks with spec role', 'features.autoRoleCheck'), T('Sign up with one click', 'features.oneClickSignup'),
+					T('Show the dungeon in large text when you join a group', 'features.joinedText'),
+					-- 3.0 (3): the teleport button under that text.
+					T('Teleport button under it when you know the dungeon\'s teleport', 'features.joinTeleport') } },
+				-- 3.0 (25, 26)
+				{ name = 'Premade groups', desc = 'Premade group rows show the leader\'s Mythic+ score in its color and a class colored mark under each member (Blizzard colors the Dungeons category itself); applicants show their spec. Above the Dungeons list: a minimum leader score and a sort by score. Not in combat in a dungeon, in a running key or a boss fight. Your applications show in a small window beside the Group Finder.',
+					rows = { T('Leader score, member classes, applicant spec', 'features.premadeInfo'), T('Minimum leader score and sort by score', 'features.premadeFilter') } },
+				{ name = 'Applications', rows = { T('Applications beside the Group Finder', 'features.applications'), T('Short sound when a group invites you', 'features.inviteSound') } } } },
+		{ id = 'combathelpers', name = 'Combat helpers',
+			secs = { { name = 'Quick focus', desc = 'The modifier with a left click sets your focus: on a mob in the world, on a nameplate and on the SlimARK frames. With the modifier held the left click no longer targets or turns the camera in the world. Needs a reload.',
+					rows = { T('Modifier + left click sets the focus', 'features.quickFocus'),
+						Choice('Modifier', 'quickFocus.modifier', { { 'SHIFT', 'Shift' }, { 'CTRL', 'Ctrl' }, { 'ALT', 'Alt' } }) } },
+				{ name = 'Combat log', desc = 'Combat logging switches on when a Mythic+ key starts or you enter a raid, and off when you leave, with Advanced Combat Logging on for the log sites. A log you started yourself with /combatlog is left alone.',
+					rows = { T('Log Mythic+ runs and raids', 'features.autoCombatLog') } },
+				-- 3.0 (49): macro maker. Its buttons come first, so the old page's name stays the first title.
+				{ name = 'Macros', desc = 'Makes a macro, or brings it up to date when it is there: your interrupt on your focus, your dispel on the frame under the mouse, your healthstone and a healing potion from your bags. Out of combat only. Drag them from the macro window (/macro) to your bars.',
+					rows = { Macro('kick', 'Focus kick'), Macro('dispel', 'Mouseover dispel'), Macro('heal', 'Healthstone and potion') } },
+				{ name = 'Save as', rows = { { t = 'choice', label = 'Save new macros as character or account macros',
 					options = { { 'character', 'This character' }, { 'account', 'Account' } },
-					get = function() return ns.Macros and ns.Macros.Scope() end, set = function(v) ns.Macros.SetScope(v) end } } },
-				{ name = 'Macros', rows = { Macro('kick', 'Focus kick'), Macro('dispel', 'Mouseover dispel'), Macro('heal', 'Healthstone and potion') } } } },
+					get = function() return ns.Macros and ns.Macros.Scope() end, set = function(v) ns.Macros.SetScope(v) end } } } } },
+		{ id = 'lessnoise', name = 'Less noise',
+			-- 3.0 (52): quiet mode.
+			secs = { { name = 'Quiet mode', desc = 'Mutes the sounds on your list and hides the boss kill banner, the zone text and the Battle.net toasts. It switches at once, without a reload; the top bar can switch it too. A sound is given by its file ID (FileDataID); separate several with spaces or commas.',
+					rows = { LiveT('Quiet mode', function() return ns.Quiet.IsOn() end, function(on) ns.Quiet.Set(on) end),
+						LiveT('Hide boss banner, zone text and toasts', function() return ns.Quiet.Hides() end, function(on) ns.Quiet.SetHides(on) end) } },
+				{ name = 'Muted sounds', rows = { Box('Sound file IDs', 'Save list', function(text) ns.Quiet.SetSounds(text) end, function() return ns.Quiet.SoundText() end) } },
+				{ name = 'Error messages', desc = 'Hides the red error text and its voice for range, facing, line of sight, no or wrong target, moving, mana and items not ready. Blizzard already hides the out of energy and cooldown ones. Full bags and every other message stay. Needs a reload.',
+					rows = { T('Hide the combat error spam', 'features.errorFilter') } },
+				{ name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
+				{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } },
+				{ name = 'Deleting items', desc = 'Destroying a good item asks for a click on Confirm, with the item shown, instead of typing DELETE.',
+					rows = { T('Confirm button instead of typing DELETE', 'features.easyDelete') } } } },
 		-- 3.0 (50, 21): the game's own settings.
 		{ id = 'gamesettings', name = 'Game settings', noReset = true,
 			desc = 'A few of the game\'s own settings. The rows show the value the game has now, and only the one you change is written, at once. Out of combat only.',
@@ -352,12 +363,6 @@ S.groups = {
 					CVar('Nameplate overlap', 'nameplateOverlapV', 0.5, 2, 0.05),
 					LiveT('Screen shake', function() return ns.GameSettings.ShakeOn() end, function(on) ns.GameSettings.SetShake(on) end) } },
 				{ name = 'Audio alerts', rows = { Btn('Open the game\'s audio alerts', function() ns.GameSettings.OpenAudioAlerts() end) } } } },
-		-- 3.0 (52): quiet mode.
-		{ id = 'quiet', name = 'Quiet mode', noReset = true,
-			desc = 'Mutes the sounds on your list and hides the boss kill banner, the zone text and the Battle.net toasts. It switches at once, without a reload; the top bar can switch it too. A sound is given by its file ID (FileDataID); separate several with spaces or commas.',
-			secs = { { name = 'Quiet mode', rows = { LiveT('Quiet mode', function() return ns.Quiet.IsOn() end, function(on) ns.Quiet.Set(on) end),
-					LiveT('Hide boss banner, zone text and toasts', function() return ns.Quiet.Hides() end, function(on) ns.Quiet.SetHides(on) end) } },
-				{ name = 'Muted sounds', rows = { Box('Sound file IDs', 'Save list', function(text) ns.Quiet.SetSounds(text) end, function() return ns.Quiet.SoundText() end) } } } },
 		-- 3.0 (53, 45, 46, 57, 58)
 		{ id = 'other', name = 'Other', keys = { 'bgtimers' },
 			desc = 'Screenshots, world map coordinates, the rare alert, the AFK screen and battleground timers. The battleground timers count down an assaulted base until it is taken, in the place of the boss frames; drag them in Edit Mode.',
@@ -370,6 +375,13 @@ S.groups = {
 					R('Width', 'bgtimers.w', 120, 500), R('Bar height', 'bgtimers.h', 12, 40), R('Font size', 'bgtimers.font', 8, 28) } } } },
 	} },
 	{ name = 'About', pages = { { id = 'about', name = 'Version and changelog', about = true } } },
+}
+
+-- Ids of the old Quality of life pages and the page each one moved into.
+S.moved = {
+	autoquest = 'automation', autoaccept = 'automation', keystone = 'automation', premade = 'groupfinder',
+	quickfocus = 'combathelpers', combatlog = 'combathelpers', macros = 'combathelpers',
+	quiet = 'lessnoise', errors = 'lessnoise', cinematics = 'lessnoise', delete = 'lessnoise',
 }
 
 -- Shown on the About page, newest first.
