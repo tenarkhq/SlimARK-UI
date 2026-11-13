@@ -490,6 +490,8 @@ local function KeystoneTooltip(self)
 	local name = mapID and mapID > 0 and level and level > 0 and C_ChallengeMode.GetMapUIInfo(mapID)
 	GameTooltip:AddLine(name and (name .. ' +' .. level) or 'Mythic+ keystone')
 	if ns.AddKeystoneTooltip then ns.AddKeystoneTooltip(GameTooltip, self) end
+	-- 3.0.1: a gap between the sections above and the click hint.
+	if GameTooltip:NumLines() > 1 then GameTooltip:AddLine(' ') end
 	if ns.HasTeleports and ns.HasTeleports() then
 		GameTooltip:AddLine('Click: teleport to a dungeon of the season', 0.6, 0.6, 0.6)
 	else

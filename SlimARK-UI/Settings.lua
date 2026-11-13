@@ -374,6 +374,11 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.0.1', lines = {
+		'Keystone tooltip: this week\'s affixes in their own section, one per line',
+		'A click on the keystone hides its tooltip, so the teleport list is not covered',
+		'Addon CPU in the FPS tooltip and the XP/reputation line are on by default',
+	} },
 	{ version = '3.0.0', lines = {
 		'Mythic+: run summary with loot, time in combat, battle res and Bloodlust, best time per boss, the pull on the forces bar',
 		'Keystone tooltip with your season and the party\'s keys; a teleport button when you join a group',

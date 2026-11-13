@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.0.1
+
+- Keystone tooltip: this week's affixes have their own section, one per line, so the tooltip keeps the width of the season table
+- A click on the keystone opens the teleport list and hides the keystone tooltip, which used to cover the list. While the list is open the tooltip stays away
+- Addon CPU in the FPS tooltip and the XP or reputation line on the bottom edge of the top bar are on by default now
+
 ## 3.0.0
 
 Mythic+:

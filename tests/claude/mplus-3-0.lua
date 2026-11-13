@@ -690,7 +690,10 @@ do
 	H.equal(Line(tips, 'Voidscar Arena'), '+14   412', 'season: best level and score')
 	H.equal(Line(tips, 'Ara-Kara, City of Echoes'), '|cff9a9ca5+13|r   398', 'season: an over-time best is grey')
 	H.equal(Line(tips, 'Maisara Caverns'), '|cff9a9ca5-|r', 'season: a dungeon not run yet')
-	H.equal(Line(tips, 'This week'), 'Fortified · Xal\'atath\'s Guile', 'season: this week\'s affixes')
+	local _, week = Line(tips, 'THIS WEEK')
+	H.check(week ~= nil, 'season: this week\'s affixes have their own section')
+	H.check(week and tips[week + 1][1] == 'Fortified' and tips[week + 2][1] == 'Xal\'atath\'s Guile' and tips[week + 1][2] == nil,
+		'season: one affix per line')
 	H.noErrors()
 end
 
@@ -803,6 +806,7 @@ do
 	GameTooltip = H.NewFrame('GameTooltip')
 	GameTooltip.SetOwner = function() world.tips = {} end
 	GameTooltip.AddLine = function(_, text) world.tips[#world.tips + 1] = text end
+	GameTooltip.NumLines = function() return #world.tips end
 	C_MythicPlus = { GetOwnedKeystoneChallengeMapID = function() return 585 end, GetOwnedKeystoneLevel = function() return 12 end }
 	C_ChallengeMode = { GetMapUIInfo = function() return 'Voidscar Arena' end }
 	for key in pairs(ns.C.databar.show) do ns.C.databar.show[key] = false end
@@ -815,6 +819,11 @@ do
 	seg:GetScript('OnEnter')(seg)
 	H.equal(world.tips[1], 'Voidscar Arena +12', 'tooltip: your keystone as the title')
 	H.check(got and got[1] == GameTooltip and got[2] == seg, 'tooltip: the season and party lines are added with the segment as owner')
+	-- 3.0.1: with the teleport list open the tooltip stays away.
+	ns.TeleportsShown = function() return true end
+	world.tips = { 'old' }
+	seg:GetScript('OnEnter')(seg)
+	H.equal(world.tips[1], 'old', 'tooltip: not shown while the teleport list is open')
 	H.noErrors()
 end
 

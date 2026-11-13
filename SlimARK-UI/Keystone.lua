@@ -190,7 +190,13 @@ local function SeasonLines(tip)
 		local name = affix.id and C_ChallengeMode.GetAffixInfo and C_ChallengeMode.GetAffixInfo(affix.id)
 		if name then table.insert(names, name) end
 	end
-	if #names > 0 then tip:AddDoubleLine('This week', table.concat(names, ' · '), MUTED[1], MUTED[2], MUTED[3], 1, 1, 1) end
+	-- This week's affixes in their own section, one per line, so the tooltip keeps the width of the
+	-- season table.
+	if #names > 0 then
+		tip:AddLine(' ')
+		tip:AddLine('THIS WEEK', MUTED[1], MUTED[2], MUTED[3])
+		for _, name in ipairs(names) do tip:AddLine(name, 0.9, 0.9, 0.9) end
+	end
 end
 
 local PREFIX = 'LibKS'

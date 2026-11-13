@@ -357,10 +357,10 @@ ns.C = {
 		h = 26, font = 15, iconSize = 22,
 		show = { micro = true, durability = true, fps = true, latency = true, queue = true, currency = true,
 			clock = true, gold = true, itemLevel = true, keystone = true, vault = true, autoQuest = true, addons = true,
-			-- 3.0 (29, 31, 35, 36, 52): spec and loadout, Alts, the XP/rep line, friends and guild, the quiet switch. Only Alts is on.
-			spec = false, alts = true, xp = false, friends = false, quiet = false },
-		-- 3.0 (36, 32): addon CPU in the FPS tooltip, this week's data in the Great Vault tooltip.
-		addonCPU = false, vaultWeek = false,
+			-- 3.0 (29, 31, 35, 36, 52): spec and loadout, Alts, the XP/rep line, friends and guild, the quiet switch. Alts and the XP/rep line are on (3.0.1).
+			spec = false, alts = true, xp = true, friends = false, quiet = false },
+		-- 3.0 (36, 32): addon CPU in the FPS tooltip (on since 3.0.1), this week's data in the Great Vault tooltip.
+		addonCPU = true, vaultWeek = false,
 	},
 
 	-- Talks to quest NPCs: accepts, turns in, picks the only gossip option. Holding Shift pauses it.

@@ -73,6 +73,21 @@ local function FakeTooltip()
 	return tip
 end
 
+-- The XP line (35) is on by default since 3.0.1, so every boot needs its game functions.
+local function XPGlobals()
+	_G.GameRulesUtil = { CanShowExperienceBar = function() return W.canXP end }
+	_G.UnitXP = function() return 4500 end
+	_G.UnitXPMax = function() return 10000 end
+	_G.GetXPExhaustion = function() return 2000 end
+	_G.FACTION_STANDING_LABEL5 = 'Friendly'
+	_G.C_Reputation = {
+		GetWatchedFactionData = function() return W.watched end,
+		IsFactionParagonForCurrentPlayer = function() return false end,
+		IsMajorFaction = function() return false end,
+	}
+	_G.C_GossipInfo = { GetFriendshipReputation = function() return { friendshipFactionID = 0 } end }
+end
+
 local function World()
 	W = {
 		money = 4128800000, ilvl = 681.4, level = 90, keyMap = 585, keyLevel = 12, score = 3120, now = 2000000000,
@@ -140,6 +155,7 @@ local function BootBar(setup, flavor)
 	local ns = H.setup()
 	Enums()
 	World()
+	XPGlobals()
 	if flavor then
 		C_AddOns.GetAddOnMetadata = function(_, field) if field == 'X-SlimARK-Flavor' then return flavor end return '3.0.0' end
 	end
@@ -158,7 +174,8 @@ local function BootBar(setup, flavor)
 end
 
 ------------------------------------------------------------------------
--- Defaults: only Alts is on; a new element that is off builds and registers nothing.
+-- Defaults: of the new elements Alts, the XP/rep line and the addon CPU are on (3.0.1); a new
+-- element that is off builds and registers nothing.
 ------------------------------------------------------------------------
 do
 	local ns = BootBar()
@@ -167,9 +184,10 @@ do
 	for _, key in ipairs({ 'spec', 'friends', 'quiet' }) do
 		H.check(Seg(key) == nil, 'default: no ' .. key .. ' segment')
 	end
-	H.check(ns.C.databar.show.xp == false and ns.C.databar.addonCPU == false and ns.C.databar.vaultWeek == false,
-		'default: the XP line, addon CPU and weekly vault data are off')
-	for _, event in ipairs({ 'FRIENDLIST_UPDATE', 'GUILD_ROSTER_UPDATE', 'PLAYER_XP_UPDATE', 'UPDATE_FACTION', 'TRAIT_CONFIG_UPDATED',
+	H.check(ns.C.databar.show.xp == true and ns.C.databar.addonCPU == true, 'default: the XP line and the addon CPU are on')
+	H.check(ns.C.databar.vaultWeek == false, 'default: the weekly vault data is off')
+	H.check(Registered('PLAYER_XP_UPDATE') and Registered('UPDATE_FACTION'), 'default: the XP line watches XP and reputation')
+	for _, event in ipairs({ 'FRIENDLIST_UPDATE', 'GUILD_ROSTER_UPDATE', 'TRAIT_CONFIG_UPDATED',
 		'PLAYER_SPECIALIZATION_CHANGED', 'CHALLENGE_MODE_START', 'PLAYER_REGEN_DISABLED' }) do
 		H.check(not Registered(event), 'default: ' .. event .. ' is not registered')
 	end
@@ -512,7 +530,7 @@ do
 end
 
 do
-	BootBar(function() XPWorld() end)
+	BootBar(function(C) C.databar.show.xp = false XPWorld() end)
 	H.check(XPLine() == nil and not Registered('PLAYER_XP_UPDATE'), '35 the line off builds and registers nothing')
 end
 
@@ -597,7 +615,7 @@ do
 end
 
 do
-	BootBar(function(C) C.databar.show.fps = true ProfilerWorld() end)
+	BootBar(function(C) C.databar.show.fps = true C.databar.addonCPU = false ProfilerWorld() end)
 	H.check(Seg('fps'):GetScript('OnEnter') == nil and W.reads.profiler == 0, '36 the CPU switch off leaves the FPS element as it was')
 end
 
@@ -682,7 +700,7 @@ do
 	local want = {
 		['databar.show.alts'] = { true, 'databar' }, ['databar.show.spec'] = { false, 'databar' },
 		['databar.show.friends'] = { false, 'databar' }, ['databar.show.quiet'] = { false, 'databar' },
-		['databar.show.xp'] = { false, 'databar' }, ['databar.addonCPU'] = { false, 'databar' },
+		['databar.show.xp'] = { true, 'databar' }, ['databar.addonCPU'] = { true, 'databar' },
 		['databar.vaultWeek'] = { false, 'databar' }, ['loadout.reminder'] = { false, 'databar' },
 		['tooltipExtras.upgrade'] = { false, 'tooltip' }, ['tooltipExtras.ids'] = { false, 'tooltip' },
 		['tooltipExtras.bagCount'] = { false, 'tooltip' }, ['tooltipExtras.known'] = { false, 'tooltip' },

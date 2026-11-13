@@ -48,7 +48,7 @@ Every part below has its own switch in `/slimark`. A part that is switched off d
 
 **Top bar**
 
-Every element has its own switch. Of the new ones only Alts is on by default.
+Every element has its own switch. Of the new ones Alts, the addon CPU and the XP or reputation line are on by default.
 
 - **Alts:** item level, keystone, Great Vault, score and gold of each of your characters, crests on hover
 - Spec and loadout, friends and guild, addon CPU, this week in the Great Vault, quiet mode, and a thin XP or reputation line that takes no room (no XP at max level, no line without a watched faction)
