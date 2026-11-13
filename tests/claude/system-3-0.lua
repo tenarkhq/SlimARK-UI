@@ -519,6 +519,28 @@ do
 	H.check(text == nil and problem:find('encoder', 1, true), 'profiles: a client without the encoder says so')
 end
 
+-- The look picked in the setup window goes to the character's own profile when it has one, and
+-- leaves the account's settings alone.
+do
+	local ns = Boot({ 'Settings.lua', 'Setup.lua' }, nil, nil, function()
+		SlimARKDB = { settings = {} }
+		SlimARKCharDB = { ownProfile = true, settings = {} }
+	end)
+	ns.C.blizz.look = nil
+	ns.ApplyAll = function() return true end
+	UISpecialFrames = {}
+	tinsert = tinsert or table.insert
+	ns.ShowSetup()
+	local frame = _G.SlimARK_Setup
+	local card = frame.cards[2]
+	card:GetScript('OnClick')(card)
+	frame.apply:GetScript('OnClick')(frame.apply)
+	H.equal(SlimARKCharDB.settings['blizz.look'], card.key, 'setup: the look is saved in the character profile')
+	H.equal(SlimARKDB.settings['blizz.look'], nil, 'setup: the account settings stay as they were')
+	H.equal(ns.C.blizz.look, card.key, 'setup: the look applies at once')
+	H.noErrors()
+end
+
 ------------------------------------------------------------------------
 -- 52: quiet mode.
 ------------------------------------------------------------------------

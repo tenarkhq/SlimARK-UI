@@ -733,6 +733,25 @@ do
 	H.check(not frame:IsShown(), 'buff reminder: the pet is out')
 end
 
+-- An Outlaw or Subtlety rogue knows Instant Poison (a class spell) but not Deadly Poison (an
+-- Assassination talent); a missing lethal poison is still reported.
+do
+	Boot(function() end)
+	world.classes.player, world.spec = 'ROGUE', 260
+	world.known[315584] = true
+	world.enchant = { remainingTimeMs = 600000 }
+	H.fire('PLAYER_ENTERING_WORLD')
+	H.runTimers(0.2)
+	local frame = SlimARK_BuffReminder
+	local label
+	for _, f in ipairs(Children(frame, 'FontString')) do if f:GetText() and f:GetText():find('Missing') then label = f:GetText() end end
+	H.equal(label, 'Missing: poison', 'buff reminder: an Outlaw rogue without a lethal poison')
+	world.auras[315584] = {}
+	H.fire('UNIT_AURA', 'player')
+	H.runTimers(0.2)
+	H.check(not frame:IsShown(), 'buff reminder: Instant Poison on counts as a lethal poison')
+end
+
 ------------------------------------------------------------------------
 -- 24: the raid order, 58: the arena frames.
 ------------------------------------------------------------------------

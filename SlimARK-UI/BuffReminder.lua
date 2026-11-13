@@ -19,8 +19,8 @@ local CLASS_BUFF = {
 	EVOKER = { 364342, { 381748, 381732, 381741, 381746, 381749, 381750, 381751, 381752, 381753, 381754, 381756, 381757, 381758 } },
 }
 
--- Rogue poisons are buffs on the rogue, not weapon enchants: one lethal poison is wanted.
-local POISON_SPELL = 2823
+-- Rogue poisons are buffs on the rogue, not weapon enchants: one lethal poison is wanted. Instant
+-- and Wound Poison are class spells; Deadly and Amplifying Poison are Assassination talents.
 local LETHAL_POISONS = { 2823, 315584, 8679, 381664 }
 
 -- Shaman shields: Lightning Shield, Water Shield, Earth Shield (on another and on yourself).
@@ -67,8 +67,13 @@ local function Missing()
 			list[#list + 1] = { OIL_ICON, 'weapon oil' }
 		end
 	end
-	if class == 'ROGUE' and Known(POISON_SPELL) and not HasAura(LETHAL_POISONS) then
-		list[#list + 1] = { C_Spell.GetSpellTexture(POISON_SPELL), 'poison' }
+	if class == 'ROGUE' and not HasAura(LETHAL_POISONS) then
+		for _, id in ipairs(LETHAL_POISONS) do
+			if Known(id) then
+				list[#list + 1] = { C_Spell.GetSpellTexture(id), 'poison' }
+				break
+			end
+		end
 	end
 	if class == 'SHAMAN' and not HasAura(SHIELDS) then
 		for _, id in ipairs(SHIELD_SPELLS) do

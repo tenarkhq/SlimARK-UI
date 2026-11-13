@@ -132,9 +132,15 @@ local function Choose(key)
 	frame.hint:SetText('')
 end
 
+-- The look goes where the other saved changes live: a character with its own profile (3.0) keeps
+-- it with the character.
 local function Save(look)
-	SlimARKDB.settings = SlimARKDB.settings or {}
-	SlimARKDB.settings['blizz.look'] = look
+	local store = ns.Settings and ns.Settings.Store and ns.Settings.Store()
+	if not store then
+		SlimARKDB.settings = SlimARKDB.settings or {}
+		store = SlimARKDB.settings
+	end
+	store['blizz.look'] = look
 	C.blizz.look = look
 end
 
