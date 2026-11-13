@@ -7,14 +7,14 @@ ns.FONT_NAME = 'SlimARK'
 ns.SOFT_NAME = 'SlimARK Soft'
 ns.SOFT = [[Interface\AddOns\SlimARK-UI\Media\Soft.tga]]
 
--- 3.1.1: the SlimARK font has Latin letters only, so a Cyrillic, Korean or Chinese name showed as
--- boxes. Text goes through a font family instead: the game draws each string with the member of its
--- alphabet, so Latin text keeps the SlimARK font and the other scripts take Blizzard's own faces
--- (the same files Blizzard's font families use). A family is made once per size and flags. A
+-- 3.1.1: a Korean or Chinese name showed as boxes in the SlimARK font. Text goes through a font
+-- family instead: the game draws each string with the member of its alphabet, so Latin and (since
+-- 3.1.2, when the font got its Cyrillic letters) Cyrillic text keep the SlimARK font and Korean and
+-- Chinese take Blizzard's own faces (the same files Blizzard's font families use). A family is made once per size and flags. A
 -- string must take its family from its first font write: a plain SetFont pins its face for good.
 local FAMILY = {
 	{ 'roman' },
-	{ 'russian', [[Fonts\FRIZQT___CYR.TTF]] },
+	{ 'russian' },
 	{ 'korean', [[Fonts\2002.TTF]] },
 	{ 'simplifiedchinese', [[Fonts\ARKai_T.ttf]] },
 	{ 'traditionalchinese', [[Fonts\blei00d.TTF]] },

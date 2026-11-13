@@ -53,7 +53,7 @@ local function Boot(saved, screen)
 	if screen then GetPhysicalScreenSize = function() return screen[1], screen[2] end end
 	C_AddOns.GetAddOnMetadata = function(_, field)
 		if field == 'X-SlimARK-Flavor' then return 'retail' end
-		return '3.1.1'
+		return '3.1.2'
 	end
 	UISpecialFrames = {}
 	H.load('Config.lua')

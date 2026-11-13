@@ -386,6 +386,9 @@ S.moved = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.1.2', lines = {
+		'The SlimARK font has Cyrillic letters: Russian names show in Details!, boss mods, chat and every addon using it',
+	} },
 	{ version = '3.1.1', lines = {
 		'Cyrillic, Korean and Chinese names no longer show as boxes: they take Blizzard\'s own font for their script',
 	} },

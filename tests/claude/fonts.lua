@@ -29,7 +29,7 @@ do
 		if member.height ~= 14 or member.flags ~= 'OUTLINE' then alphabets.bad = true end
 	end
 	H.equal(alphabets.roman and alphabets.roman.file, ns.FONT, 'family: Latin text keeps the SlimARK font')
-	H.equal(alphabets.russian and alphabets.russian.file, [[Fonts\FRIZQT___CYR.TTF]], 'family: Cyrillic takes Blizzard\'s Cyrillic face')
+	H.equal(alphabets.russian and alphabets.russian.file, ns.FONT, 'family: Cyrillic keeps the SlimARK font, which has its letters since 3.1.2')
 	H.check(alphabets.korean and alphabets.simplifiedchinese and alphabets.traditionalchinese, 'family: Korean and Chinese have a member each')
 	H.check(not alphabets.bad, 'family: every member has the same size and flags')
 	ns.Text(UIParent, 14)

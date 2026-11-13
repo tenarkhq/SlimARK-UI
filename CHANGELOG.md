@@ -1,5 +1,10 @@
 # Changelog
 
+## 3.1.2
+
+- The SlimARK font has Cyrillic letters now, so Russian names no longer show as boxes in Details!, the boss mods, the chat and every other addon that uses the SlimARK font. The letters come from Roboto Condensed (SIL Open Font License, like the SlimARK font itself), scaled to the SlimARK font's height and width. On SlimARK's own frames Russian names now look like the rest of the text
+- Other addons can pick the SlimARK font on a Russian client too
+
 ## 3.1.1
 
 - Cyrillic, Korean and Chinese names and text no longer show as boxes. The SlimARK font has Latin letters only; such text now takes Blizzard's own face for its script, while Latin text keeps the SlimARK font. On unit, group and nameplate names, cast targets, the damage meter skin, the minimap zone text, chat tabs and the chat input, macro names on the action bars, loot texts and the settings panel
