@@ -126,6 +126,13 @@ local function ReadableGUID(unit)
 	if Readable(guid) then return guid end
 end
 
+-- On dungeon and raid maps UnitIsUnit can answer with a secret boolean, and testing that errors.
+-- A secret answer counts as no.
+local function IsPlayer(unit)
+	local same = UnitIsUnit(unit, 'player')
+	return Readable(same) and same == true
+end
+
 local function OnInspect(_, guid)
 	if not Readable(guid) then return end
 	local unit = ReadableGUID('mouseover') == guid and 'mouseover' or nil
@@ -169,7 +176,7 @@ local function PlayerLines(tip, unit)
 	end
 
 	local guid = UnitGUID(unit)
-	if UnitIsUnit(unit, 'player') then
+	if IsPlayer(unit) then
 		local _, equipped = GetAverageItemLevel()
 		local specIndex = C_SpecializationInfo.GetSpecialization()
 		local spec = specIndex and specIndex > 0 and select(2, C_SpecializationInfo.GetSpecializationInfo(specIndex)) or nil
@@ -188,7 +195,7 @@ local function PlayerLines(tip, unit)
 		local name = UnitName(target)
 		if Readable(name) then
 			local color = UnitIsPlayer(target) and ClassColor(target) or { 1, 1, 1 }
-			if UnitIsUnit(target, 'player') then name = '>> you <<' end
+			if IsPlayer(target) then name = '>> you <<' end
 			tip:AddDoubleLine('Target', name, LABEL[1], LABEL[2], LABEL[3], color[1], color[2], color[3])
 		end
 	end

@@ -637,7 +637,7 @@ local function Refresh()
 	local bottom = HEAD + shown * ROW
 	-- 3.0 (23): the group table under your own rows.
 	bottom = LayoutGroup(bottom)
-	local mine = initiator and UnitIsUnit('player', initiator)
+	local mine = initiator ~= nil and IsMe(initiator)
 	window.yes:SetShown(not mine and not answered)
 	window.no:SetShown(not mine and not answered)
 	window.answer:SetShown(answered ~= nil)

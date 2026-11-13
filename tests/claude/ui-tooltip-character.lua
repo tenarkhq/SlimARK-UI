@@ -99,6 +99,20 @@ do
 	H.equal(Line(tip, 'Item level'), nil, 'secret mouseover GUID: no item level line is added')
 end
 
+-- 3.0.0 fix: UnitIsUnit can answer with a secret boolean on dungeon and raid maps; the tooltip
+-- treats it as "not you" instead of testing it.
+do
+	local _, tip = BootTooltip()
+	local secretYes = {}
+	H.secret = { [secretYes] = true }
+	_G.UnitIsUnit = function() return secretYes end
+	tip.lines = {}
+	tip.unit = 'mouseover'
+	local ok, err = pcall(postCalls[Enum.TooltipDataType.Unit], tip)
+	H.check(ok, 'secret UnitIsUnit: the tooltip runs' .. (ok and '' or (': ' .. tostring(err))))
+	H.check(Line(tip, 'Item level') ~= '700  Arms', 'secret UnitIsUnit: the mouseover does not get your own item level')
+end
+
 ------------------------------------------------------------------------
 -- F11: the enchant name beside a slot is cut the same way in every language.
 ------------------------------------------------------------------------

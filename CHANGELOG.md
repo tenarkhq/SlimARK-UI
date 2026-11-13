@@ -51,6 +51,7 @@ Interface and system:
 Fixes:
 
 - No more "attempt to compare a secret string value" error from the tooltip in dungeons and raids, when an inspect answer (often asked by another addon, such as Raider.IO) came in while a player was under the mouse
+- The tooltip and the ready check window no longer test the game's hidden answer to "is this unit you?" on dungeon and raid maps; a hidden answer counts as no
 
 Good to know:
 
