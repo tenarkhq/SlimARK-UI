@@ -120,9 +120,15 @@ end
 
 -- Our own answer, or one another addon asked for (Raider.IO inspects in the background) while
 -- the same player is under the mouse.
+-- A unit's GUID can be secret (in dungeons and raids); a secret one counts as unknown.
+local function ReadableGUID(unit)
+	local guid = UnitGUID(unit)
+	if Readable(guid) then return guid end
+end
+
 local function OnInspect(_, guid)
-	if not guid then return end
-	local unit = UnitGUID('mouseover') == guid and 'mouseover' or nil
+	if not Readable(guid) then return end
+	local unit = ReadableGUID('mouseover') == guid and 'mouseover' or nil
 	if guid ~= waitingGUID and not unit then return end
 	if guid == waitingGUID then waitingGUID = nil end
 	if not unit then return end
@@ -141,7 +147,7 @@ local function OnInspect(_, guid)
 	inspected[guid] = entry
 	if not hasLine and GameTooltip:IsShown() then
 		local _, shown = GameTooltip:GetUnit()
-		if Readable(shown) and UnitGUID(shown) == guid then
+		if Readable(shown) and ReadableGUID(shown) == guid then
 			AddItemLevel(GameTooltip, entry)
 			GameTooltip:Show()
 		end

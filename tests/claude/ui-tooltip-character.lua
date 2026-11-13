@@ -73,6 +73,32 @@ do
 	H.equal(Line(tip, 'Item level'), '650  Fury', 'F3 the inspected spec comes from C_SpecializationInfo')
 end
 
+-- 3.0.0 fix: in dungeons and raids the mouseover GUID is secret. An inspect answer another addon
+-- asked for must then leave the mouseover alone instead of comparing the secret GUID (the game
+-- errored "attempt to compare a secret string value" at INSPECT_READY).
+do
+	local _, tip = BootTooltip()
+	local asked = 0
+	C_PaperDollInfo.GetInspectItemLevel = function() asked = asked + 1; return 650 end
+	-- Plain Lua cannot make a string secret; two tables sharing an __eq that errors stand in for
+	-- the secret mouseover GUID and the answer's GUID, so comparing them fails like the game does.
+	local noCompare = { __eq = function() error('attempt to compare a secret string value') end }
+	local secretGUID, answerGUID = setmetatable({}, noCompare), setmetatable({}, noCompare)
+	H.secret = { [secretGUID] = true }
+	_G.UnitGUID = function(unit) return unit == 'mouseover' and secretGUID or 'Player-1-ME' end
+	tip.lines = {}
+	tip.unit = 'mouseover'
+	tip:Show()
+	H.fire('INSPECT_READY', answerGUID)
+	local errors = {}
+	for _, line in ipairs(H.prints) do
+		if tostring(line):find('^ERROR') then table.insert(errors, line) end
+	end
+	H.equal(#errors, 0, 'secret mouseover GUID: the inspect answer runs without an error' .. (errors[1] and (': ' .. errors[1]) or ''))
+	H.equal(asked, 0, 'secret mouseover GUID: the answer is not read for the mouseover')
+	H.equal(Line(tip, 'Item level'), nil, 'secret mouseover GUID: no item level line is added')
+end
+
 ------------------------------------------------------------------------
 -- F11: the enchant name beside a slot is cut the same way in every language.
 ------------------------------------------------------------------------

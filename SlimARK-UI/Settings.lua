@@ -381,6 +381,7 @@ S.changelog = {
 		'Interrupt strips on group frames, GCD line, spender marks, buff reminder, raid sorting, arena frames',
 		'Top bar: Alts on, more elements to switch on; ready check group table, premade group details, auto accept',
 		'Bag marks, faster loot, guild repair; Profiles, Macros, Game settings, Quiet mode and Other pages; AFK screen',
+		'Fix: no more tooltip error in dungeons and raids when a player under the mouse was inspected',
 	} },
 	{ version = '2.3.0', lines = {
 		'Enemy cast bars go dark while your interrupt is on cooldown',

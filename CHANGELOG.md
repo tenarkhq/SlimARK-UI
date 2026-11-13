@@ -48,6 +48,10 @@ Interface and system:
 - Battleground timers for Arathi Basin, Battle for Gilneas and Deepwind Gorge
 - Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare
 
+Fixes:
+
+- No more "attempt to compare a secret string value" error from the tooltip in dungeons and raids, when an inspect answer (often asked by another addon, such as Raider.IO) came in while a player was under the mouse
+
 Good to know:
 
 - Every new part has its own switch in /slimark, and a part that is switched off does nothing
