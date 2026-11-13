@@ -28,6 +28,25 @@ local function Size(path, maxW, maxH)
 	return { name = 'Size', rows = { R('Width', path .. '.w', 40, maxW or 600), R('Height', path .. '.h', 10, maxH or 160) } }
 end
 local function Font(path, key) return { name = 'Text', rows = { R('Font size', path .. '.' .. (key or 'font'), 8, 32) } } end
+-- 3.0 (49-52): rows that act at once on the game or on their own saved state, not on Config.lua, so they
+-- have no reset. get reads the value, set writes it, hidden hides the row.
+local function LiveT(label, get, set) return { t = 'toggle', label = label, get = get, set = set } end
+local function LiveR(label, min, max, step, get, set, hidden)
+	return { t = 'range', label = label, min = min, max = max, step = step, get = get, set = set, hidden = hidden }
+end
+-- A text box with a button beside it: fn gets the text and the box, get fills the box.
+local function Box(label, button, fn, get) return { t = 'textbox', label = label, button = button, fn = fn, get = get } end
+-- 3.0 (50): one of the game's own settings; hidden when this client has no such setting.
+local function CVar(label, name, min, max, step)
+	return LiveR(label, min, max, step,
+		function() return ns.GameSettings.Number(name) end,
+		function(value) ns.GameSettings.Write(name, value) end,
+		function() return not (ns.GameSettings and ns.GameSettings.Has(name)) end)
+end
+-- 3.0 (49): a button that makes the macro, or brings it up to date when it is there.
+local function Macro(kind, label)
+	return { t = 'button', label = label, text = function() return ns.Macros.Label(kind) end, fn = function() ns.Macros.Make(kind) end }
+end
 
 local function ForgetCutscenes()
 	if not ns.DB then return end
@@ -68,6 +87,13 @@ S.groups = {
 				Col('Interrupt ready', 'colors.kickReady'),
 			} }, { name = 'Shields', rows = { T('Shields on health bars', 'features.shields'), Col('Shield', 'colors.shield') } },
 			{ name = 'Other', rows = { T('Version at login', 'features.loginMessage') } } } },
+		-- 3.0 (51): profile text and the profile per character.
+		{ id = 'profiles', name = 'Profiles', noReset = true,
+			desc = 'Copy your SlimARK-UI settings as a text, or take settings from such a text. Only the values you changed are in it. An import shows its values here as changes; Save and reload UI uses them.',
+			secs = { { name = 'Export', rows = { Box('Export settings', 'Copy text', function(_, box) ns.Profiles.ExportTo(box) end) } },
+				{ name = 'Import', rows = { Box('Import settings', 'Import', function(text, box) ns.Profiles.ImportFrom(text, box) end) } },
+				{ name = 'Character', rows = { LiveT('Profile per character: this character keeps its own settings',
+					function() return ns.Profiles.IsPerCharacter() end, function(on) ns.Profiles.SetPerCharacter(on) end) } } } },
 	} },
 	{ name = 'Unit frames', pages = {
 		{ id = 'player', name = 'Player', keys = { 'player' }, secs = { Pos('units.player', true), Size('units.player'), Font('units.player'),
@@ -264,11 +290,15 @@ S.groups = {
 	} },
 	{ name = 'Addon skins', pages = {
 		{ id = 'details', name = 'Details!', apply = true, secs = { { name = 'Position', rows = { R('Right edge', 'details.right', 0, 2560), R('Bottom edge', 'details.bottom', 0, 1600) } },
-			{ name = 'Windows', rows = { R('Width', 'details.w', 150, 600), R('Height', 'details.h', 100, 600), R('Gap', 'details.gap', 0, 30), R('Bar height', 'details.barHeight', 14, 40), R('Font size', 'details.fontSize', 8, 28) } } } },
+			{ name = 'Windows', rows = { R('Width', 'details.w', 150, 600), R('Height', 'details.h', 100, 600), R('Gap', 'details.gap', 0, 30), R('Bar height', 'details.barHeight', 14, 40), R('Font size', 'details.fontSize', 8, 28) } },
+			-- 3.0 (20)
+			{ name = 'Blizzard damage meter', rows = { T('SlimARK look, in the place of the Details windows', 'features.damageMeter') } } } },
 		{ id = 'bossmods', name = 'Boss mods', apply = true, desc = 'Deadly Boss Mods and BigWigs bars.',
 			secs = { { name = 'Normal bars', rows = { R('X', 'bossmods.normal.x', 0, 2560), R('Y', 'bossmods.normal.y', 0, 1600), R('Width', 'bossmods.normal.w', 100, 600), R('Height', 'bossmods.normal.h', 12, 40) } },
 				{ name = 'Large bars', rows = { R('X', 'bossmods.huge.x', 0, 2560), R('Y', 'bossmods.huge.y', 0, 1600), R('Width', 'bossmods.huge.w', 100, 600), R('Height', 'bossmods.huge.h', 12, 40) } },
-				{ name = 'Text', rows = { R('Gap', 'bossmods.gap', 0, 20), R('Font size', 'bossmods.fontSize', 8, 28) } } } },
+				{ name = 'Text', rows = { R('Gap', 'bossmods.gap', 0, 20), R('Font size', 'bossmods.fontSize', 8, 28) } },
+				-- 3.0 (19)
+				{ name = 'Blizzard boss timeline', rows = { T('Boss timeline and warnings above the character, under the top bar', 'features.encounterLayout') } } } },
 		{ id = 'betterbags', name = 'BetterBags', module = 'modules.betterbags', apply = true, desc = 'Flat dark SlimARK theme for the classic bags and BetterBags Next. Saving selects it in BetterBags.', secs = {} },
 		{ id = 'chat', name = 'Chat', apply = true, desc = 'Chattynator window.',
 			secs = { { name = 'Window', rows = { R('X', 'chat.x', 0, 2560), R('Bottom edge', 'chat.bottom', 0, 1600), R('Width', 'chat.w', 200, 1200), R('Height', 'chat.h', 100, 800), R('Font size', 'chat.fontSize', 8, 28) } },
@@ -307,6 +337,37 @@ S.groups = {
 			secs = { { name = 'Error messages', rows = { T('Hide the combat error spam', 'features.errorFilter') } } } },
 		{ id = 'cinematics', name = 'Cinematics', secs = { { name = 'Cinematics', rows = { T('Skip seen cinematics', 'features.skipCinematics'), T('Skip seen movies', 'features.skipMovies') } },
 			{ name = 'Memory', rows = { Btn('Forget seen ones', ForgetCutscenes) } } } },
+		-- 3.0 (49): macro maker.
+		{ id = 'macros', name = 'Macros', noReset = true,
+			desc = 'Makes a macro, or brings it up to date when it is there: your interrupt on your focus, your dispel on the frame under the mouse, your healthstone and a healing potion from your bags. Out of combat only. Drag them from the macro window (/macro) to your bars.',
+			secs = { { name = 'Save as', rows = { { t = 'choice', label = 'Save new macros as character or account macros',
+					options = { { 'character', 'This character' }, { 'account', 'Account' } },
+					get = function() return ns.Macros and ns.Macros.Scope() end, set = function(v) ns.Macros.SetScope(v) end } } },
+				{ name = 'Macros', rows = { Macro('kick', 'Focus kick'), Macro('dispel', 'Mouseover dispel'), Macro('heal', 'Healthstone and potion') } } } },
+		-- 3.0 (50, 21): the game's own settings.
+		{ id = 'gamesettings', name = 'Game settings', noReset = true,
+			desc = 'A few of the game\'s own settings. The rows show the value the game has now, and only the one you change is written, at once. Out of combat only.',
+			secs = { { name = 'Camera and combat', rows = {
+					CVar('Max camera distance', 'cameraDistanceMaxZoomFactor', 1, 2.6, 0.1), CVar('Spell queue window (ms)', 'SpellQueueWindow', 0, 400, 10),
+					CVar('Nameplate overlap', 'nameplateOverlapV', 0.5, 2, 0.05),
+					LiveT('Screen shake', function() return ns.GameSettings.ShakeOn() end, function(on) ns.GameSettings.SetShake(on) end) } },
+				{ name = 'Audio alerts', rows = { Btn('Open the game\'s audio alerts', function() ns.GameSettings.OpenAudioAlerts() end) } } } },
+		-- 3.0 (52): quiet mode.
+		{ id = 'quiet', name = 'Quiet mode', noReset = true,
+			desc = 'Mutes the sounds on your list and hides the boss kill banner, the zone text and the Battle.net toasts. It switches at once, without a reload; the top bar can switch it too. A sound is given by its file ID (FileDataID); separate several with spaces or commas.',
+			secs = { { name = 'Quiet mode', rows = { LiveT('Quiet mode', function() return ns.Quiet.IsOn() end, function(on) ns.Quiet.Set(on) end),
+					LiveT('Hide boss banner, zone text and toasts', function() return ns.Quiet.Hides() end, function(on) ns.Quiet.SetHides(on) end) } },
+				{ name = 'Muted sounds', rows = { Box('Sound file IDs', 'Save list', function(text) ns.Quiet.SetSounds(text) end, function() return ns.Quiet.SoundText() end) } } } },
+		-- 3.0 (53, 45, 46, 57, 58)
+		{ id = 'other', name = 'Other', keys = { 'bgtimers' },
+			desc = 'Screenshots, world map coordinates, the rare alert, the AFK screen and battleground timers. The battleground timers count down an assaulted base until it is taken, in the place of the boss frames; drag them in Edit Mode.',
+			secs = { { name = 'Screenshots', rows = { T('Screenshot when a key is timed', 'features.shotKey'), T('Screenshot when a boss dies', 'features.shotKill'),
+					T('Screenshot on a new achievement', 'features.shotAchievement') } },
+				{ name = 'World map', rows = { T('Coordinates on the world map: you and the mouse', 'features.mapCoords') } },
+				{ name = 'Rares', rows = { T('Rare alert: one quiet sound and a short text, once per rare', 'features.rareAlert') } },
+				{ name = 'AFK screen', rows = { T('Fade the UI and show your character while you are AFK', 'features.afkScreen') } },
+				{ name = 'Battleground timers', rows = { T('Timers for assaulted bases', 'features.bgTimers'), R('X', 'bgtimers.x', 0, 2560), R('Y', 'bgtimers.y', 0, 1600),
+					R('Width', 'bgtimers.w', 120, 500), R('Bar height', 'bgtimers.h', 12, 40), R('Font size', 'bgtimers.font', 8, 28) } } } },
 	} },
 	{ name = 'About', pages = { { id = 'about', name = 'Version and changelog', about = true } } },
 }
@@ -540,17 +601,30 @@ for _, group in ipairs(S.groups) do
 	end
 end
 
+-- 3.0 (51): where the saved changes live. A character with its own profile keeps them with the
+-- character, every other character shares the account's.
+function S.Store()
+	local char = SlimARKCharDB
+	if type(char) == 'table' and char.ownProfile then
+		char.settings = char.settings or {}
+		return char.settings
+	end
+	SlimARKDB.settings = SlimARKDB.settings or {}
+	return SlimARKDB.settings
+end
+
 -- The saved changes go over Config.lua while loading, before the modules build.
 ns.On('ADDON_LOADED', function(_, name)
 	if name ~= addonName then return end
 	SlimARKDB.settings = SlimARKDB.settings or {}
-	for path, value in pairs(SlimARKDB.settings) do
+	local store = S.Store() -- 3.0 (51)
+	for path, value in pairs(store) do
 		local default = S.defaults[path]
 		if default ~= nil and type(default) == type(value) then
 			Write(path, value)
 		else
 			-- A setting a later version no longer has.
-			SlimARKDB.settings[path] = nil
+			store[path] = nil
 		end
 	end
 end)
@@ -603,7 +677,7 @@ function S.Save()
 		return false
 	end
 	local apply = false
-	local store = SlimARKDB.settings
+	local store = S.Store() -- 3.0 (51)
 	local previous, positions, seen = {}, {}, {}
 	for path, value in pairs(S.pending) do
 		previous[#previous + 1] = { path = path, live = Copy(S.Get(path)), saved = Copy(store[path]) }

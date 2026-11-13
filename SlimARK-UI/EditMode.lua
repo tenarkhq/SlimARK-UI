@@ -6,11 +6,17 @@ local INDEX_ENUMS = {
 	ActionBar = 'EditModeActionBarSystemIndices',
 	CooldownViewer = 'EditModeCooldownViewerSystemIndices',
 	AuraFrame = 'EditModeAuraFrameSystemIndices',
+	-- 3.0 (19): the boss timeline and its warning rows.
+	EncounterEvents = 'EditModeEncounterEventsSystemIndices',
 }
 
 local function Find(layout, systemName, indexName)
 	local system = Enum.EditModeSystem[systemName]
-	local index = indexName and Enum[INDEX_ENUMS[systemName]][indexName]
+	-- 3.0: a system or index this client does not have (WoW Forever) is skipped.
+	if system == nil then return end
+	local indices = indexName and Enum[INDEX_ENUMS[systemName]]
+	if indexName and (not indices or indices[indexName] == nil) then return end
+	local index = indexName and indices[indexName]
 	for _, info in ipairs(layout.systems) do
 		if info.system == system and (not index or info.systemIndex == index) then
 			return info
@@ -136,6 +142,53 @@ local function ArrangeSystems(layout)
 	end
 end
 
+-- 3.0 (19): Blizzard's boss timeline (horizontal, across the top middle) and its three warning rows
+-- under it. Only place and size: the frames keep Blizzard's own look. The overall size is the
+-- percent that makes one unit of Blizzard's frame the wanted number of layout pixels.
+local function SizePercent(unitPixels)
+	local percent = unitPixels * ns.Scale() * 100
+	return math.max(50, math.min(200, math.floor(percent / 10 + 0.5) * 10))
+end
+
+local function ArrangeEncounter(layout)
+	local S = Enum.EditModeEncounterEventsSetting
+	if not (S and cfg.encounter) then return end
+	for _, entry in ipairs(cfg.encounter) do
+		local indexName, point, x, y, unit = unpack(entry, 1, 5)
+		local info = Find(layout, 'EncounterEvents', indexName)
+		if info then
+			Move(info, point, x, y)
+			Set(info, S.OverallSize, (SizePercent(unit) - 50) / 10)
+			if indexName == 'Timeline' and Enum.EncounterEventsOrientation then
+				Set(info, S.Orientation, Enum.EncounterEventsOrientation.Horizontal)
+			end
+		end
+	end
+end
+
+-- 3.0 (20): Blizzard's damage meter takes the place and the size of the two Details windows, its
+-- bars the Details bar height. The sizes are Blizzard's own units, kept inside its slider limits;
+-- the bottom right corner stays where the Details windows end. Its visibility is left alone.
+local function ArrangeDamageMeter(layout)
+	local S = Enum.EditModeDamageMeterSetting
+	if not S then return end
+	local info = Find(layout, 'DamageMeter')
+	if not info then return end
+	local d = C.details
+	local unit = ns.Scale()
+	local function Units(pixels, min, max)
+		return math.max(min, math.min(max, math.floor(pixels * unit + 0.5)))
+	end
+	Set(info, S.FrameWidth, Units(d.w * 2 + d.gap, 200, 600) - 200)
+	Set(info, S.FrameHeight, Units(d.h, 120, 400) - 120)
+	Set(info, S.BarHeight, Units(d.barHeight, 15, 40) - 15)
+	-- The smallest gap between the bars (2 units).
+	Set(info, S.Padding, 0)
+	-- The plain style: the SlimARK skin is drawn over its bar layout.
+	if Enum.DamageMeterStyle then Set(info, S.Style, Enum.DamageMeterStyle.Default) end
+	Move(info, 'BOTTOMRIGHT', d.right, d.bottom, 'RIGHT')
+end
+
 local function NewLayoutSlot(layouts)
 	local counts, highest = {}, {}
 	for i, layout in ipairs(layouts) do
@@ -200,6 +253,9 @@ function ns.ApplyEditMode(onlyNew)
 		ArrangeBars(layout)
 		ArrangeSystems(layout)
 		if name == cfg.healName then PlaceSystems(layout, cfg.healSystems) end
+		-- 3.0 (19, 20): Blizzard's boss timeline and damage meter, each by its own switch.
+		if C.features.encounterLayout then ArrangeEncounter(layout) end
+		if C.features.damageMeter then ArrangeDamageMeter(layout) end
 	end
 
 	C_EditMode.SaveLayouts(info)

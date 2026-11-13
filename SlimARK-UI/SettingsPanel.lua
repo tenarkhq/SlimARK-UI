@@ -271,6 +271,12 @@ end
 -- Rows of the settings page.
 local ROW_H, LABEL_W = 30, 118
 
+-- 3.0: a row with get/set acts on the game or on its own saved state at once, the others on a saved value.
+local function Current(data)
+	if data.get then return data.get() end
+	return S.Value(data.path)
+end
+
 local function RowBase(parent)
 	local row = CreateFrame('Frame', nil, parent)
 	row:SetHeight(ROW_H)
@@ -296,6 +302,12 @@ local function RowBase(parent)
 	end)
 	row.reset:SetScript('OnLeave', GameTooltip_Hide)
 	function row:Mark()
+		-- 3.0: a row that acts at once has no saved default to go back to.
+		if not self.data.path then
+			self.label:SetTextColor(SOFT[1], SOFT[2], SOFT[3])
+			self.reset:Hide()
+			return
+		end
 		local changed = S.IsChanged(self.data.path)
 		local color = changed and GOLD or SOFT
 		self.label:SetTextColor(color[1], color[2], color[3])
@@ -341,7 +353,7 @@ local function RangeRow(parent)
 
 	function row:Refresh()
 		local data = self.data
-		local value = S.Value(data.path)
+		local value = Current(data) or data.min
 		self.slider:SetValue(value)
 		if not self.box:HasFocus() then self.box:SetText(Format(value, data.step)) end
 		self:Mark()
@@ -349,13 +361,16 @@ local function RangeRow(parent)
 	slider:SetScript('OnValueChanged', function(_, value, userInput)
 		if not userInput then return end
 		value = Round(value, row.data)
-		S.Set(row.data.path, value)
+		if row.data.set then row.data.set(value) else S.Set(row.data.path, value) end
 		box:SetText(Format(value, row.data.step))
 		Changed(row)
 	end)
 	local function Commit()
 		local value = tonumber(box:GetText())
-		if value then S.Set(row.data.path, Round(value, row.data)) end
+		if value then
+			value = Round(value, row.data)
+			if row.data.set then row.data.set(value) else S.Set(row.data.path, value) end
+		end
 		box:ClearFocus()
 		Changed(row)
 	end
@@ -384,7 +399,7 @@ local function ToggleRow(parent)
 	switch:ClearAllPoints()
 	switch:SetPoint('LEFT')
 	function row:Refresh()
-		local on = S.Value(self.data.path)
+		local on = Current(self.data)
 		local knob = self.switch.knob
 		knob:ClearAllPoints()
 		if on then
@@ -399,7 +414,8 @@ local function ToggleRow(parent)
 		self:Mark()
 	end
 	switch:SetScript('OnClick', function()
-		S.Set(row.data.path, not S.Value(row.data.path))
+		local data = row.data
+		if data.set then data.set(not Current(data)) else S.Set(data.path, not S.Value(data.path)) end
 		Changed(row)
 		-- A module switch greys its page in the list and changes the enable box.
 		if row.data.isModule then RenderMain() end
@@ -447,8 +463,50 @@ local function ButtonRow(parent)
 	row:SetHeight(ROW_H)
 	row.button = MakeButton(row, '', 170, 24, 'plain')
 	row.button:SetPoint('LEFT')
-	row.button:SetScript('OnClick', function() if row.data.fn then row.data.fn() end end)
-	function row:Refresh() self.button.text:SetText(self.data.label) end
+	row.button:SetScript('OnClick', function()
+		if row.data.fn then row.data.fn() end
+		-- 3.0: a button whose text follows the state (Create / Update) shows the new state.
+		if row.data.text then row:Refresh() end
+	end)
+	function row:Refresh()
+		self.button.text:SetText(self.data.text and self.data.text() or self.data.label)
+		self.button:SetWidth(math.max(170, math.floor(self.button.text:GetUnboundedStringWidth() + 28)))
+	end
+	return row
+end
+
+-- 3.0 (51, 52): a text box with a button: the profile text, the muted sound list. The button hands the
+-- text and the box to the row's fn; get fills the box again.
+local function TextboxRow(parent)
+	local row = CreateFrame('Frame', nil, parent)
+	row:SetHeight(ROW_H)
+	row.label = Text(row, 13, SOFT)
+	row.label:SetPoint('LEFT')
+	row.label:SetWidth(LABEL_W)
+	row.button = MakeButton(row, '', 110, 24, 'plain')
+	row.button:SetPoint('RIGHT')
+	local box = CreateFrame('EditBox', nil, row)
+	box:SetHeight(24)
+	box:SetPoint('LEFT', LABEL_W + 10, 0)
+	box:SetPoint('RIGHT', row.button, 'LEFT', -8, 0)
+	box:SetAutoFocus(false)
+	box:SetMaxLetters(0)
+	box:SetFont(ns.FONT, 12, '')
+	box:SetTextInsets(6, 6, 0, 0)
+	box:SetTextColor(TEXT[1], TEXT[2], TEXT[3])
+	Fill(box, TRACK)
+	ns.Outline(box)
+	box:SetScript('OnEscapePressed', function(self) self:ClearFocus() end)
+	box:SetScript('OnEnterPressed', function(self) self:ClearFocus() end)
+	row.box = box
+	row.button:SetScript('OnClick', function()
+		if row.data.fn then row.data.fn(box:GetText() or '', box) end
+		Changed(row)
+	end)
+	function row:Refresh()
+		self.button.text:SetText(self.data.button or 'OK')
+		if self.data.get and not self.box:HasFocus() then self.box:SetText(self.data.get() or '') end
+	end
 	return row
 end
 
@@ -495,7 +553,8 @@ local function ChoiceRow(parent)
 	return row
 end
 
-local MAKERS = { range = RangeRow, toggle = ToggleRow, color = ColorRow, button = ButtonRow, choice = ChoiceRow }
+local MAKERS = { range = RangeRow, toggle = ToggleRow, color = ColorRow, button = ButtonRow, choice = ChoiceRow,
+	textbox = TextboxRow } -- 3.0
 
 local function SectionHeader(parent)
 	local f = CreateFrame('Frame', nil, parent)
@@ -600,7 +659,8 @@ local function RenderAbout(width)
 	return y
 end
 
-local KINDS = { 'range', 'toggle', 'color', 'button', 'choice', 'section', 'para', 'aboutkey', 'aboutval', 'abouthead', 'aboutbar', 'aboutline' }
+local KINDS = { 'range', 'toggle', 'color', 'button', 'choice', 'section', 'para', 'aboutkey', 'aboutval', 'abouthead', 'aboutbar', 'aboutline',
+	'textbox' } -- 3.0
 
 RenderMain = function()
 	PageHeader()
@@ -655,7 +715,10 @@ RenderMain = function()
 	for _, sec in ipairs(page.secs or {}) do
 		local rows = {}
 		for _, row in ipairs(sec.rows) do
-			if (not row.path or S.defaults[row.path] ~= nil) and RowMatches(page, sec, row) then table.insert(rows, row) end
+			-- 3.0: hidden rows are settings this client does not have.
+			if (not row.path or S.defaults[row.path] ~= nil) and RowMatches(page, sec, row) and not (row.hidden and row.hidden()) then
+				table.insert(rows, row)
+			end
 		end
 		if #rows > 0 then
 			local h = Acquire('section', mainChild, SectionHeader)
@@ -666,7 +729,7 @@ RenderMain = function()
 			-- Two columns; a row of choice buttons takes a whole line.
 			local slot = 0
 			for _, data in ipairs(rows) do
-				local full = data.t == 'choice'
+				local full = data.t == 'choice' or data.t == 'textbox'
 				if full and slot % 2 == 1 then slot = slot + 1 end
 				local col = slot % 2
 				local line = math.floor(slot / 2)
