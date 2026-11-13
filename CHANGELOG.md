@@ -1,5 +1,58 @@
 # Changelog
 
+## 3.0.0
+
+Mythic+:
+
+- Run summary at the end of a key: time against the limit, time in combat and its share of the run, deaths, score change, and damage, healing, interrupts and deaths for each member. The loot of the run is in the same window, marked when it is an upgrade for you. The last 20 runs open from the Mythic+ page
+- Mythic+ panel: time in combat with its share of the run so far; battle res charges and the time to the next one; Bloodlust ready or how long Sated lasts; your best time per boss for that dungeon and key level, green when you are ahead and red when behind
+- The enemies you are fighting show as a lighter part of the forces bar. The percent of the pull shows outside keys only, because in a key the game hides the value of each enemy from addons
+- In raid boss fights the battle res and Bloodlust row shows above the boss frames
+- Keystone tooltip: your best level and score in every dungeon of the season, this week's affixes and the keys of your party. A member's key shows when their addon shares it (SlimARK, BigWigs, Details! and others do); in a running key it is not refreshed
+- When you join a premade group, a teleport button sits under the dungeon name if you know its teleport
+
+Nameplates and combat:
+
+- Enemy casts in one column above the focus frame: up to 5 casts of mobs with a nameplate, who each one is aimed at and the time left, in the colors of the nameplate cast bars. A red YOU on the player frame while a cast is aimed at you
+- Enemy forces in percent under the nameplate during a key
+- Focus mark: a turquoise strip on your focus's nameplate, and a short sound when your focus starts casting
+- Buffs you can purge or soothe on the nameplates and above the target frame: blue for magic, orange for enrage
+- A mark before the name of quest mobs (!), rares (R) and elites (E)
+- Interrupt strip on party, raid and healer frames: green while the member's interrupt is ready, filling with the seconds left after a kick that landed. Addons cannot see kicks that miss
+- A GCD line under your cast bar, and marks on your power bar at each spender cost for Death Knight, Demon Hunter, Feral and Guardian Druid, Rogue, Elemental Shaman and Warrior
+- Buff reminder above the cooldown bars, in instances and out of combat: a missing class buff, weapon enchant or poison, shaman shield or pet
+- Raid frames sorted: you, tanks, healers, damage
+- Arena enemy frames in place of the boss frames
+
+Top bar (every element keeps its own switch; of the new ones only Alts is on by default):
+
+- Alts: item level, keystone, Great Vault, score and gold of each of your characters, with crests on hover
+- Spec and loadout in one element: spec, loadout, loot spec and gear set (off by default)
+- Friends and guild online; addon CPU in the FPS tooltip; this week in the Great Vault tooltip (reset, runs, reward levels, lockouts); a thin XP or reputation line on the bottom edge of the bar that takes no room, with no XP at max level and no reputation line without a watched faction (all off by default)
+- A quiet mode switch (off by default)
+
+Groups and items:
+
+- Ready check: the flask and class buffs of your group. The game does not give addons the food or rune of other players
+- Premade groups: the leader's score in color, member classes and applicant specs; a minimum score filter and sorting by score; your applications in a small window with their status, and a short sound when a group invites you
+- Auto accept: group invites from friends and guild members, summons and resurrections, each with its own switch
+- Item level and BoE or warbound marks on gear in Blizzard's bags, bank, merchant and loot window. With BetterBags the bags and the bank are left to it
+- Faster auto loot; repair from the guild bank when the guild allows it; shift-click buys a full stack; one chat line when you enter a dungeon with fewer than 5 potions or food
+- Off by default: a loadout reminder when you enter a dungeon; the upgrade track in item tooltips and on the character sheet; the character sheet marks on the inspect window; tooltip extras (IDs, count in bags, already known, mount name, hide in combat)
+
+Interface and system:
+
+- /slimark apply places Blizzard's boss timeline and warnings; Blizzard's damage meter gets the SlimARK look and the Details! place
+- New pages: Profiles (export and import your settings as text, a profile per character), Macros (focus kick, mouseover dispel, healthstone and potion), Game settings (camera distance, spell queue window, nameplate overlap, screen shake and the game's audio alerts), Quiet mode (muted sounds, no boss banner, zone text or Battle.net toasts) and Other
+- AFK screen with your character, item level, spec, keystone and the time away
+- Battleground timers for Arathi Basin, Battle for Gilneas and Deepwind Gorge
+- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare
+
+Good to know:
+
+- Every new part has its own switch in /slimark, and a part that is switched off does nothing
+- Spender costs come from the game's own data; Elemental Blast's cost is used when you have it
+
 ## 2.3.0
 
 Nameplates and cast bars:

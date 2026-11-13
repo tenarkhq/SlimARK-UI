@@ -374,6 +374,14 @@ S.groups = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.0.0', lines = {
+		'Mythic+: run summary with loot, time in combat, battle res and Bloodlust, best time per boss, the pull on the forces bar',
+		'Keystone tooltip with your season and the party\'s keys; a teleport button when you join a group',
+		'Enemy casts list and a red YOU on your frame; forces, focus, purge and quest/rare/elite marks on nameplates',
+		'Interrupt strips on group frames, GCD line, spender marks, buff reminder, raid sorting, arena frames',
+		'Top bar: Alts on, more elements to switch on; ready check group table, premade group details, auto accept',
+		'Bag marks, faster loot, guild repair; Profiles, Macros, Game settings, Quiet mode and Other pages; AFK screen',
+	} },
 	{ version = '2.3.0', lines = {
 		'Enemy cast bars go dark while your interrupt is on cooldown',
 		'Who a cast is aimed at: the name in class color, a red YOU when it is you',
