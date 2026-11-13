@@ -111,6 +111,13 @@ ns.C = {
 		castList = true, castYou = true, plateForces = true, kickStrip = true, focusMark = true,
 		focusSound = true, platePurge = true, targetPurge = true, plateMarks = true, gcdLine = true,
 		spenderTicks = true, buffReminder = true, raidSort = true, arenaFrames = true,
+		-- 3.0 (23) ready check group table; (25) premade rows, score filter and sort; (26) applications
+		-- list and invite sound; (28) auto accept; (37) bag marks; (38) fast loot; (39) guild repair and
+		-- stack buy; (40) low supplies line.
+		readyCheckGroup = true,
+		premadeInfo = true, premadeFilter = true, applications = true, inviteSound = true,
+		acceptInvites = true, acceptSummons = true, acceptRes = true,
+		bagItemLevel = true, bagBind = true, fastLoot = true, guildRepair = true, stackBuy = true, lowSupplies = true,
 		-- Off unless asked for.
 		playerFade = false,
 	},

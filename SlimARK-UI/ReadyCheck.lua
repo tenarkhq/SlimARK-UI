@@ -6,6 +6,7 @@ local cfg = C.readycheck
 -- what is missing (flask, food, augment rune, weapon oil, the group's class buffs, durability),
 -- with a button that uses the missing item from your bags. It exists only during a ready check
 -- and refreshes only when your buffs, gear or bags change. In combat Blizzard's window stays.
+-- 3.0 (23): under your own rows a table of the group: each member's flask and class buffs.
 
 local W, ROW, HEAD = 330, 40, 34
 local BG = { 0.055, 0.059, 0.075, 0.95 }
@@ -66,6 +67,8 @@ local CLASS_ORDER = { 'MAGE', 'PRIEST', 'WARRIOR', 'DRUID', 'SHAMAN', 'EVOKER' }
 
 local window, rows, useButtons, events
 local initiator, endTime, ticker, answered
+-- 3.0 (23): the group table's head and rows, and the events that refresh it while it is open.
+local groupHead, groupRows, groupEvents, groupQueued
 
 local function Readable(v)
 	return v ~= nil and not issecretvalue(v)
@@ -277,6 +280,99 @@ end
 ns.ReadyCheckRows = Collect
 
 ------------------------------------------------------------------------
+-- 3.0 (23): the group table. Each member's flask and the class buffs of the group, looked up by
+-- fixed spell IDs. Out of combat and outside a started key only, and never while the game keeps
+-- auras secret. The game gives no food or augment rune of other players, so those are not shown.
+------------------------------------------------------------------------
+local GROUP_HEAD, GROUP_ROW, GROUP_MAX = 26, 24, 15
+local TEX_YES = [[Interface\RaidFrame\ReadyCheck-Ready]]
+local TEX_NO = [[Interface\RaidFrame\ReadyCheck-NotReady]]
+-- Short English names for the "no ..." text.
+local BUFF_SHORT = { MAGE = 'Intellect', PRIEST = 'Fortitude', WARRIOR = 'Battle Shout', DRUID = 'Mark of the Wild',
+	SHAMAN = 'Skyfury', EVOKER = 'Bronze' }
+
+-- False while the table must not be read: switched off, in a started key or with secret auras.
+local function GroupReadable()
+	if not C.features.readyCheckGroup or not C_UnitAuras.GetUnitAuraBySpellID then return false end
+	local mode = C_ChallengeMode
+	if mode and mode.IsChallengeModeActive and mode.IsChallengeModeActive() then return false end
+	local secrets = C_Secrets
+	if secrets and secrets.ShouldAurasBeSecret and secrets.ShouldAurasBeSecret() then return false end
+	return true
+end
+
+local function IsMe(unit)
+	local same = UnitIsUnit(unit, 'player')
+	return not issecretvalue(same) and same == true
+end
+
+local function GroupUnits()
+	local units = {}
+	if IsInRaid() then
+		for i = 1, GetNumGroupMembers() do
+			local unit = 'raid' .. i
+			if UnitExists(unit) and not IsMe(unit) then units[#units + 1] = unit end
+		end
+	else
+		for i = 1, 4 do
+			local unit = 'party' .. i
+			if UnitExists(unit) then units[#units + 1] = unit end
+		end
+	end
+	return units
+end
+
+-- true: one of the spells is on the unit, false: none is, nil: the game did not tell.
+local function UnitHasAny(unit, ids)
+	for _, id in ipairs(ids) do
+		local ok, aura = pcall(C_UnitAuras.GetUnitAuraBySpellID, unit, id)
+		if not ok or issecretvalue(aura) then return nil end
+		if aura then return true end
+	end
+	return false
+end
+
+-- The members: { unit, class, flask (true/false/nil), missing (list of buff names, nil when unknown) }.
+local function CollectGroup()
+	if not GroupReadable() then return {} end
+	local flasks = {}
+	for id in pairs(FLASK_BUFFS) do flasks[#flasks + 1] = id end
+	for id in pairs(KnownSpells('flask')) do
+		if not FLASK_BUFFS[id] then flasks[#flasks + 1] = id end
+	end
+	local classes = GroupClasses()
+	local list = {}
+	for index, unit in ipairs(GroupUnits()) do
+		local _, class = UnitClass(unit)
+		local entry = { unit = unit, class = Readable(class) and class or nil, index = index }
+		-- Members on another map or offline: the game gives nothing, so nothing is claimed.
+		if UnitIsConnected(unit) and UnitIsVisible(unit) then
+			entry.flask = UnitHasAny(unit, flasks)
+			local missing = {}
+			for _, giver in ipairs(CLASS_ORDER) do
+				if classes[giver] then
+					local has = UnitHasAny(unit, CLASS_BUFFS[giver])
+					if has == nil then missing = nil break end
+					if not has then missing[#missing + 1] = BUFF_SHORT[giver] end
+				end
+			end
+			entry.missing = missing
+		end
+		list[#list + 1] = entry
+	end
+	-- A raid shows who misses something first.
+	if #list > GROUP_MAX then
+		local function bad(e) return e.flask ~= true or e.missing == nil or #e.missing > 0 end
+		table.sort(list, function(a, b)
+			if bad(a) ~= bad(b) then return bad(a) end
+			return a.index < b.index
+		end)
+	end
+	return list
+end
+ns.ReadyCheckGroup = CollectGroup
+
+------------------------------------------------------------------------
 -- The window.
 ------------------------------------------------------------------------
 local function Fill(frame, color, layer)
@@ -382,6 +478,123 @@ local function Row(i)
 	return r
 end
 
+-- 3.0 (23): the group table, made the first time a group is shown.
+local FLASK_X, BUFFS_X = 168, 194
+
+local function GroupHeadFrame()
+	if groupHead then return groupHead end
+	local h = CreateFrame('Frame', nil, window)
+	h:SetHeight(GROUP_HEAD)
+	local line = h:CreateTexture(nil, 'ARTWORK')
+	line:SetColorTexture(0, 0, 0, 1)
+	line:SetHeight(1)
+	line:SetPoint('TOPLEFT')
+	line:SetPoint('TOPRIGHT')
+	local function head(text, justify, x)
+		local fs = ns.Text(h, 14, justify)
+		fs:SetTextColor(GOLD[1], GOLD[2], GOLD[3])
+		fs:SetText(text)
+		fs:SetPoint(justify == 'CENTER' and 'CENTER' or 'LEFT', h, 'LEFT', x, -2)
+		return fs
+	end
+	head('Group', 'LEFT', 10)
+	head('Flask', 'CENTER', FLASK_X)
+	head('Raid buffs', 'LEFT', BUFFS_X)
+	groupHead = h
+	return h
+end
+
+local function GroupRowFrame(i)
+	groupRows = groupRows or {}
+	if groupRows[i] then return groupRows[i] end
+	local r = CreateFrame('Frame', nil, window)
+	r:SetHeight(GROUP_ROW)
+	r.name = ns.Text(r, 15)
+	r.name:SetPoint('LEFT', 10, 0)
+	r.name:SetWidth(FLASK_X - 26)
+	r.flaskIcon = r:CreateTexture(nil, 'ARTWORK')
+	r.flaskIcon:SetSize(16, 16)
+	r.flaskIcon:SetPoint('CENTER', r, 'LEFT', FLASK_X, 0)
+	r.flaskText = ns.Text(r, 15, 'CENTER')
+	r.flaskText:SetPoint('CENTER', r, 'LEFT', FLASK_X, 0)
+	r.buffIcon = r:CreateTexture(nil, 'ARTWORK')
+	r.buffIcon:SetSize(16, 16)
+	r.buffIcon:SetPoint('LEFT', r, 'LEFT', BUFFS_X, 0)
+	r.buffText = ns.Text(r, 15)
+	r.buffText:SetPoint('LEFT', r, 'LEFT', BUFFS_X, 0)
+	r.buffText:SetPoint('RIGHT', -10, 0)
+	groupRows[i] = r
+	return r
+end
+
+-- A cell: a check or a cross, or a grey ? when the game did not tell.
+local function Mark(icon, text, state)
+	icon:SetShown(state ~= nil)
+	text:SetShown(state == nil)
+	if state == nil then
+		text:SetText('?')
+		text:SetTextColor(0.6, 0.6, 0.6)
+	else
+		icon:SetTexture(state and TEX_YES or TEX_NO)
+	end
+end
+
+local function FillGroupRow(r, entry)
+	-- The name can be a hidden value: it only goes to the text.
+	local name = UnitName(entry.unit)
+	r.name:SetText(name)
+	local color = entry.class and RAID_CLASS_COLORS and RAID_CLASS_COLORS[entry.class]
+	if color then r.name:SetTextColor(color.r, color.g, color.b) else r.name:SetTextColor(1, 1, 1) end
+	Mark(r.flaskIcon, r.flaskText, entry.flask)
+	local missing = entry.missing
+	if missing and #missing > 0 then
+		r.buffIcon:Hide()
+		r.buffText:Show()
+		r.buffText:SetText('no ' .. missing[1] .. (#missing > 1 and (' +' .. (#missing - 1)) or ''))
+		r.buffText:SetTextColor(BAD[1], BAD[2], BAD[3])
+	else
+		Mark(r.buffIcon, r.buffText, missing and true or nil)
+	end
+end
+
+-- Places the group table from the given height down; returns the new bottom.
+local function LayoutGroup(top)
+	local list = CollectGroup()
+	local shown = math.min(#list, GROUP_MAX)
+	local extra = #list - shown
+	if shown == 0 then
+		if groupHead then groupHead:Hide() end
+		for _, r in ipairs(groupRows or {}) do r:Hide() end
+		return top
+	end
+	local head = GroupHeadFrame()
+	head:ClearAllPoints()
+	head:SetPoint('TOPLEFT', 0, -top)
+	head:SetPoint('RIGHT')
+	head:Show()
+	local y = top + GROUP_HEAD
+	local count = shown + (extra > 0 and 1 or 0)
+	for i = 1, math.max(count, #(groupRows or {})) do
+		local r = (i <= count) and GroupRowFrame(i) or groupRows[i]
+		if i <= shown then
+			FillGroupRow(r, list[i])
+		elseif i == count and extra > 0 then
+			r.name:SetText('+' .. extra .. ' more')
+			r.name:SetTextColor(0.6, 0.6, 0.6)
+			r.flaskIcon:Hide() r.flaskText:Hide() r.buffIcon:Hide() r.buffText:Hide()
+		end
+		if i <= count then
+			r:ClearAllPoints()
+			r:SetPoint('TOPLEFT', 0, -(y + (i - 1) * GROUP_ROW))
+			r:SetPoint('RIGHT')
+			r:Show()
+		else
+			r:Hide()
+		end
+	end
+	return y + count * GROUP_ROW
+end
+
 local function HideUse()
 	for _, b in ipairs(useButtons) do
 		if InCombatLockdown() then b:SetAlpha(0) else b:Hide() b:SetAlpha(1) end
@@ -422,6 +635,8 @@ local function Refresh()
 		end
 	end
 	local bottom = HEAD + shown * ROW
+	-- 3.0 (23): the group table under your own rows.
+	bottom = LayoutGroup(bottom)
 	local mine = initiator and UnitIsUnit('player', initiator)
 	window.yes:SetShown(not mine and not answered)
 	window.no:SetShown(not mine and not answered)
@@ -445,9 +660,34 @@ local function Tick()
 	window.time:SetText(('%d:%02d'):format(math.floor(left / 60), left % 60))
 end
 
+-- 3.0 (23): the members' buffs change while the check runs. Their aura events (no nameplates) are
+-- listened to only while the window is open, and a burst of them refreshes it once a second at most.
+local function GroupUnitToken(unit)
+	return type(unit) == 'string' and (unit:find('^party%d') or unit:find('^raid%d')) ~= nil
+end
+
+local function WatchGroup()
+	if not C.features.readyCheckGroup then return end
+	if not groupEvents then
+		groupEvents = CreateFrame('Frame')
+		groupEvents:SetScript('OnEvent', function(_, event, unit)
+			if event == 'UNIT_AURA' and not GroupUnitToken(unit) then return end
+			if groupQueued then return end
+			groupQueued = true
+			C_Timer.After(1, function()
+				groupQueued = false
+				Refresh()
+			end)
+		end)
+	end
+	groupEvents:RegisterEvent('UNIT_AURA')
+	groupEvents:RegisterEvent('GROUP_ROSTER_UPDATE')
+end
+
 local function Close()
 	if ticker then ticker:Cancel() ticker = nil end
 	if events then events:UnregisterAllEvents() end
+	if groupEvents then groupEvents:UnregisterAllEvents() end
 	if window then window:Hide() end
 	if useButtons then HideUse() end
 	initiator, endTime, answered = nil, nil, nil
@@ -488,6 +728,7 @@ local function Open(_, who, timeLeft)
 	events:RegisterUnitEvent('UNIT_AURA', 'player')
 	events:RegisterUnitEvent('UNIT_INVENTORY_CHANGED', 'player')
 	events:RegisterEvent('BAG_UPDATE_DELAYED')
+	WatchGroup()
 	Tick()
 	if not ticker then ticker = C_Timer.NewTicker(1, Tick) end
 end

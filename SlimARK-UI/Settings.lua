@@ -129,7 +129,9 @@ S.groups = {
 				{ name = 'Buttons', rows = { R('Button size', 'markers.size', 20, 44), R('Gap', 'markers.gap', 0, 10) } } } },
 		{ id = 'readycheck', name = 'Ready check', module = 'modules.readycheck', keys = { 'readycheck' },
 			desc = 'A flat ready check window that shows what is on you and what is missing: flask, food, augment rune, weapon oil, the group\'s class buffs and durability. In combat Blizzard\'s window stays.',
-			secs = { Pos('readycheck'), { name = 'Missing items', rows = { T('A button that uses the missing item', 'readycheck.useButtons') } } } },
+			secs = { Pos('readycheck'), { name = 'Missing items', rows = { T('A button that uses the missing item', 'readycheck.useButtons') } },
+				-- 3.0 (23)
+				{ name = 'Group', rows = { T('Members\' flask and class buffs (not in a started key)', 'features.readyCheckGroup') } } } },
 		{ id = 'plates', name = 'Nameplates', module = 'modules.nameplates', desc = 'Enemy nameplates: name and health inside the plate, caster mark, cast bar, interrupts, cast target, aggro and the execute line. The dark cast bars and the cast target also show on the target, focus and boss cast bars.',
 			secs = { { name = 'Size', rows = { R('Width', 'plate.w', 80, 400), R('Height', 'plate.h', 8, 50), R('Caster height', 'plate.casterH', 8, 60), R('Cast bar height', 'plate.castH', 6, 40) } },
 				{ name = 'Text and icons', rows = { R('Font size', 'plate.font', 8, 28), R('Targeter font', 'plate.targeterFont', 8, 28), R('Debuff size', 'plate.debuff', 10, 48) } },
@@ -178,7 +180,9 @@ S.groups = {
 			secs = { Pos('effects', true), { name = 'Icons', rows = { R('Icon size', 'effects.size', 20, 80), R('Gap', 'effects.gap', 0, 20), R('Font size', 'effects.font', 8, 30) } },
 				{ name = 'Show', rows = { T('Trinkets', 'effects.trinkets'), T('Potions', 'effects.potions') } } } },
 		{ id = 'consumables', name = 'Consumables', module = 'modules.consumables', keys = { 'consumables' },
-			secs = { Pos('consumables'), { name = 'Icons', rows = { R('Icon size', 'consumables.size', 20, 80), R('Gap', 'consumables.gap', 0, 20) } } } },
+			secs = { Pos('consumables'), { name = 'Icons', rows = { R('Icon size', 'consumables.size', 20, 80), R('Gap', 'consumables.gap', 0, 20) } },
+				-- 3.0 (40)
+				{ name = 'Supplies', rows = { T('Chat line in a dungeon when potions or food are below 5', 'features.lowSupplies') } } } },
 		{ id = 'mythicplus', name = 'Mythic+ panel', module = 'modules.mythicplus', desc = 'Compact panel in place of the quest tracker while a key runs. It sits left of the quest tracker position (Interface: Quest tracker); drag it in Edit Mode to move it.',
 			secs = {
 				-- 3.0: time in combat (15), battle res and Bloodlust (5), current pull (2), splits (7).
@@ -225,14 +229,21 @@ S.groups = {
 		{ id = 'loot', name = 'Loot and pop-ups', module = 'modules.loot', keys = { 'loot' },
 			desc = 'Loot rolls and the loot won, achievement, money and new mount, pet or toy pop-ups in one column left of your character. Drag it in Edit Mode.',
 			secs = { Pos('loot'), { name = 'Rows', rows = { R('Width', 'loot.w', 240, 600), R('Row height', 'loot.rowH', 36, 80), R('Font size', 'loot.font', 10, 24) } },
-				{ name = 'Pop-ups', rows = { T('Flat pop-ups', 'loot.alerts') } } } },
+				{ name = 'Pop-ups', rows = { T('Flat pop-ups', 'loot.alerts') } },
+				-- 3.0 (38)
+				{ name = 'Auto loot', rows = { T('Faster auto loot', 'features.fastLoot') } } } },
 		{ id = 'minimap', name = 'Minimap', module = 'modules.minimap', keys = { 'minimap' },
 			secs = { Pos('minimap'), { name = 'Map', rows = { R('Size', 'minimap.size', 140, 400) } },
 				{ name = 'Coordinates', rows = { T('Coordinates on the map', 'minimap.coords'), R('Font size', 'minimap.coordsFont', 10, 32) } },
 				{ name = 'Addon buttons', rows = { R('Button size', 'minimap.buttonSize', 16, 48), R('Gap', 'minimap.buttonGap', 0, 12) } } } },
 		{ id = 'tracker', name = 'Quest tracker', module = 'modules.tracker', apply = true, desc = 'Position and size are written into the SlimARK-UI Edit Mode layouts. X is the right edge.',
 			secs = { Pos('tracker'), { name = 'Tracker', rows = { R('Height', 'tracker.height', 400, 1200, 10), R('Text size', 'tracker.textSize', 12, 20) } } } },
-		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair'), T('Sell junk (grey items)', 'features.autoSellJunk') } } } },
+		{ id = 'vendor', name = 'Vendor', module = 'modules.vendor', secs = { { name = 'Vendor', rows = { T('Automatic repair', 'features.autoRepair'), T('Sell junk (grey items)', 'features.autoSellJunk'),
+			-- 3.0 (39)
+			T('Repair from the guild bank when the guild allows it', 'features.guildRepair'), T('Shift-click buys a full stack', 'features.stackBuy') } } } },
+		-- 3.0 (37)
+		{ id = 'bagmarks', name = 'Bag marks', desc = 'Item level and BoE or WB (warbound) on gear in Blizzard\'s bags, bank, merchant and loot window. With BetterBags loaded the bags and the bank are left to BetterBags, it shows its own.',
+			secs = { { name = 'Marks', rows = { T('Item level', 'features.bagItemLevel'), T('BoE and warbound', 'features.bagBind') } } } },
 		{ id = 'character', name = 'Character sheet', module = 'modules.character', desc = 'Item level, gems, enchants and what is missing on each item.',
 			-- 3.0 (33, 34)
 			secs = { { name = 'More', rows = { T('Upgrade track on the slots', 'charsheet.upgrade'), T('The same marks on the inspect window', 'charsheet.inspect') } } } },
@@ -271,6 +282,14 @@ S.groups = {
 				T('Show the dungeon in large text when you join a group', 'features.joinedText'),
 				-- 3.0 (3): the teleport button under that text.
 				T('Teleport button under it when you know the dungeon\'s teleport', 'features.joinTeleport') } } } },
+		-- 3.0 (25, 26)
+		{ id = 'premade', name = 'Premade groups', desc = 'Premade group rows show the leader\'s Mythic+ score in its color and a class colored mark under each member (Blizzard colors the Dungeons category itself); applicants show their spec. Above the Dungeons list: a minimum leader score and a sort by score. Not in combat in a dungeon, in a running key or a boss fight. Your applications show in a small window beside the Group Finder.',
+			secs = { { name = 'Rows', rows = { T('Leader score, member classes, applicant spec', 'features.premadeInfo'), T('Minimum leader score and sort by score', 'features.premadeFilter') } },
+				{ name = 'Applications', rows = { T('Applications beside the Group Finder', 'features.applications'), T('Short sound when a group invites you', 'features.inviteSound') } } } },
+		-- 3.0 (28)
+		{ id = 'autoaccept', name = 'Auto accept', desc = 'Accepted on their own, out of combat: group invites from friends and guild members, summons and resurrections. A summon in combat is taken when the fight ends; an invite that would take you out of a queue is left to you.',
+			secs = { { name = 'Auto accept', rows = { T('Group invites from friends and guild', 'features.acceptInvites'), T('Summons', 'features.acceptSummons'),
+				T('Resurrections', 'features.acceptRes') } } } },
 		{ id = 'keystone', name = 'Keystone', desc = 'Your keystone goes into the Font of Power the moment you open it. After a run your new keystone is posted to the party, as soon as the game allows addon chat again. "!keys" in party or guild chat is answered with your keystone, outside a running key and boss fights.',
 			secs = { { name = 'Keystone', rows = { T('Put the keystone in the Font of Power', 'features.autoKeystone'), T('Post my new keystone to the party', 'features.announceKey'),
 				T('Answer !keys in party and guild chat', 'features.answerKeys') } },
