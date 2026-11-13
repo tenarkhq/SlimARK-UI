@@ -11,6 +11,9 @@ local MIN_W, MIN_H = 980, 640
 local PAD = 22
 -- Cards go into two columns from this width of the page on.
 local TWO_COLUMNS, GAP, CARD_PAD, CARD_TOP = 820, 12, 12, 32
+-- A section with this many rows is a long list: its card takes the whole width and its rows go
+-- into two columns, as on the page before the cards, so the page gets no longer than it was.
+local LONG_SECTION, ROW_COLUMNS_W, ROW_GAP = 8, 700, 26
 local GOLD = { 0.95, 0.72, 0.29 }
 local TEXT = { 0.95, 0.95, 0.96 }
 local SOFT = { 0.84, 0.84, 0.86 }
@@ -720,7 +723,9 @@ local function PageWidth()
 	return panel:GetWidth() - NAV - 2 * PAD
 end
 
--- One card: the section's text, then its rows one under the other. Returns the card's height.
+-- One card: the section's text, then its rows: one under the other, or in two columns for a long
+-- list in a wide card (a row of choice buttons or a text box takes a whole line). Returns the
+-- card's height.
 local function RenderCard(card, sec, rows, width)
 	card.title:SetText(sec.name:upper())
 	local y = -CARD_TOP
@@ -731,10 +736,17 @@ local function RenderCard(card, sec, rows, width)
 		p:SetText(sec.desc)
 		y = y - (p:GetStringHeight() + 8)
 	end
+	local inner = width - 2 * CARD_PAD
+	local split = #rows >= LONG_SECTION and width >= ROW_COLUMNS_W
+	local colW = split and (inner - ROW_GAP) / 2 or inner
+	local slot = 0
 	for _, data in ipairs(rows) do
+		local full = not split or data.t == 'choice' or data.t == 'textbox'
+		if split and full and slot % 2 == 1 then slot = slot + 1 end
+		local col = split and slot % 2 or 0
 		local row = Acquire(data.t, card, MAKERS[data.t])
-		row:SetPoint('TOPLEFT', CARD_PAD, y)
-		row:SetWidth(width - 2 * CARD_PAD)
+		row:SetPoint('TOPLEFT', CARD_PAD + col * (colW + ROW_GAP), y - math.floor(slot / (split and 2 or 1)) * ROW_H)
+		row:SetWidth(full and inner or colW)
 		row.data = data
 		if data.t == 'range' then
 			row.slider:SetMinMaxValues(data.min, data.max)
@@ -746,8 +758,9 @@ local function RenderCard(card, sec, rows, width)
 		local off = data.dim and data.dim() or false
 		row:SetAlpha(off and 0.4 or 1)
 		if row.switch then row.switch:SetEnabled(not off) end
-		y = y - ROW_H
+		slot = slot + ((split and full) and 2 or 1)
 	end
+	y = y - math.ceil(slot / (split and 2 or 1)) * ROW_H
 	local height = -y + 6
 	card:SetHeight(height)
 	return height
@@ -821,13 +834,23 @@ RenderMain = function()
 	local cardW = columns == 2 and math.floor((width - GAP) / 2) or width
 	local tops, bottom = { y, y }, y
 	for _, section in ipairs(sections) do
-		local col = (columns == 2 and tops[2] > tops[1]) and 2 or 1
 		local card = Acquire('card', mainChild, Card)
-		card:SetPoint('TOPLEFT', PAD + (col - 1) * (cardW + GAP), tops[col])
-		card:SetWidth(cardW)
-		local height = RenderCard(card, section.sec, section.rows, cardW)
-		bottom = math.min(bottom, tops[col] - height)
-		tops[col] = tops[col] - height - GAP
+		if columns == 2 and #section.rows >= LONG_SECTION then
+			-- A long list goes under both columns, across the whole width.
+			local top = math.min(tops[1], tops[2])
+			card:SetPoint('TOPLEFT', PAD, top)
+			card:SetWidth(width)
+			local height = RenderCard(card, section.sec, section.rows, width)
+			bottom = math.min(bottom, top - height)
+			tops[1], tops[2] = top - height - GAP, top - height - GAP
+		else
+			local col = (columns == 2 and tops[2] > tops[1]) and 2 or 1
+			card:SetPoint('TOPLEFT', PAD + (col - 1) * (cardW + GAP), tops[col])
+			card:SetWidth(cardW)
+			local height = RenderCard(card, section.sec, section.rows, cardW)
+			bottom = math.min(bottom, tops[col] - height)
+			tops[col] = tops[col] - height - GAP
+		end
 	end
 	y = bottom
 	mainChild:SetHeight(-y + PAD)

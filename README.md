@@ -67,10 +67,10 @@ Every element has its own switch. Of the new ones Alts, the addon CPU and the XP
 
 **Interface and system**
 
-- New pages: **Profiles** (export and import as text, a profile per character), **Macros** (focus kick, mouseover dispel, healthstone and potion), **Game settings**, **Quiet mode** and **Other**
+- New settings: **Profiles** (export and import as text, a profile per character), **macros** (focus kick, mouseover dispel, healthstone and potion), **game settings**, **quiet mode** and more
 - Blizzard's boss timeline placed by `/slimark apply`, Blizzard's damage meter in the SlimARK look
 - **AFK screen**, battleground timers for Arathi Basin, Battle for Gilneas and Deepwind Gorge
-- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare
+- Off by default: screenshots of a timed key, a boss kill or an achievement; world map coordinates; a rare alert with one quiet sound per rare; click it to target the rare
 
 ![Macros, game settings, profiles, quiet mode, rare alert, AFK screen and arena frames](assets/feature-3-0-system.png)
 
@@ -467,7 +467,9 @@ Type `/slimark`, click the SlimARK icon in the addon icons (top bar, right end),
 
 ![Settings panel](assets/feature-settings.png)
 
-- Every element has its own page in a list on the left: test mode, Blizzard windows, unit frames, party, raid, healer grid, nameplates, buffs, debuffs, cooldown bars, consumables, Mythic+, top bar, minimap, action bars, boss mods, Details!, chat, tooltip, loot, marker bar, ready check, auto quest, Group Finder, keystone, deleting items, error messages and quality of life features
+- The groups are tabs at the top: General, Unit frames, Group, Combat, Interface, Addon skins, Quality of life and About. The list on the left holds the pages of the chosen group, so every page is one or two clicks away
+- Drag the bottom right corner to make the window bigger or smaller. It opens at 1280 × 800 and keeps the size and the place you gave it
+- Each section of a page is a card. In a wide window the cards stand in two columns, and a long list such as the Blizzard windows switches takes the whole width
 - Sizes, positions, fonts, colors and on/off switches, each with a slider or a box you can type into
 - Where a feature has two ways to work, like the tooltip place or the marker bar place, you pick one on its page
 - Every page can be reset to the SlimARK defaults on its own

@@ -792,7 +792,7 @@ do
 	H.check(#sounds == 0 and not Driver()._events.VIGNETTE_MINIMAP_UPDATED, 'rare off: nothing is registered, nothing sounds')
 end
 
--- 3.0.2: a click on the text targets the rare; the secure button is made, set and shown out of
+-- 3.1.0: a click on the text targets the rare; the secure button is made, set and shown out of
 -- combat only.
 do
 	Boot({ 'RareAlert.lua' }, { rareAlert = true })

@@ -6,7 +6,7 @@ local C = ns.C
 -- once: the same one never sounds again in this session. Rares are the minimap markers the game
 -- draws with its rare and rare elite icons (VignetteKill, VignetteKillElite). Off by default; off it
 -- registers nothing. The text is made the first time a rare appears.
--- 3.0.2: a click on the text targets the rare (a secure /targetexact macro button over the text).
+-- 3.1.0: a click on the text targets the rare (a secure /targetexact macro button over the text).
 -- Secure buttons cannot change in combat, so a rare found in combat gets the click once combat ends,
 -- if its text is still up.
 local GOLD = { 0.95, 0.72, 0.29 }

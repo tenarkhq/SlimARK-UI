@@ -53,7 +53,7 @@ local function Boot(saved, screen)
 	if screen then GetPhysicalScreenSize = function() return screen[1], screen[2] end end
 	C_AddOns.GetAddOnMetadata = function(_, field)
 		if field == 'X-SlimARK-Flavor' then return 'retail' end
-		return '3.0.1'
+		return '3.1.0'
 	end
 	UISpecialFrames = {}
 	H.load('Config.lua')
@@ -415,6 +415,38 @@ do
 	panel._w = 980
 	ns.OpenSettings('about')
 	H.equal(Title(), 'SlimARK-UI', 'cards: About at the smallest size')
+	H.noErrors()
+end
+
+-- A long section (8 rows or more) is a list: its card takes the whole width and its rows go into
+-- two columns, so the page is no longer than before the cards.
+do
+	local ns = Boot(nil)
+	local panel = SlimARK_Settings
+	ns.OpenSettings('blizzwindows')
+	local cards = Cards()
+	local list
+	for _, card in ipairs(cards) do if card.title == 'WINDOWS' then list = card end end
+	local look = cards[1]
+	H.check(list and list.w == 1280 - 210 - 44 and list.x == 22, 'long section: its card takes the whole width')
+	H.equal(list and list.h, 32 + 10 * 30 + 6, 'long section: 20 rows in two columns of 10')
+	H.check(list and look.title == 'LOOK' and list.y == look.y - look.h - 12, 'long section: it starts under the cards before it')
+	local xs = {}
+	for _, f in ipairs(H.frames) do
+		if f._shown and f.data and f._parent == list.frame then xs[Point(f)[2]] = true end
+	end
+	local n = 0
+	for _ in pairs(xs) do n = n + 1 end
+	H.equal(n, 2, 'long section: its rows sit in two columns')
+	panel._w = 980
+	ns.OpenSettings('blizzwindows')
+	for _, card in ipairs(Cards()) do if card.title == 'WINDOWS' then list = card end end
+	H.equal(list.h, 32 + 10 * 30 + 6, 'long section: two row columns at the smallest size too, as before')
+	panel._w = 1280
+	ns.OpenSettings('plates')
+	local single = true
+	for _, card in ipairs(Cards()) do if card.w ~= math.floor((1026 - 12) / 2) then single = false end end
+	H.check(single, 'long section: short sections stay in the two card columns')
 	H.noErrors()
 end
 

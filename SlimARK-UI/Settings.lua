@@ -386,6 +386,12 @@ S.moved = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.1.0', lines = {
+		'Settings window: bigger and resizable from the bottom right corner, with its size and place kept',
+		'Groups as tabs at the top, sections as cards in two columns when the window is wide',
+		'Quality of life in six pages: Automation, Group Finder, Combat helpers, Less noise, Game settings, Other',
+		'Rare alert: a click on it targets the rare',
+	} },
 	{ version = '3.0.1', lines = {
 		'Keystone tooltip: this week\'s affixes in their own section, one per line',
 		'A click on the keystone hides its tooltip, so the teleport list is not covered',

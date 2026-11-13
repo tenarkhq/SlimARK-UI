@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.1.0
+
+Settings window:
+
+- Bigger and resizable: it opens at 1280 × 800, the bottom right corner makes it bigger or smaller (down to 980 × 640), and it keeps its size and place
+- The groups are tabs at the top, and the list on the left holds only the chosen group's pages. Search still looks through every page, and while you type the list shows the matches of every group
+- Each section of a page is a card. In a wide window the cards stand in two columns; a long list, such as the Blizzard windows switches, takes the whole width with its rows in two columns
+- Quality of life in six pages instead of fourteen: Automation (auto quest, auto accept, keystone), Group Finder (with premade groups), Combat helpers (quick focus, combat log, macros), Less noise (quiet mode, error messages, cinematics, deleting items), Game settings and Other. Every setting is still there, and the old page names are the titles of their sections
+
+Rare alert:
+
+- A click on the alert targets the rare. In combat the game does not allow it: the click comes when the fight ends, if the alert is still up. After the click the alert goes
+
 ## 3.0.1
 
 - Keystone tooltip: this week's affixes have their own section, one per line, so the tooltip keeps the width of the season table
