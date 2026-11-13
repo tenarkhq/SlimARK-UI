@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.1.1
+
+- Cyrillic, Korean and Chinese names and text no longer show as boxes. The SlimARK font has Latin letters only; such text now takes Blizzard's own face for its script, while Latin text keeps the SlimARK font. On unit, group and nameplate names, cast targets, the damage meter skin, the minimap zone text, chat tabs and the chat input, macro names on the action bars, loot texts and the settings panel
+
 ## 3.1.0
 
 Settings window:

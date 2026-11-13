@@ -7,6 +7,52 @@ ns.FONT_NAME = 'SlimARK'
 ns.SOFT_NAME = 'SlimARK Soft'
 ns.SOFT = [[Interface\AddOns\SlimARK-UI\Media\Soft.tga]]
 
+-- 3.1.1: the SlimARK font has Latin letters only, so a Cyrillic, Korean or Chinese name showed as
+-- boxes. Text goes through a font family instead: the game draws each string with the member of its
+-- alphabet, so Latin text keeps the SlimARK font and the other scripts take Blizzard's own faces
+-- (the same files Blizzard's font families use). A family is made once per size and flags. A
+-- string must take its family from its first font write: a plain SetFont pins its face for good.
+local FAMILY = {
+	{ 'roman' },
+	{ 'russian', [[Fonts\FRIZQT___CYR.TTF]] },
+	{ 'korean', [[Fonts\2002.TTF]] },
+	{ 'simplifiedchinese', [[Fonts\ARKai_T.ttf]] },
+	{ 'traditionalchinese', [[Fonts\blei00d.TTF]] },
+}
+local families, familyCount = {}, 0
+
+-- The family of the SlimARK font at this size and flags, or nil where the client cannot make one.
+-- A tag gives a family of its own (one whose shadow is set on the family itself).
+function ns.FontFamily(size, flags, tag)
+	flags = flags or ''
+	local key = tostring(size) .. '|' .. flags .. '|' .. (tag or '')
+	local family = families[key]
+	if family == nil then
+		family = false
+		if CreateFontFamily then
+			local members = {}
+			for i, member in ipairs(FAMILY) do
+				members[i] = { alphabet = member[1], file = member[2] or ns.FONT, height = size, flags = flags }
+			end
+			familyCount = familyCount + 1
+			local ok, made = pcall(CreateFontFamily, 'SlimARKFont' .. familyCount, members)
+			family = ok and made or false
+		end
+		families[key] = family
+	end
+	return family or nil
+end
+
+-- The SlimARK font on a font string or edit box, with Blizzard's faces for the other scripts.
+function ns.SetFont(object, size, flags)
+	local family = object.SetFontObject and ns.FontFamily(size, flags)
+	if family then
+		object:SetFontObject(family)
+	else
+		object:SetFont(ns.FONT, size, flags or '')
+	end
+end
+
 local handlers = {}
 local driver = CreateFrame('Frame')
 -- Every module's callback runs on its own: an error goes to the game's error handler (or BugSack)
@@ -349,7 +395,7 @@ end
 
 function ns.Text(parent, size, justify)
 	local fs = parent:CreateFontString(nil, 'OVERLAY', nil, 7)
-	fs:SetFont(ns.FONT, size, 'OUTLINE')
+	ns.SetFont(fs, size, 'OUTLINE')
 	fs:SetShadowOffset(0, 0)
 	fs:SetJustifyH(justify or 'LEFT')
 	fs:SetWordWrap(false)

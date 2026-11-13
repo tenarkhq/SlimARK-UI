@@ -27,7 +27,7 @@ end
 
 local function Text(parent, size, color, justify)
 	local fs = ns.Text(parent, size, justify)
-	fs:SetFont(ns.FONT, size, '')
+	ns.SetFont(fs, size, '')
 	fs:SetShadowOffset(1, -1)
 	fs:SetShadowColor(0, 0, 0, 0.9)
 	fs:SetTextColor(color[1], color[2], color[3])

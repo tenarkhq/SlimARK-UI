@@ -416,7 +416,7 @@ local dressed = setmetatable({}, { __mode = 'k' })
 
 local function MeterFont(fs, size)
 	if not (fs and fs.SetFont) then return end
-	fs:SetFont(ns.FONT, size, 'OUTLINE')
+	ns.SetFont(fs, size, 'OUTLINE')
 	fs:SetShadowOffset(0, 0)
 end
 

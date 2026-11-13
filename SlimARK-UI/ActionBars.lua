@@ -154,7 +154,7 @@ local function Skin(button)
 	if button.HotKey then button.HotKey:SetFont(ns.FONT, cfg.hotkeyFont, 'OUTLINE') end
 	if button.Count then button.Count:SetFont(ns.FONT, cfg.font, 'OUTLINE') end
 	if button.Name then
-		button.Name:SetFont(ns.FONT, cfg.hotkeyFont, 'OUTLINE')
+		ns.SetFont(button.Name, cfg.hotkeyFont, 'OUTLINE')
 		button.Name:SetAlpha(cfg.macroNames and 1 or 0)
 	end
 

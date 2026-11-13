@@ -16,8 +16,12 @@ local hookedBars = {}
 local font
 
 local function TabFont()
-	if not font then font = CreateFont('SlimARK_ChatTabFont') end
-	font:SetFont(ns.FONT, C.chat.tabFont, '')
+	-- 3.1.1: a family of its own, so Cyrillic and Asian tab names draw too.
+	if not font then font = ns.FontFamily(C.chat.tabFont, '', 'chattab') end
+	if not font then
+		font = CreateFont('SlimARK_ChatTabFont')
+		font:SetFont(ns.FONT, C.chat.tabFont, '')
+	end
 	font:SetShadowOffset(1, -1)
 	font:SetShadowColor(0, 0, 0, 1)
 	return font
@@ -101,9 +105,9 @@ local function StyleEditBox()
 	if not box or styled[box] then return end
 	styled[box] = true
 	ns.Outline(box)
-	if box.SetFont then box:SetFont(ns.FONT, C.chat.fontSize, '') end
+	if box.SetFont then ns.SetFont(box, C.chat.fontSize, '') end
 	local header = _G.ChatFrame1EditBoxHeader
-	if header and header.SetFont then header:SetFont(ns.FONT, C.chat.fontSize, '') end
+	if header and header.SetFont then ns.SetFont(header, C.chat.fontSize, '') end
 end
 
 local function StyleBar(bar)

@@ -158,7 +158,7 @@ local function Arrange()
 		Inside(zone, 'TOP', 0, -3)
 		zone:SetWidth(cfg.size - 50)
 		if MinimapZoneText then
-			MinimapZoneText:SetFont(ns.FONT, 16, 'OUTLINE')
+			ns.SetFont(MinimapZoneText, 16, 'OUTLINE')
 			MinimapZoneText:SetShadowOffset(0, 0)
 			MinimapZoneText:SetJustifyH('CENTER')
 		end

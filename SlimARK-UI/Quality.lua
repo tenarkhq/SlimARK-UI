@@ -170,7 +170,7 @@ local function TeleportButton()
 	hl:SetColorTexture(1, 1, 1, 0.18)
 	-- Dark text on the gold button, without the outline of the other texts.
 	teleport.text = teleport:CreateFontString(nil, 'OVERLAY')
-	teleport.text:SetFont(ns.FONT, 19, '')
+	ns.SetFont(teleport.text, 19, '')
 	teleport.text:SetTextColor(0.1, 0.1, 0.1)
 	teleport.text:SetPoint('CENTER')
 	teleport:HookScript('PostClick', HideTeleport)

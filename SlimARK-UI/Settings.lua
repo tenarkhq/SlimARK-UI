@@ -386,6 +386,9 @@ S.moved = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.1.1', lines = {
+		'Cyrillic, Korean and Chinese names no longer show as boxes: they take Blizzard\'s own font for their script',
+	} },
 	{ version = '3.1.0', lines = {
 		'Settings window: bigger and resizable from the bottom right corner, with its size and place kept',
 		'Groups as tabs at the top, sections as cards in two columns when the window is wide',

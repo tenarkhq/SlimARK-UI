@@ -2,7 +2,7 @@
 ## Title: SlimARK-UI
 ## Notes: Slim UI for 2560x1600: unit frames, nameplates, cooldown bars, vendor, character sheet, skins.
 ## Author: Roland
-## Version: 3.1.0
+## Version: 3.1.1
 ## X-SlimARK-Flavor: retail
 ## AddonCompartmentFunc: SlimARK_OpenSettings
 ## IconTexture: Interface\AddOns\SlimARK-UI\Media\Icon

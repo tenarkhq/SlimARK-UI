@@ -20,7 +20,7 @@ end
 
 local function Font(text, size, flags)
 	if not text then return end
-	text:SetFont(ns.FONT, size, flags or '')
+	ns.SetFont(text, size, flags)
 	text:SetShadowOffset(1, -1)
 	text:SetShadowColor(0, 0, 0, 1)
 end

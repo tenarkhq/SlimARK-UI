@@ -63,7 +63,7 @@ for _, name in ipairs({
 	'SetPoint', 'ClearAllPoints', 'SetAllPoints', 'SetSize', 'SetWidth', 'SetHeight', 'SetScale',
 	'SetFrameLevel', 'SetFrameStrata', 'SetColorTexture', 'SetTexture', 'SetTexCoord', 'SetVertexColor',
 	'SetGradient', 'SetStatusBarTexture', 'SetStatusBarColor', 'SetMinMaxValues', 'SetValue',
-	'SetReverseFill', 'SetHorizTile', 'SetVertTile', 'SetFont', 'SetShadowOffset', 'SetShadowColor',
+	'SetReverseFill', 'SetHorizTile', 'SetVertTile', 'SetFont', 'SetFontObject', 'SetShadowOffset', 'SetShadowColor',
 	'SetJustifyH', 'SetJustifyV', 'SetWordWrap', 'SetTextColor', 'RegisterForClicks', 'RegisterForDrag',
 	'EnableMouse', 'EnableMouseWheel', 'SetMovable', 'SetClampedToScreen', 'Tag', 'AddGroup', 'AddSlot',
 	'SetHideCountdownNumbers', 'SetDrawEdge', 'SetSwipeColor', 'SetAtlas', 'SetDesaturated',

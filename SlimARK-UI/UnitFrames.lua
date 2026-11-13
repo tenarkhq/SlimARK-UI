@@ -834,7 +834,7 @@ local function Style(self, unit)
 		-- The own HoTs take the end of the name row.
 		name:SetPoint('RIGHT', -(4 + (C.features.ownHots and o.hotsInName and o.hotMax * (o.hot + 1) or 0)), 0)
 		self:Tag(name, '[name]')
-		value:SetFont(ns.FONT, 14, 'OUTLINE')
+		ns.SetFont(value, 14, 'OUTLINE')
 		value:SetPoint('BOTTOMRIGHT', -3, 2)
 		self:Tag(value, '[dead][offline]')
 	else
