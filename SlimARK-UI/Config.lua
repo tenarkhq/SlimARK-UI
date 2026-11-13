@@ -265,18 +265,19 @@ ns.C = {
 
 	-- 17: spender marks on the player power bar, by spec ID: the resource and the cost of the spec's
 	-- main spender. A spec without an entry (pips, mana or a changing cost) gets no marks.
+	-- { power, cost [, { spell, cost }] }: the third value is a talent that replaces the spender.
 	spenders = {
-		[250] = { 'RUNIC_POWER', 40 }, -- Blood: Death Strike
-		[251] = { 'RUNIC_POWER', 30 }, -- Frost: Frost Strike
+		[250] = { 'RUNIC_POWER', 45 }, -- Blood: Death Strike
+		[251] = { 'RUNIC_POWER', 35 }, -- Frost: Frost Strike
 		[252] = { 'RUNIC_POWER', 30 }, -- Unholy: Death Coil
 		[577] = { 'FURY', 40 }, -- Havoc: Chaos Strike
-		[581] = { 'FURY', 30 }, -- Vengeance: Soul Cleave
+		[581] = { 'FURY', 35 }, -- Vengeance: Soul Cleave
 		[103] = { 'ENERGY', 25 }, -- Feral: Ferocious Bite
 		[104] = { 'RAGE', 40 }, -- Guardian: Ironfur
 		[259] = { 'ENERGY', 35 }, -- Assassination: Envenom
 		[260] = { 'ENERGY', 35 }, -- Outlaw: Dispatch
 		[261] = { 'ENERGY', 35 }, -- Subtlety: Eviscerate
-		[262] = { 'MAELSTROM', 60 }, -- Elemental: Earth Shock
+		[262] = { 'MAELSTROM', 60, { 117014, 90 } }, -- Elemental: Earth Shock, or Elemental Blast when talented
 		[71] = { 'RAGE', 30 }, -- Arms: Mortal Strike
 		[72] = { 'RAGE', 80 }, -- Fury: Rampage
 		[73] = { 'RAGE', 35 }, -- Protection: Ignore Pain

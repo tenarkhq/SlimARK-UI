@@ -680,6 +680,10 @@ local function AddSpenderTicks(self, width)
 		local max = UnitPowerMax('player')
 		if not max or issecretvalue(max) or max <= 0 then return end
 		local cost, n = entry[2], 0
+		local alt = entry[3]
+		if alt and C_SpellBook and C_SpellBook.IsSpellKnownOrInSpellBook and C_SpellBook.IsSpellKnownOrInSpellBook(alt[1]) then
+			cost = alt[2]
+		end
 		local value = cost
 		while value < max and n < MAX_TICKS do
 			n = n + 1
@@ -703,6 +707,7 @@ local function AddSpenderTicks(self, width)
 	watch:RegisterUnitEvent('UNIT_DISPLAYPOWER', 'player')
 	watch:RegisterUnitEvent('PLAYER_SPECIALIZATION_CHANGED', 'player')
 	watch:RegisterEvent('PLAYER_ENTERING_WORLD')
+	watch:RegisterEvent('SPELLS_CHANGED')
 	watch:SetScript('OnEvent', Place)
 	self.SpenderTicks = ticks
 	Place()
