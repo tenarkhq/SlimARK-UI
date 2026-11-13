@@ -387,3 +387,20 @@ ns.On('PLAYER_LOGIN', function()
 		end)
 	end
 end)
+
+-- 3.0 (38): faster auto loot. When the game loots on its own (auto loot on and the modifier that
+-- turns it around not held, or off and the modifier held), every slot is taken at once instead of
+-- one after the other. Slots that are being rolled for stay. Its own switch, apart from the module.
+local function FastLoot()
+	local cvar = C_CVar and C_CVar.GetCVarBool or GetCVarBool
+	if not cvar or cvar('autoLootDefault') == IsModifiedClick('AUTOLOOTTOGGLE') then return end
+	for slot = GetNumLootItems(), 1, -1 do
+		local _, _, _, _, _, locked = GetLootSlotInfo(slot)
+		if not locked then LootSlot(slot) end
+	end
+end
+ns.FastLoot = FastLoot
+
+ns.On('PLAYER_LOGIN', function()
+	if C.features.fastLoot then ns.On('LOOT_READY', FastLoot) end
+end)

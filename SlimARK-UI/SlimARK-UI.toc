@@ -51,4 +51,8 @@ BlizzSkin.lua
 BlizzWindows.lua
 CombatText.lua
 DeleteConfirm.lua
+# 3.0 part D: Group Finder (25, 26), auto accept (28), bag marks (37)
+GroupFinder.lua
+AutoAccept.lua
+Bags.lua
 SettingsPanel.lua

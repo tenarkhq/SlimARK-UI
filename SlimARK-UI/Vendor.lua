@@ -99,11 +99,8 @@ local function ReportJunk(sale)
 	end
 end
 
--- Autorepair at every NPC with a hammer.
-local function Repair()
-	if not C.features.autoRepair or not CanMerchantRepair() then return 0 end
-	local cost, canRepair = GetRepairAllCost()
-	if not canRepair or cost <= 0 then return 0 end
+-- Repair with your own gold.
+local function OwnRepair(cost)
 	if GetMoney() >= cost then
 		RepairAllItems()
 		ns.Print('Repaired: ' .. GetMoneyString(cost, true))
@@ -112,6 +109,52 @@ local function Repair()
 	ns.Print('Not enough gold to repair: ' .. GetMoneyString(cost, true))
 	return 0
 end
+
+-- 3.0 (39): the guild bank pays when the guild lets you repair from it and its gold is enough.
+-- GetGuildBankWithdrawMoney is what you may still take today (-1: no limit); the bank's own gold
+-- is known only after the guild bank was open once (0 before), so 0 does not stop the try.
+local function GuildPays(cost)
+	if not C.features.guildRepair or not CanGuildBankRepair or not CanGuildBankRepair() then return false end
+	local limit = GetGuildBankWithdrawMoney and GetGuildBankWithdrawMoney()
+	if type(limit) ~= 'number' or (limit >= 0 and limit < cost) then return false end
+	local bank = GetGuildBankMoney and GetGuildBankMoney() or 0
+	return bank <= 0 or bank >= cost
+end
+
+-- Autorepair at every NPC with a hammer: from the guild bank when it may pay, else your own gold.
+local function Repair()
+	if not C.features.autoRepair or not CanMerchantRepair() then return 0 end
+	local cost, canRepair = GetRepairAllCost()
+	if not canRepair or cost <= 0 then return 0 end
+	if GuildPays(cost) then
+		RepairAllItems(true)
+		-- The answer comes from the server: what the guild did not pay for, your gold pays a moment later.
+		C_Timer.After(1, function()
+			local left, still = GetRepairAllCost()
+			if not still or left <= 0 then
+				ns.Print('Repaired with guild gold: ' .. GetMoneyString(cost, true))
+			elseif MerchantFrame:IsShown() and CanMerchantRepair() then
+				OwnRepair(left)
+			end
+		end)
+		return 0
+	end
+	return OwnRepair(cost)
+end
+
+-- 3.0 (39): Shift-click on a merchant item buys a full stack, as many as you can pay for, at once in
+-- place of the window that asks how many. Blizzard's own buy path pays, so its cost confirmations stay.
+local function BuyStack(button)
+	if not C.features.stackBuy or MerchantFrame.selectedTab ~= 1 then return end
+	local split = StackSplitFrame
+	if not split or not split:IsShown() or split.owner ~= button then return end
+	local amount, step = split.maxStack, split.minSplit or 1
+	split:Hide()
+	if type(amount) ~= 'number' or not button.SplitStack then return end
+	if step > 1 then amount = math.floor(amount / step) * step end
+	if amount > 0 then button.SplitStack(button, amount) end
+end
+ns.BuyStack = BuyStack
 
 ns.On('MERCHANT_SHOW', function()
 	-- With the vendor module off the vendor is left alone: no sale, no repair, no two pages.
@@ -360,6 +403,8 @@ local function Render()
 	MerchantNextPageButton:SetEnabled(page < pages)
 
 	ns.vendorNote:SetText(hiddenCount > 0 and (hiddenCount .. ' hidden, already known') or '')
+	-- 3.0 (37): the item level and bind marks of the redrawn slots.
+	if ns.MarkMerchant then ns.MarkMerchant() end
 end
 
 -- Item data arrived (GET_ITEM_INFO_RECEIVED): Blizzard has just painted the quality borders of
@@ -417,4 +462,7 @@ ns.On('PLAYER_LOGIN', function()
 	hooksecurefunc('MerchantFrame_UpdateMerchantInfo', Render)
 	hooksecurefunc('MerchantFrame_UpdateBuybackInfo', Restore)
 	hooksecurefunc('MerchantFrame_UpdateItemQualityBorders', OnItemData)
+	if C.features.stackBuy and MerchantItemButton_OnModifiedClick then
+		hooksecurefunc('MerchantItemButton_OnModifiedClick', BuyStack)
+	end
 end)

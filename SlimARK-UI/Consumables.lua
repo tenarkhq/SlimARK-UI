@@ -57,7 +57,8 @@ end
 
 ns.IsWeaponImbue = IsWeaponImbue
 
-local function Scan()
+-- The consumables in the bags by their subclass, each item once with its count.
+local function Collect()
 	local bySubclass = {}
 	local seen = {}
 	for bag = 0, NUM_TOTAL_EQUIPPED_BAG_SLOTS do
@@ -89,7 +90,11 @@ local function Scan()
 			end
 		end
 	end
+	return bySubclass
+end
 
+local function Scan()
+	local bySubclass = Collect()
 	local picked = {}
 	for _, g in ipairs(cfg.groups) do
 		local list = bySubclass[g.subclass]
@@ -203,5 +208,49 @@ ns.On('PLAYER_LOGIN', function()
 			pending = false
 			Refresh()
 		end
+	end)
+end)
+
+-- 3.0 (40): entering a dungeon, one chat line when fewer than 5 potions or food are in the bags.
+-- The same lists as the bar: of each kind the newest expansion's items count, the ones the bar
+-- shows first. Its own switch, apart from the bar.
+local LOW = 5
+local POTION, FOOD = 1, 5 -- Enum.ItemConsumableSubclass: Potion, FoodAndDrink
+
+local function Newest(list)
+	if not list then return 0 end
+	local newest, count = -1, 0
+	for _, item in ipairs(list) do
+		if item.expansion > newest then newest, count = item.expansion, 0 end
+		if item.expansion == newest then count = count + (item.count or 0) end
+	end
+	return count
+end
+
+local function CheckSupplies()
+	local bySubclass = Collect()
+	local potions, food = Newest(bySubclass[POTION]), Newest(bySubclass[FOOD])
+	local low = {}
+	if potions < LOW then low[#low + 1] = potions .. (potions == 1 and ' potion' or ' potions') end
+	if food < LOW then low[#low + 1] = food .. ' food' end
+	if #low > 0 then ns.Print('Low on supplies: ' .. table.concat(low, ', ') .. '.') end
+end
+ns.CheckSupplies = CheckSupplies
+
+local lastDungeon
+ns.On('PLAYER_LOGIN', function()
+	if not C.features.lowSupplies then return end
+	ns.On('PLAYER_ENTERING_WORLD', function(_, _, reload)
+		local _, kind, _, _, _, _, _, instanceID = GetInstanceInfo()
+		if kind ~= 'party' then
+			lastDungeon = nil
+			return
+		end
+		-- A reload or a new loading screen in the same dungeon is not a new entry.
+		local again = reload or instanceID == lastDungeon
+		lastDungeon = instanceID
+		if again then return end
+		-- The bags are read a moment after the loading screen.
+		C_Timer.After(2, CheckSupplies)
 	end)
 end)
