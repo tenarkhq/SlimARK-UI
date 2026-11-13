@@ -784,6 +784,36 @@ do
 	H.check(#sounds == 0 and not Driver()._events.VIGNETTE_MINIMAP_UPDATED, 'rare off: nothing is registered, nothing sounds')
 end
 
+-- 3.0.2: a click on the text targets the rare; the secure button is made, set and shown out of
+-- combat only.
+do
+	Boot({ 'RareAlert.lua' }, { rareAlert = true })
+	RareClient()
+	vignettes.g5 = { name = 'Ixlorb the Spinner', atlasName = 'VignetteKill', isDead = false }
+	H.fire('PLAYER_LOGIN')
+	H.fire('VIGNETTE_MINIMAP_UPDATED', 'g1', true)
+	local click = _G.SlimARK_RareTarget
+	H.check(click and click:IsShown(), 'rare click: a button over the text')
+	H.equal(click:GetAttribute('type'), 'macro', 'rare click: a secure macro button')
+	H.equal(click:GetAttribute('macrotext'), '/targetexact Kronolith, Might of the Mountain', 'rare click: it targets the rare by its exact name')
+	H.check(FindText('Click: target') ~= nil, 'rare click: the text says so')
+	local text = FindText('Kronolith, Might of the Mountain is up nearby')
+	click:GetScript('PostClick')(click)
+	H.check(not text:GetParent():IsShown() and not click:IsShown(), 'rare click: after the click the text goes')
+	-- In combat: no click until combat ends, then the click for the rare whose text is still up.
+	H.fire('PLAYER_REGEN_DISABLED')
+	H.combat = true
+	H.fire('VIGNETTE_MINIMAP_UPDATED', 'g5', true)
+	H.check(not click:IsShown(), 'rare click: nothing is armed in combat')
+	H.equal(click:GetAttribute('macrotext'), '/targetexact Kronolith, Might of the Mountain', 'rare click: the button is not changed in combat')
+	H.combat = false
+	H.fire('PLAYER_REGEN_ENABLED')
+	H.check(click:IsShown() and click:GetAttribute('macrotext') == '/targetexact Ixlorb the Spinner', 'rare click: after combat it targets the newer rare')
+	H.runTimers(5)
+	H.check(not click:IsShown(), 'rare click: it goes with the text')
+	H.noErrors()
+end
+
 ------------------------------------------------------------------------
 -- 45: world map coordinates.
 ------------------------------------------------------------------------
