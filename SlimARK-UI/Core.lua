@@ -84,9 +84,11 @@ function ns.InEncounter()
 	return inProgress ~= nil and inProgress() == true
 end
 
+-- 3.2: times the UI size of the Size page (100 percent: the size made for the screen).
 function ns.Fit()
 	local width, height = GetPhysicalScreenSize()
-	return math.min(width / BASE_W, height / BASE_H)
+	local size = ns.C.screen and ns.C.screen.size or 100
+	return math.min(width / BASE_W, height / BASE_H) * size / 100
 end
 
 -- The multiplier that makes 1 unit of the frame exactly ns.Fit() physical pixels

@@ -72,6 +72,14 @@ S.groups = {
 				T('Tooltip', 'modules.tooltip'), T('Loot and pop-ups', 'modules.loot'), T('Marker bar', 'modules.markers'), T('Ready check', 'modules.readycheck'),
 				T('Combat text font', 'modules.combatfont'),
 			} } } },
+		-- 3.2: the UI size, and the way back to the Edit Mode layout used before the first Apply.
+		{ id = 'size', name = 'Size', apply = true,
+			desc = 'How big SlimARK draws its frames, text and action bars. 100% is the size made for your screen. Save and reload uses the new size and writes it into the SlimARK-UI Edit Mode layouts.',
+			secs = { { name = 'Size', desc = '70 to 150%. The frames keep their screen edge; at a bigger size a frame you dragged may need a new place in Edit Mode.',
+					rows = { R('UI size', 'screen.size', 70, 150, 5) } },
+				{ name = 'Edit Mode layout', desc = 'Switches Edit Mode back to the layout you used before your first Apply. The SlimARK-UI layouts stay; Apply brings them back.',
+					rows = { { t = 'button', label = 'Back to old layout', text = function() return ns.OldLayoutName and ('Back to ' .. ns.OldLayoutName()) or 'Back to old layout' end,
+						fn = function() if ns.RestoreOldLayout then ns.RestoreOldLayout() end end } } } } },
 		{ id = 'testmode', name = 'Test mode', noReset = true,
 			desc = 'Fills the frames with made-up players so you can see the layout without a group. Combat or a reload ends it. Edit Mode works while it is on, so you can drag the filled frames. Layout opens on your current spec; the other one moves only the SlimARK frames, Blizzard\'s own elements stay where your spec has them.',
 			secs = { { name = 'Show', rows = { { t = 'choice', label = 'Show test mode party raid mythic',
@@ -386,6 +394,11 @@ S.moved = {
 
 -- Shown on the About page, newest first.
 S.changelog = {
+	{ version = '3.2.0', lines = {
+		'General > Size: UI size from 70 to 150%, and a button back to the Edit Mode layout you used before',
+		'Blizzard\'s XP bar is hidden with the top bar XP line, or placed above the action bars without it',
+		'Edit Mode boxes go away when you leave Edit Mode (WoW Forever); side bars sit above Blizzard\'s chat tabs',
+	} },
 	{ version = '3.1.2', lines = {
 		'The SlimARK font has Cyrillic letters: Russian names show in Details!, boss mods, chat and every addon using it',
 	} },

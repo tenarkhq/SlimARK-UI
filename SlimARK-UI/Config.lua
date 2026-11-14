@@ -22,6 +22,9 @@ ns.C = {
 	-- Raised when /slimark apply has new positions to write (Edit Mode, boss mods).
 	version = 3,
 
+	-- 3.2: how big SlimARK draws everything, in percent of the size made for the screen (ns.Fit).
+	screen = { size = 100 },
+
 	colors = {
 		track = { 0.137, 0.145, 0.169 },
 		-- Gold accent of the UI, also the paladin's holy power (his choice over ElvUI's yellow).

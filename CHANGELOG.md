@@ -1,5 +1,18 @@
 # Changelog
 
+## 3.2.0
+
+Size:
+
+- New page General › Size. UI size makes every SlimARK frame, text and action bar bigger or smaller, from 70 to 150% of the size made for your screen. 100% is the size so far, so nothing changes until you move it. Save and reload uses it and writes it into the SlimARK-UI Edit Mode layouts
+- A button on the same page switches Edit Mode back to the layout you used before your first Apply (Blizzard's Modern layout when that is not known). The SlimARK-UI layouts stay, and Apply brings them back
+
+Fixes:
+
+- Blizzard's XP and reputation bars no longer sit on the bottom action bar row. With the top bar's XP line on (the default) they are hidden, the line shows the same; with the line off, Apply places them above the bottom three action bar rows, as wide as one row
+- The blue Edit Mode boxes of the SlimARK frames go away when you leave Edit Mode in WoW Forever too, not only after a reload
+- Without Chattynator, Apply puts the action bars that sit above the chat above Blizzard's chat tabs, so a faded bar no longer covers the tabs and they can be clicked again. With Chattynator they stay where they were
+
 ## 3.1.2
 
 - The SlimARK font has Cyrillic letters now, so Russian names no longer show as boxes in Details!, the boss mods, the chat and every other addon that uses the SlimARK font. The letters come from Roboto Condensed (SIL Open Font License, like the SlimARK font itself), scaled to the SlimARK font's height and width. On SlimARK's own frames Russian names now look like the rest of the text

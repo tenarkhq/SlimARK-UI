@@ -1119,6 +1119,13 @@ local function Build()
 
 	-- 3.0 (35): the XP/reputation line, over the bottom edge of the bar.
 	if show.xp then
+		-- 3.2: the line takes the place of Blizzard's XP and reputation bars, which sat on the
+		-- bottom action bar row. The same two calls Dominos and NDui use; without the line
+		-- they stay, placed above the action bars by the Edit Mode layout.
+		if StatusTrackingBarManager then
+			StatusTrackingBarManager:UnregisterAllEvents()
+			StatusTrackingBarManager:Hide()
+		end
 		BuildXPLine()
 		Listen({ 'PLAYER_XP_UPDATE', 'PLAYER_LEVEL_UP', 'UPDATE_EXHAUSTION', 'UPDATE_FACTION', 'MAJOR_FACTION_RENOWN_LEVEL_CHANGED',
 			'ENABLE_XP_GAIN', 'DISABLE_XP_GAIN' }, UpdateXP)

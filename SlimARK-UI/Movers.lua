@@ -175,9 +175,28 @@ local function HideOverlays()
 	for _, overlay in pairs(overlays) do overlay:Hide() end
 end
 
+-- 3.2: Blizzard sends EditMode.Exit at the end of its exit code, so an error in that code (seen in
+-- WoW Forever) leaves our overlays on screen. While Edit Mode is open a small watcher also checks
+-- the Edit Mode window and hides them as soon as it is closed, however it was closed.
+local watcher = CreateFrame('Frame')
+watcher:Hide()
+watcher:SetScript('OnUpdate', function(self)
+	local manager = EditModeManagerFrame
+	if not (manager and manager:IsShown()) then
+		self:Hide()
+		HideOverlays()
+	end
+end)
+
 ns.On('PLAYER_LOGIN', function()
-	EventRegistry:RegisterCallback('EditMode.Enter', ShowOverlays, ns)
-	EventRegistry:RegisterCallback('EditMode.Exit', HideOverlays, ns)
+	EventRegistry:RegisterCallback('EditMode.Enter', function()
+		ShowOverlays()
+		watcher:Show()
+	end, ns)
+	EventRegistry:RegisterCallback('EditMode.Exit', function()
+		watcher:Hide()
+		HideOverlays()
+	end, ns)
 end)
 
 -- The Blizzard FPS display would sit next to the micro menu, it belongs at the top center.

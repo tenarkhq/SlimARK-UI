@@ -297,7 +297,7 @@ do
 	local ns = Boot(nil)
 	local S = ns.Settings
 	ns.OpenSettings()
-	local counts = { General = '4', ['Unit frames'] = '7', Group = '3', Combat = '11', Interface = '11', ['Addon skins'] = '4', ['Quality of life'] = '6' }
+	local counts = { General = '5', ['Unit frames'] = '7', Group = '3', Combat = '11', Interface = '11', ['Addon skins'] = '4', ['Quality of life'] = '6' }
 	local ok = true
 	for _, group in ipairs(S.groups) do
 		local tab = Tab(group.name)

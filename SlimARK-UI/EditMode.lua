@@ -8,6 +8,8 @@ local INDEX_ENUMS = {
 	AuraFrame = 'EditModeAuraFrameSystemIndices',
 	-- 3.0 (19): the boss timeline and its warning rows.
 	EncounterEvents = 'EditModeEncounterEventsSystemIndices',
+	-- 3.2: Blizzard's XP bar (1) and reputation bar (2).
+	StatusTrackingBar = 'EditModeStatusTrackingBarSystemIndices',
 }
 
 local function Find(layout, systemName, indexName)
@@ -60,10 +62,29 @@ local function StyleBar(info, percent)
 	Set(info, S.IconPadding, cfg.bars.padding)
 end
 
+-- 3.2: where the side bars start. sideBottom sits just above the Chattynator window SlimARK places
+-- (C.chat). With Blizzard's own chat the tabs above the chat frame reach higher, and a bar there
+-- (even a faded one, which still takes the mouse) covers them; the bars then start above the tabs.
+local TAB_HEIGHT, TAB_SLACK = 32, 4
+
+local function SideBottom()
+	if C_AddOns.IsAddOnLoaded('Chattynator') then return cfg.sideBottom end
+	local chat = ChatFrame1
+	if not chat then return cfg.sideBottom end
+	local tab = _G.ChatFrame1Tab
+	local units = chat:GetHeight() + (tab and tab:GetHeight() or TAB_HEIGHT) + TAB_SLACK
+	local chatBottom = 1588
+	for _, entry in ipairs(cfg.systems) do
+		if entry[1] == 'ChatFrame' then chatBottom = entry[5] end
+	end
+	return math.min(cfg.sideBottom, chatBottom - units / ns.Scale() - cfg.bars.padding)
+end
+
 local function ArrangeBars(layout)
 	local b = cfg.bars
 	local percent = IconPercent(b.size)
 	local rowHeight = (45 * percent / 100 + b.padding) / ns.Scale()
+	local sideBottom = SideBottom()
 
 	-- The enabled bars come first, the disabled ones behind them.
 	local order = {}
@@ -85,7 +106,7 @@ local function ArrangeBars(layout)
 			if i <= cfg.centerRows then
 				Move(info, 'BOTTOM', b.center, b.bottom - (i - 1) * rowHeight)
 			else
-				Move(info, 'BOTTOMLEFT', cfg.sideX, cfg.sideBottom - (i - cfg.centerRows - 1) * rowHeight, 'LEFT')
+				Move(info, 'BOTTOMLEFT', cfg.sideX, sideBottom - (i - cfg.centerRows - 1) * rowHeight, 'LEFT')
 			end
 		end
 	end
@@ -101,6 +122,31 @@ local function ArrangeBars(layout)
 		if info then
 			Set(info, Enum.EditModeActionBarSetting.IconSize, (percent - 50) / 10)
 			Set(info, Enum.EditModeActionBarSetting.IconPadding, b.padding)
+		end
+	end
+end
+
+-- 3.2: Blizzard's XP and reputation bars. With the top bar's XP line on they are hidden (DataBar.lua),
+-- so they are left alone. Without it they go above the bottom center rows, as wide as one row: the
+-- Size setting (50 to 130 percent of 571 units) closest to the row width, so they cover no button.
+local STATUS_W, STATUS_H = 571, 17
+
+local function PlaceStatusBars(layout)
+	if C.modules.databar and C.databar.show.xp then return end
+	local b = cfg.bars
+	local unit = ns.Scale()
+	local rowHeight = (45 * IconPercent(b.size) / 100 + b.padding) / unit
+	local rowWidth = 12 * b.size + 11 * b.padding
+	local percent = rowWidth * unit / STATUS_W * 100
+	percent = math.max(50, math.min(130, math.floor(percent / 5 + 0.5) * 5))
+	local height = STATUS_H * percent / 100 / unit
+	local y = b.bottom - cfg.centerRows * rowHeight - b.padding
+	for _, index in ipairs({ 'StatusTrackingBar1', 'StatusTrackingBar2' }) do
+		local info = Find(layout, 'StatusTrackingBar', index)
+		if info then
+			Set(info, Enum.EditModeStatusTrackingBarSetting.Size, (percent - 50) / 5)
+			Move(info, 'BOTTOM', b.center, y)
+			y = y - height - b.padding
 		end
 	end
 end
@@ -251,11 +297,18 @@ function ns.ApplyEditMode(onlyNew)
 	for _, name in ipairs(onlyNew and created or { cfg.name, cfg.healName }) do
 		local layout = all[IndexOf(all, name)]
 		ArrangeBars(layout)
+		PlaceStatusBars(layout)
 		ArrangeSystems(layout)
 		if name == cfg.healName then PlaceSystems(layout, cfg.healSystems) end
 		-- 3.0 (19, 20): Blizzard's boss timeline and damage meter, each by its own switch.
 		if C.features.encounterLayout then ArrangeEncounter(layout) end
 		if C.features.damageMeter then ArrangeDamageMeter(layout) end
+	end
+
+	-- 3.2: the layout in use before ours, for the Size page's way back. Kept once, per character.
+	local before = all[info.activeLayout]
+	if ns.CharDB and before and before.layoutName ~= cfg.name and before.layoutName ~= cfg.healName then
+		ns.CharDB.oldLayout = before.layoutName
 	end
 
 	C_EditMode.SaveLayouts(info)
@@ -294,3 +347,31 @@ ns.On('PLAYER_LOGIN', function()
 		usesOurs = IsOurs(all[info.activeLayout])
 	end, ns)
 end)
+
+-- 3.2: the Size page's way back to the layout used before the first Apply. Blizzard's Modern preset
+-- (the first in the list) when that is not known or no longer there. Our layouts stay.
+-- Any layout by name, Blizzard's presets (Modern, Classic) too.
+local function AnyIndexOf(layouts, name)
+	for i, layout in ipairs(layouts) do
+		if layout.layoutName == name then return i end
+	end
+end
+
+function ns.OldLayoutName()
+	local _, all = AllLayouts()
+	local name = ns.CharDB and ns.CharDB.oldLayout
+	if name and AnyIndexOf(all, name) then return name end
+	return all[1] and all[1].layoutName or 'Modern'
+end
+
+function ns.RestoreOldLayout()
+	if InCombatLockdown() then
+		ns.Print('Not in combat.')
+		return
+	end
+	local _, all = AllLayouts()
+	local index = AnyIndexOf(all, ns.OldLayoutName()) or 1
+	C_EditMode.SetActiveLayout(index)
+	usesOurs = false
+	ns.Print('Edit Mode layout: ' .. (all[index].layoutName or '?') .. '. /slimark apply brings the SlimARK-UI layout back.')
+end

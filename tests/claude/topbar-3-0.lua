@@ -199,6 +199,23 @@ do
 	H.check(Seg('alts') == nil and not Registered('PLAYER_LOGOUT'), '31 Alts off: no segment, no events')
 end
 
+-- 3.2: the XP line takes the place of Blizzard's XP and reputation bars; without it they stay.
+do
+	local function Manager()
+		local m = { shown = true }
+		function m:UnregisterAllEvents() self.unregistered = true end
+		function m:Hide() self.shown = false end
+		return m
+	end
+	StatusTrackingBarManager = Manager()
+	BootBar()
+	H.check(StatusTrackingBarManager.unregistered and not StatusTrackingBarManager.shown, 'xp line: Blizzard\'s XP bar is hidden')
+	StatusTrackingBarManager = Manager()
+	BootBar(function(C) C.databar.show.xp = false end)
+	H.check(not StatusTrackingBarManager.unregistered and StatusTrackingBarManager.shown, 'xp line off: Blizzard\'s XP bar stays')
+	StatusTrackingBarManager = nil
+end
+
 ------------------------------------------------------------------------
 -- 31: Alts. The store sits beside the gold entry and keeps both writers' fields.
 ------------------------------------------------------------------------
