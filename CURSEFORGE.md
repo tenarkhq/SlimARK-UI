@@ -50,7 +50,7 @@ Every part below has its own switch in `/slimark`. A part that is switched off d
 Every element has its own switch. Of the new ones Alts, the addon CPU and the XP or reputation line are on by default.
 
 - **Alts:** item level, keystone, Great Vault, score and gold of each of your characters, crests on hover
-- Spec and loadout, friends and guild, addon CPU, this week in the Great Vault, quiet mode, and a thin XP or reputation line that takes no room (no XP at max level, no line without a watched faction)
+- Spec and loadout, friends and guild, addon CPU, this week in the Great Vault, quiet mode, and a thin XP or reputation line that takes no room (no XP at max level, no line without a watched faction). With the line on, Blizzard's own XP and reputation bars are hidden; with it off they sit above the action bars
 
 ![Top bar with the new elements](https://raw.githubusercontent.com/tenarkhq/SlimARK-UI/f51537f066546a7e4a5338275e1383e7c224e0ad/assets/feature-3-0-topbar.png)
 
@@ -296,6 +296,7 @@ The game's own floating combat text uses the SlimARK font, so the numbers match 
 - **Short hotkeys:** the modifier is a small gold letter in front of the key, `sT` for Shift-T; macro names are hidden
 - **Cooldowns** count down in large SlimARK numbers under a dark cover; the global cooldown gets a lighter cover
 - **Fade:** out of combat the bars above the bottom three rows fade away and come back in combat, with a target, under the mouse or while you drag a spell
+- The bars above the bottom three rows sit above the chat: above the Chattynator window, or above Blizzard's chat tabs without Chattynator
 - Every part has its own switch on the Action bars page
 
 ## Less noise
@@ -453,6 +454,7 @@ A flat, 26 pixel bar on the top row of the screen, over the whole width. Everyth
 - Everything around your character stays together in the middle, on ultrawide too
 - Thin borders stay one sharp pixel on every screen
 - Frames you dragged in Edit Mode keep their place
+- **UI size** on the General › Size page: 70 to 150% of the size made for your screen, if you want everything bigger or smaller. The same page has a button back to the Edit Mode layout you used before your first Apply
 
 ## Settings panel
 
